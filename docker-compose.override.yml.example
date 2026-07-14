@@ -1,0 +1,52 @@
+# docker-compose.override.yml.example
+# ============================================================
+# SALIN file ini menjadi: docker-compose.override.yml
+# File tersebut TIDAK akan di-commit ke Git (.gitignore)
+# Gunakan file ini untuk menyetel environment produksi lokal.
+# ============================================================
+
+version: '3.8'
+
+services:
+  sso-portal:
+    environment:
+      # ── Aplikasi ──────────────────────────────────────────
+      - APP_KEY=
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - APP_URL=https://domain-anda.com
+
+      # ── Database ──────────────────────────────────────────
+      - DB_CONNECTION=mysql
+      - DB_HOST=127.0.0.1
+      - DB_PORT=3306
+      - DB_DATABASE=nama_database
+      - DB_USERNAME=username_db
+      - DB_PASSWORD=password_db
+
+      # ── Session ───────────────────────────────────────────
+      - SESSION_DRIVER=database
+
+      # ── Google OAuth ──────────────────────────────────────
+      - GOOGLE_CLIENT_ID=
+      - GOOGLE_CLIENT_SECRET=
+      - GOOGLE_REDIRECT_URI=
+
+      # ── Google reCAPTCHA Enterprise ───────────────────────
+      - RECAPTCHA_SITE_KEY=
+      - RECAPTCHA_PROJECT_ID=
+      - RECAPTCHA_API_KEY=
+
+      # ── Redis (Opsional) ──────────────────────────────────
+      - REDIS_HOST=127.0.0.1
+      - REDIS_PASSWORD=
+      - REDIS_PORT=6379
+
+      # ── Mail ──────────────────────────────────────────────
+      - MAIL_MAILER=smtp
+      - MAIL_HOST=smtp.mailtrap.io
+      - MAIL_PORT=587
+      - MAIL_USERNAME=
+      - MAIL_PASSWORD=
+      - MAIL_FROM_ADDRESS=noreply@domain-anda.com
+      - MAIL_FROM_NAME="SSO Sekolah"

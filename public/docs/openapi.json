@@ -1,0 +1,286 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Portal SSO Sekolah Terpusat - API Docs",
+    "description": "Dokumentasi API untuk ekosistem Single Sign-On (SSO) sekolah. Berisi detail otentikasi pengguna, verifikasi data akademik (klaim akun), login OAuth Google, dan alur integrasi JIT Provisioning menggunakan JSON Web Token (JWT).",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/api/v1",
+      "description": "SSO API Gateway v1"
+    }
+  ],
+  "paths": {
+    "/otentikasi": {
+      "post": {
+        "summary": "Masuk / Login Pengguna",
+        "description": "Mengotentikasi surel dan kata sandi pengguna untuk masuk ke portal SSO.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "siswa@sekolah.sch.id",
+                    "description": "Alamat surel resmi yang terdaftar."
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "P@ssw0rd123!",
+                    "description": "Kata sandi akun."
+                  },
+                  "remember": {
+                    "type": "boolean",
+                    "example": true,
+                    "description": "Ingat sesi masuk (24 jam jika true, 12 jam jika false)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Otentikasi Berhasil. Pengguna dialihkan ke halaman utama/tujuan."
+          },
+          "422": {
+            "description": "Validasi Gagal (Password salah, Akun dinonaktifkan, atau format surel tidak sesuai).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errors": {
+                      "type": "object",
+                      "properties": {
+                        "email": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "example": "Akun Anda belum diklaim. Silakan verifikasi/klaim akun Anda terlebih dahulu."
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Terlalu banyak percobaan masuk (Rate Limit aktif)."
+          }
+        }
+      }
+    },
+    "/otentikasi/cek-identitas": {
+      "post": {
+        "summary": "Tahap 1 Verifikasi: Cek Kredensial Akademik",
+        "description": "Memeriksa keberadaan dan keselarasan data NIK, NIP/NISN, dan Tanggal Lahir di database untuk persiapan verifikasi (klaim) akun.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["jenis_pengguna", "nik", "nip_nis", "tgl_lahir"],
+                "properties": {
+                  "jenis_pengguna": {
+                    "type": "string",
+                    "enum": ["Siswa", "Guru"],
+                    "example": "Siswa"
+                  },
+                  "nik": {
+                    "type": "string",
+                    "maxLength": 16,
+                    "minLength": 16,
+                    "example": "3201234567890123",
+                    "description": "16 digit Nomor Induk Kependudukan."
+                  },
+                  "nip_nis": {
+                    "type": "string",
+                    "description": "Nomor Induk Siswa Nasional (10 digit untuk Siswa) atau Nomor Induk Pegawai (18 digit untuk Guru).",
+                    "example": "0098765432"
+                  },
+                  "tgl_lahir": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2008-05-17",
+                    "description": "Format YYYY-MM-DD."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Data valid dan terverifikasi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "email": {
+                      "type": "string",
+                      "example": "siswa@sekolah.sch.id",
+                      "description": "Surel terdaftar di database untuk mempermudah auto-fill di Tahap 2."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Data tidak valid (tidak terdaftar, tidak selaras, atau salah tanggal lahir).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "errors": {
+                      "type": "object",
+                      "properties": {
+                        "nik": {
+                          "type": "string",
+                          "example": "Data NIK tidak selaras dengan nomor induk (NISN) di database."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Terlalu banyak percobaan (maksimal 10 kali per menit)."
+          }
+        }
+      }
+    },
+    "/otentikasi/verifikasi": {
+      "post": {
+        "summary": "Tahap 2 Verifikasi: Aktivasi Akun & Password",
+        "description": "Menyelesaikan klaim akun dengan menetapkan surel kontak dan kata sandi baru.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["nik", "nip_nis", "tgl_lahir", "email", "password", "password_confirmation"],
+                "properties": {
+                  "nik": {
+                    "type": "string",
+                    "example": "3201234567890123"
+                  },
+                  "nip_nis": {
+                    "type": "string",
+                    "example": "0098765432"
+                  },
+                  "tgl_lahir": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2008-05-17"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "siswa@sekolah.sch.id"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "SandiBaru#2026",
+                    "description": "Wajib memenuhi standar modern (min 8 karakter, huruf besar, kecil, angka, dan simbol)."
+                  },
+                  "password_confirmation": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "SandiBaru#2026"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "303": {
+            "description": "Akun berhasil diaktivasi. Pengguna dialihkan ke halaman login utama dengan pesan sukses."
+          },
+          "422": {
+            "description": "Validasi password atau surel gagal.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errors": {
+                      "type": "object",
+                      "properties": {
+                        "password": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "example": "Kata sandi minimal harus 8 karakter."
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/google": {
+      "get": {
+        "summary": "Login / Link via Google OAuth",
+        "description": "Mengalihkan navigasi browser ke Google untuk proses otentikasi login.",
+        "responses": {
+          "302": {
+            "description": "Pengalihan ke server Google."
+          }
+        }
+      }
+    },
+    "/logout": {
+      "post": {
+        "summary": "Keluar dari Sesi Portal",
+        "description": "Menghapus sesi otentikasi pengguna saat ini.",
+        "responses": {
+          "302": {
+            "description": "Berhasil keluar sesi, diarahkan kembali ke halaman login."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "SSO_JWT": {
+        "type": "apiKey",
+        "name": "token",
+        "in": "query",
+        "description": "Token JWT yang dikirimkan oleh SSO ke URL Callback aplikasi terdaftar setelah otentikasi berhasil."
+      }
+    }
+  }
+}

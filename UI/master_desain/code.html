@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Integr. - SSO Login</title>
+<!-- Tailwind CSS v3 CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style data-purpose="typography">
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
+<style data-purpose="custom-colors">
+    :root {
+      --integr-orange: #FF4D12;
+      --integr-dark: #000000;
+      --integr-bg: #F3EEED;
+    }
+    .bg-integr-orange { background-color: var(--integr-orange); }
+    .text-integr-orange { color: var(--integr-orange); }
+    .border-integr-orange { border-color: var(--integr-orange); }
+  </style>
+</head>
+<body class="bg-[#F3EEED] min-h-screen flex items-center justify-center p-4 md:p-8">
+<!-- BEGIN: MainContainer -->
+<main class="bg-white w-full max-w-7xl min-h-[85vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col relative">
+<!-- BEGIN: MainHeader -->
+<header class="flex items-center justify-between px-8 py-6 z-20">
+<!-- Logo Section -->
+<div class="flex items-center gap-2" data-purpose="brand-logo">
+<div class="w-8 h-8 bg-integr-orange flex items-center justify-center">
+<div class="w-4 h-4 bg-white"></div>
+</div>
+<span class="font-bold text-xl tracking-tight">Integr.</span>
+</div>
+<!-- Navigation Desktop -->
+<nav class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
+<a class="hover:text-black" href="#">Platform</a>
+<a class="hover:text-black" href="#">Solutions</a>
+<a class="hover:text-black" href="#">Pricing</a>
+<a class="hover:text-black" href="#">Resources</a>
+</nav>
+<!-- Auth Actions -->
+<div class="flex items-center gap-4">
+<a class="text-sm font-semibold" href="#">Masuk</a>
+<a class="bg-black text-white px-6 py-2 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors" href="#">Daftar</a>
+</div>
+</header>
+<!-- END: MainHeader -->
+<!-- BEGIN: ContentLayout - Rearranged into 2 large columns -->
+<div class="flex-grow flex flex-col lg:flex-row relative">
+<!-- Left Column: Logo, Hero Text, & Login Form (approx 45%) -->
+<div class="lg:w-[45%] flex flex-col justify-center px-8 lg:px-16 py-12 z-10">
+<div class="flex items-center gap-2 mb-6">
+<span class="text-[10px] font-bold tracking-widest uppercase">THE AI-READY IPAAS</span>
+<span class="bg-gray-200 text-[10px] px-2 py-0.5 rounded-full font-bold">NEW!</span>
+</div>
+<h1 class="text-5xl lg:text-6xl font-bold leading-tight mb-6">
+          Advanced<br/>Integrated<br/>Data Service
+        </h1>
+<p class="text-gray-500 text-sm max-w-sm mb-10 leading-relaxed">
+          Integrasi data, pencadangan, pengelolaan, dan konektivitas. Tingkatkan performa pemasaran Anda dengan mengotomatiskan integrasi.
+        </p>
+<!-- BEGIN: LoginForm -->
+<div class="max-w-md space-y-4" data-purpose="sso-login-form">
+<div>
+<label class="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider" for="username">Nama Pengguna</label>
+<input class="w-full border-gray-200 rounded-lg focus:ring-integr-orange focus:border-integr-orange py-3" id="username" placeholder="user@company.com" type="text"/>
+</div>
+<div>
+<label class="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider" for="password">Kata Sandi</label>
+<input class="w-full border-gray-200 rounded-lg focus:ring-integr-orange focus:border-integr-orange py-3" id="password" placeholder="••••••••" type="password"/>
+</div>
+<button class="w-full bg-black text-white font-bold py-4 px-8 rounded-lg hover:bg-gray-800 transition-all text-sm uppercase tracking-widest mt-2">
+            Mulai Sekarang
+          </button>
+</div>
+<!-- END: LoginForm -->
+</div>
+<!-- Right Column: Illustration & Stats (approx 55%) -->
+<div class="lg:w-[55%] relative flex flex-col">
+<!-- Background Shape -->
+<div class="absolute inset-y-0 right-0 w-full bg-integr-orange lg:rounded-l-[4rem] z-0"></div>
+<div class="relative z-10 flex flex-col h-full p-8 lg:p-12 text-white">
+<!-- Illustration Area -->
+<div class="flex-grow flex items-center justify-center py-10">
+<img alt="Data Infrastructure Illustration" class="w-full max-w-lg h-auto object-contain drop-shadow-2xl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCL93x5Te-294c6o7EOqtDQz5MdJq9kuFmsGF6krkLI91NmnBslGmhaPBB_rPnCoFcVrP5nVQQsI090zsURu8RK1R0EAa24-koL1pulCP2OQJ65S7mkVpl3VXU9lUIlDo6jYk7i2drSylsMLGsSNEOuSP7eV4RsG-gJ98dTRHPqTVykM4fJtHcu2W8nuVTrP9UpcBfddYZTunUiP8_CQxawML6_ym-HyLlaB3jjZCOsMRcyXW4IvYhHhWL4D5IqHI13N4-6ollL7Fc"/>
+</div>
+<!-- Business Value Metrics -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-white/20 pt-8">
+<div class="space-y-2">
+<div class="flex items-baseline gap-1">
+<span class="text-5xl font-bold">4.8</span>
+<span class="text-xl opacity-60">/5</span>
+</div>
+<p class="text-xs font-medium leading-relaxed max-w-[240px] opacity-90">
+                G2 mengakui Skyvia sebagai Pemimpin alat ETL Musim Semi 2025.
+              </p>
+</div>
+<div class="space-y-2">
+<div class="flex items-baseline gap-1">
+<span class="text-5xl font-bold">4.9</span>
+<span class="text-xl opacity-60">/5</span>
+</div>
+<p class="text-xs font-medium leading-relaxed max-w-[240px] opacity-90">
+                96% pelanggan bersedia merekomendasikan Skyvia.
+              </p>
+</div>
+</div>
+<div class="mt-8 flex justify-end">
+<a class="inline-flex items-center gap-2 font-bold text-sm border-b-2 border-white pb-1 hover:gap-3 transition-all" href="#">
+              Pelajari lebih lanjut <span>→</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+<!-- END: ContentLayout -->
+</main>
+<!-- END: MainContainer -->
+</body></html>

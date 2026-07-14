@@ -1,0 +1,97 @@
+========================================================================
+TUTORIAL LENGKAP INSTALASI SSO PORTAL (SOP DEPLOYMENT)
+========================================================================
+
+Dokumen ini adalah Standar Operasional Prosedur (SOP) langkah demi langkah 
+untuk melakukan instalasi aplikasi di berbagai lingkungan. Harap ikuti 
+urutan instruksi dengan ketat agar instalasi berjalan mulus tanpa error.
+
+------------------------------------------------------------------------
+BAGIAN 1: INSTALASI DI SHARED HOSTING / aaPANEL (ONLINE)
+------------------------------------------------------------------------
+Panduan jika Anda mengunggah (upload) manual ke panel hosting.
+
+[ TAHAP PERSIAPAN DI KOMPUTER LOKAL ]
+1. Jalankan perintah `npm run build` di terminal lokal Anda untuk mengkompilasi aset.
+2. WAJIB: Masuk ke folder `public/`, cari dan HAPUS file bernama `hot` (jika ada). File ini akan menyebabkan layar blank putih di server produksi jika ikut terunggah!
+3. Kompres (Zip) seluruh folder proyek. Pastikan folder `vendor` dan `public/build` ikut terkompres ke dalam file zip.
+
+[ TAHAP PENGATURAN PANEL HOSTING ]
+4. Ekstrak file zip ke direktori hosting Anda (misal: `/www/wwwroot/sso-v2`).
+5. Arahkan Document Root (Site Directory) situs Anda ke folder `/public` (BUKAN ke root folder proyek).
+6. WAJIB: MATIKAN fitur `open_basedir`. Di aaPanel, masuk ke menu Site Directory dan hilangkan centang "Anti-XSS attack (Base directory limit)". Jika tidak dimatikan, akan terjadi error "restriction in effect" pada file vendor.
+7. Opsional: Jika masih ada file `.user.ini` bawaan hosting yang tersembunyi di root proyek, hapus file tersebut.
+
+[ TAHAP KONFIGURASI .ENV ]
+8. Salin file `.env.example` menjadi `.env`.
+9. Edit file `.env` dan lakukan pengaturan berikut:
+   - `APP_ENV=production`
+   - `APP_DEBUG=false`
+   - `APP_URL=https://domain-anda.com`
+   - Masukkan kredensial database (DB_DATABASE, DB_USERNAME, DB_PASSWORD).
+10. WAJIB SEMENTARA: Ubah `SESSION_DRIVER=database` menjadi `SESSION_DRIVER=file`. Ini mencegah error "tabel sessions tidak ditemukan" saat pertama kali halaman web diakses.
+11. Jika Anda belum menyetel password Redis di hosting, NONAKTIFKAN redis dengan mengubah:
+    - `CACHE_STORE=file`
+    - `QUEUE_CONNECTION=database`
+    *(Atau isikan password yang benar pada `REDIS_PASSWORD` jika Anda menggunakannya).*
+12. Salin nilai `APP_KEY=...` dari .env lokal Anda lalu paste ke .env hosting (agar Anda tidak perlu repot men-generate kunci lewat terminal).
+
+[ TAHAP EKSEKUSI WIZARD SETUP ]
+13. Buka peramban (browser) dan kunjungi: `https://domain-anda.com/setup`
+14. Halaman Web Setup akan terbuka. Klik tombol "Mulai Jalankan Instalasi" dan tunggu prosesnya.
+15. TAHAP AKHIR: Setelah instalasi berhasil, buka kembali file `.env` Anda dan ubah `SESSION_DRIVER=file` KEMBALI menjadi `SESSION_DRIVER=database` agar sesi tercatat secara profesional. Selesai!
+
+
+------------------------------------------------------------------------
+BAGIAN 2: INSTALASI DI VPS LINUX (TERMINAL MANUAL)
+------------------------------------------------------------------------
+Panduan jika Anda menginstal langsung via SSH di VPS murni (Ubuntu/Debian).
+
+1. Kloning Repositori:
+   $ git clone <url-repo-anda> /var/www/sso
+   $ cd /var/www/sso
+
+2. Kompilasi Aset & Pustaka:
+   $ composer install --optimize-autoloader --no-dev
+   $ npm install
+   $ npm run build
+   $ rm -f public/hot
+
+3. Hak Akses Folder (Wajib agar tidak error permission):
+   $ chown -R www-data:www-data /var/www/sso
+   $ chmod -R 775 /var/www/sso/storage
+   $ chmod -R 775 /var/www/sso/bootstrap/cache
+
+4. Konfigurasi Awal:
+   $ cp .env.example .env
+   $ nano .env (Isikan DB, APP_URL, set SESSION_DRIVER=file, dll)
+   $ php artisan key:generate
+
+5. Eksekusi Instalasi:
+   - Konfigurasi VirtualHost Nginx/Apache untuk mengarah ke `/var/www/sso/public`.
+   - Buka `https://domain-vps-anda.com/setup` di browser dan jalankan instalasi.
+   - Kembalikan `SESSION_DRIVER=database` di .env setelah sukses.
+
+
+------------------------------------------------------------------------
+BAGIAN 3: INSTALASI VIA DOCKER (EASY INSTALL - LOKAL/SERVER)
+------------------------------------------------------------------------
+Gunakan panduan ini jika Anda ingin menjalankan aplikasi secara utuh menggunakan Docker (Sudah *All-in-One*).
+
+1. Jika menggunakan Windows (PowerShell):
+   - Buka PowerShell di folder proyek.
+   - Ketik: `.\setup-docker.ps1`
+
+2. Jika menggunakan macOS / Linux (Terminal):
+   - Buka Terminal di folder proyek.
+   - Ketik: `chmod +x setup-docker.sh && ./setup-docker.sh`
+
+Keterangan: 
+Skrip akan otomatis menyalin .env, menginstal komposer & Node.js, mengkompilasi file frontend, dan men-generate key aplikasi di dalam kontainer.
+Setelah skrip selesai berjalan, langsung buka browser Anda ke:
+http://localhost:8000/setup
+untuk menekan tombol instalasi database. Selesai!
+
+========================================================================
+END OF DOCUMENT
+========================================================================

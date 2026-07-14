@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  # Unified Web Server (PHP-FPM, Nginx, Node.js)
+  sso-portal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sso_portal_app
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+      - "5173:5173"
+    volumes:
+      - .:/var/www
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+    networks:
+      - sso-network
+
+# Networks definition
+networks:
+  sso-network:
+    driver: bridge
