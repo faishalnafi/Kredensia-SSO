@@ -9,8 +9,9 @@ Aplikasi ini dibangun menggunakan arsitektur *Monolith* bergaya *Single Page App
 ### 1.1 Persyaratan Sistem (System Requirements)
 - **PHP**: `^8.2` (Wajib mendukung strict_types).
 - **Node.js**: `v18.x` atau lebih baru.
-- **Database**: `SQLite` (untuk testing/lokal) atau `MySQL/MariaDB` (Produksi).
-- **Web Server**: `Nginx` atau `Apache` (dengan ekstensi PHP-FPM).
+- **Database Utama**: `MySQL/MariaDB` (Direkomendasikan), `PostgreSQL` (`^13.x`), atau `SQLite` (lokal/testing).
+- **Cache & Session Stores**: `Redis` (`^7.x`), `MongoDB` (melalui `mongodb/laravel-mongodb`), atau `Amazon DynamoDB` (via AWS SDK).
+- **Web Server**: `NGINX`, `Apache HTTP Server`, `LiteSpeed (LSWS)`, `Microsoft IIS (Internet Information Services)`, atau `Caddy`.
 
 ### 1.2 Versi Pustaka Utama (Dependencies)
 | Kategori | Paket / Pustaka | Versi | Peran |
@@ -23,6 +24,7 @@ Aplikasi ini dibangun menggunakan arsitektur *Monolith* bergaya *Single Page App
 | | `tailwindcss` | `^3.2.1` | Framework CSS Utility-first. |
 | | `vite` | `^4.0.0` | Bundler aset (menggantikan Webpack). |
 | **Security**| `Http::post` (REST API)| `N/A` | Google reCAPTCHA Enterprise Validation (Tanpa SDK berat). |
+
 
 ---
 

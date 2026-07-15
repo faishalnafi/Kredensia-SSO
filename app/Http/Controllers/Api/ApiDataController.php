@@ -2,6 +2,15 @@
 
 declare(strict_types=1);
 
+/**
+ * ============================================================
+ * SSO Sekolah - Portal Otentikasi Terpusat
+ * Versi    : v1.0.0 | Production | Community Edition
+ * Lisensi  : Open Source - Bebas Dikembangkan
+ * Besutan  : Faishal Nafi Network (https://faishalnafi.com)
+ * ============================================================
+ */
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;

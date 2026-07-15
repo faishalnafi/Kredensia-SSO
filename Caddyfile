@@ -1,0 +1,74 @@
+# ============================================================
+# SSO Sekolah — Caddy Configuration (Caddyfile)
+# Besutan  : Faishal Nafi Network (https://faishalnafi.com)
+# Versi    : v1.0.0 | Compatible: Caddy 2.7+
+#
+# Cara Penggunaan:
+#   1. Install Caddy: https://caddyserver.com/docs/install
+#   2. Ganti "your-sso-domain.com" dengan domain Anda
+#   3. Ganti path /var/www/html dengan root proyek Anda
+#   4. Jalankan: caddy run --config Caddyfile
+#
+# Keunggulan Caddy:
+#   - HTTPS otomatis via Let's Encrypt (tanpa konfigurasi SSL manual)
+#   - HTTP/2 & HTTP/3 (QUIC) bawaan
+# ============================================================
+
+your-sso-domain.com {
+
+    # ── Root Direktori ke folder public Laravel ───────────────
+    root * /var/www/html/public
+
+    # ── Aktifkan PHP via FastCGI ──────────────────────────────
+    php_fastcgi 127.0.0.1:9000
+
+    # ── Aktifkan Serving File Statis ─────────────────────────
+    file_server
+
+    # ── Routing: Fallback ke index.php (Front Controller) ────
+    @notStatic {
+        not path /build/* /images/* /storage/* /favicon.ico /robots.txt
+        not file
+    }
+    rewrite @notStatic /index.php{path}?{query}
+
+    # ── Rate Limiting untuk Login ─────────────────────────────
+    # (Membutuhkan modul caddy-ratelimit jika diinstal)
+    # rate_limit /api/v1/otentikasi 10r/m
+
+    # ── Security Headers ─────────────────────────────────────
+    header {
+        X-Frame-Options "SAMEORIGIN"
+        X-Content-Type-Options "nosniff"
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Permissions-Policy "camera=(), microphone=(), geolocation=()"
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+
+        # Hapus header identifikasi server
+        -Server
+        -X-Powered-By
+    }
+
+    # ── Cache Browser: Aset Statis ────────────────────────────
+    @staticAssets path_regexp \.(css|js|png|jpg|jpeg|gif|ico|svg|webp|woff|woff2|ttf)$
+    header @staticAssets Cache-Control "public, max-age=31536000, immutable"
+
+    # ── Blokir Akses ke File Sensitif ────────────────────────
+    @blocked path /.env* /.git* /storage/logs/* /vendor/*
+    respond @blocked "Access Denied" 403
+
+    # ── Kompresi Otomatis ─────────────────────────────────────
+    encode gzip zstd
+
+    # ── Logging ───────────────────────────────────────────────
+    log {
+        output file /var/log/caddy/sso-access.log
+        format json
+    }
+}
+
+# ── Redirect www ke non-www ───────────────────────────────────
+www.your-sso-domain.com {
+    redir https://your-sso-domain.com{uri} permanent
+}
