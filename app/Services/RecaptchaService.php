@@ -2,6 +2,15 @@
 
 namespace App\Services;
 
+/**
+ * ============================================================
+ * SSO Sekolah - Portal Otentikasi Terpusat
+ * Versi    : v1.0.0 | Production | Community Edition
+ * Lisensi  : Open Source - Bebas Dikembangkan
+ * Besutan  : Faishal Nafi Network (https://faishalnafi.com)
+ * ============================================================
+ */
+
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 

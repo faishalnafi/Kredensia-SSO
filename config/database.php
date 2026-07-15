@@ -114,6 +114,27 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
+        /*
+        |--------------------------------------------------------------------------
+        | MongoDB — Digunakan sebagai Cache / Session / Queue Store
+        | Paket: mongodb/laravel-mongodb (^5.x)
+        | Install: composer require mongodb/laravel-mongodb
+        | Syarat: Ekstensi PHP mongodb harus aktif (pecl install mongodb)
+        |--------------------------------------------------------------------------
+        */
+        'mongodb' => [
+            'driver'   => 'mongodb',
+            'host'     => env('MONGODB_HOST', '127.0.0.1'),
+            'port'     => (int) env('MONGODB_PORT', 27017),
+            'database' => env('MONGODB_DATABASE', 'sso_sekolah'),
+            'username' => env('MONGODB_USERNAME', ''),
+            'password' => env('MONGODB_PASSWORD', ''),
+            'options'  => [
+                'authSource'    => env('MONGODB_AUTH_SOURCE', 'admin'),
+                'appName'       => 'SSO Sekolah',
+            ],
+        ],
+
     ],
 
     /*
@@ -179,6 +200,31 @@ return [
             'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
         ],
 
+        ],
+
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Amazon DynamoDB — Digunakan sebagai Cache / Session Store Alternatif
+    | Driver bawaan Laravel mendukung DynamoDB sejak Laravel 8+
+    |
+    | Konfigurasi di config/cache.php:
+    |   'dynamodb' => [
+    |       'driver' => 'dynamodb',
+    |       'key'    => env('AWS_ACCESS_KEY_ID'),
+    |       'secret' => env('AWS_SECRET_ACCESS_KEY'),
+    |       'region' => env('AWS_DEFAULT_REGION', 'ap-southeast-1'),
+    |       'table'  => env('DYNAMODB_CACHE_TABLE', 'sso_cache'),
+    |       'endpoint' => env('DYNAMODB_ENDPOINT'),
+    |   ],
+    |
+    | Aktifkan dengan mengubah CACHE_STORE=dynamodb di .env
+    | Buat tabel di AWS Console dengan:
+    |   - Table name : sso_cache
+    |   - Partition key : key (String)
+    |   - TTL attribute : expires_at
+    |--------------------------------------------------------------------------
+    */
 
 ];

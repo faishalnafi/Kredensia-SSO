@@ -10,6 +10,15 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * ============================================================
+ * SSO Sekolah - Portal Otentikasi Terpusat
+ * Versi    : v1.0.0 | Production | Community Edition
+ * Lisensi  : Open Source - Bebas Dikembangkan
+ * Besutan  : Faishal Nafi Network (https://faishalnafi.com)
+ * ============================================================
+ */
+
 class LoginRequest extends FormRequest
 {
     /**

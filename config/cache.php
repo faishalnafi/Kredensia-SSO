@@ -78,24 +78,47 @@ return [
             'lock_connection' => env('REDIS_CACHE_LOCK_CONNECTION', 'default'),
         ],
 
+        /*
+         * Amazon DynamoDB Cache Store
+         * Aktifkan: CACHE_STORE=dynamodb di .env
+         * Buat tabel DynamoDB dengan partition key 'key' (String) dan TTL attribute 'expires_at'
+         */
         'dynamodb' => [
-            'driver' => 'dynamodb',
-            'key' => env('AWS_ACCESS_KEY_ID'),
-            'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
-            'table' => env('DYNAMODB_CACHE_TABLE', 'cache'),
+            'driver'   => 'dynamodb',
+            'key'      => env('AWS_ACCESS_KEY_ID'),
+            'secret'   => env('AWS_SECRET_ACCESS_KEY'),
+            'region'   => env('AWS_DEFAULT_REGION', 'ap-southeast-1'),
+            'table'    => env('DYNAMODB_CACHE_TABLE', 'sso_cache'),
             'endpoint' => env('DYNAMODB_ENDPOINT'),
+        ],
+
+        /*
+         * MongoDB Cache Store
+         * Aktifkan: CACHE_STORE=mongodb di .env
+         * Membutuhkan: composer require mongodb/laravel-mongodb
+         * Pastikan ekstensi PHP mongodb aktif: pecl install mongodb
+         */
+        'mongodb' => [
+            'driver'     => 'mongodb',
+            'connection' => env('MONGODB_CACHE_CONNECTION', 'mongodb'),
+            'collection' => env('MONGODB_CACHE_COLLECTION', 'sso_cache'),
+            'lock_connection' => env('MONGODB_CACHE_LOCK_CONNECTION', 'mongodb'),
         ],
 
         'octane' => [
             'driver' => 'octane',
         ],
 
+        /*
+         * Failover Cache: Coba Redis terlebih dahulu, fallback ke Database
+         * Berguna di environment yang Redis-nya tidak selalu tersedia
+         */
         'failover' => [
             'driver' => 'failover',
             'stores' => [
+                'redis',
                 'database',
-                'array',
+                'file',
             ],
         ],
 

@@ -92,6 +92,86 @@ Setelah skrip selesai berjalan, langsung buka browser Anda ke:
 http://localhost:8000/setup
 untuk menekan tombol instalasi database. Selesai!
 
+
+------------------------------------------------------------------------
+BAGIAN 4: PANDUAN KONFIGURASI 5 WEB SERVER & 5 BASIS DATA
+------------------------------------------------------------------------
+
+A. DUKUNGAN WEB SERVER
+
+1. NGINX
+   - Konfigurasi server block telah disediakan di file `docker/nginx.conf`.
+   - Pastikan root mengarah ke direktori `public` proyek Laravel (contoh: `root /var/www/html/public;`).
+   - Gunakan `try_files $uri $uri/ /index.php?$query_string;` untuk mengaktifkan routing SPA Inertia/React.
+
+2. APACHE HTTP SERVER
+   - File konfigurasi `.htaccess` yang berada di folder `/public/.htaccess` sudah production-ready.
+   - Pastikan modul `mod_rewrite`, `mod_headers`, `mod_deflate`, dan `mod_expires` aktif di server Apache Anda.
+
+3. LITESPEED WEB SERVER (LSWS) / OPENLITESPEED
+   - LiteSpeed secara penuh mendukung format `.htaccess` milik Apache.
+   - Contoh konfigurasi Virtual Host LiteSpeed disediakan di `docker/litespeed/vhost.conf`.
+   - Pastikan opsi `Auto Load Htaccess` diatur ke `Yes` pada panel LiteSpeed WebAdmin Console.
+
+4. MICROSOFT IIS (INTERNET INFORMATION SERVICES)
+   - Konfigurasi IIS telah disediakan di file `public/web.config`.
+   - Prasyarat wajib: Install modul "URL Rewrite" via Web Platform Installer.
+   - Konfigurasikan Handler Mappings PHP via FastCGI mengarah ke executable PHP-CGI Anda.
+
+5. CADDY
+   - Caddyfile siap pakai telah disediakan di root proyek dengan nama file `Caddyfile`.
+   - Jalankan Caddy dengan perintah: `caddy run --config Caddyfile`
+   - Caddy secara otomatis mengurus sertifikat SSL/TLS gratis (Let's Encrypt / ZeroSSL).
+
+
+B. DUKUNGAN BASIS DATA (DATABASE & CACHE)
+
+1. MYSQL / MARIADB (Database Utama)
+   - Setel di `.env`:
+     DB_CONNECTION=mysql
+     DB_HOST=127.0.0.1
+     DB_PORT=3306
+     DB_DATABASE=nama_database
+     DB_USERNAME=nama_user
+     DB_PASSWORD=kata_sandi
+
+2. POSTGRESQL (Database Utama)
+   - Setel di `.env`:
+     DB_CONNECTION=pgsql
+     DB_HOST=127.0.0.1
+     DB_PORT=5432
+     DB_DATABASE=nama_database
+     DB_USERNAME=postgres
+     DB_PASSWORD=kata_sandi
+     DB_SSLMODE=prefer
+
+3. REDIS (Cache & Session Store Utama)
+   - Sangat direkomendasikan untuk produksi. Setel di `.env`:
+     CACHE_STORE=redis
+     SESSION_DRIVER=redis
+     REDIS_HOST=127.0.0.1
+     REDIS_PORT=6379
+     REDIS_PASSWORD=null
+
+4. MONGODB (Cache & Session Store Alternatif)
+   - Jalankan perintah: `composer require mongodb/laravel-mongodb`
+   - Setel di `.env`:
+     CACHE_STORE=mongodb
+     SESSION_DRIVER=mongodb
+     MONGODB_HOST=127.0.0.1
+     MONGODB_PORT=27017
+     MONGODB_DATABASE=sso_sekolah
+
+5. AMAZON DYNAMODB (Cache & Session Store Alternatif)
+   - Setel di `.env`:
+     CACHE_STORE=dynamodb
+     SESSION_DRIVER=dynamodb
+     AWS_ACCESS_KEY_ID=kunci_akses_aws
+     AWS_SECRET_ACCESS_KEY=rahasia_akses_aws
+     AWS_DEFAULT_REGION=ap-southeast-1
+     DYNAMODB_CACHE_TABLE=sso_cache
+
 ========================================================================
 END OF DOCUMENT
 ========================================================================
+
