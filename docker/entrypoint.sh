@@ -41,6 +41,6 @@ npm install
 echo "Compiling Vite production assets..."
 npm run build
 
-# Start supervisord process manager
-echo "Starting Nginx and PHP-FPM..."
-exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+# Start Laravel Octane with FrankenPHP
+echo "Starting Laravel Octane with FrankenPHP on port 80..."
+exec php artisan octane:start --server=frankenphp --host=0.0.0.0 --port=80

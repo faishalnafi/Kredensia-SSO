@@ -1,4 +1,4 @@
-FROM php:8.2-fpm
+FROM php:8.2-cli
 
 # Install system dependencies and PHP extensions
 RUN apt-get update && apt-get install -y \
@@ -12,8 +12,6 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     sqlite3 \
     libsqlite3-dev \
-    nginx \
-    supervisor \
     nodejs \
     npm
 
@@ -26,12 +24,14 @@ RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip pdo_sqlit
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# Install FrankenPHP binary
+RUN curl -L https://github.com/dunglas/frankenphp/releases/latest/download/frankenphp-linux-x86_64 -o /usr/local/bin/frankenphp \
+    && chmod +x /usr/local/bin/frankenphp
+
 # Set working directory
 WORKDIR /var/www
 
 # Copy configurations
-COPY docker/nginx.conf /etc/nginx/sites-available/default
-COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 RUN chmod +x /usr/local/bin/entrypoint.sh
@@ -40,3 +40,4 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 EXPOSE 80 5173 8000
 
 ENTRYPOINT ["entrypoint.sh"]
+

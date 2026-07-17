@@ -200,8 +200,6 @@ return [
             'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
         ],
 
-        ],
-
     ],
 
     /*

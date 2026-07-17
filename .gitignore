@@ -84,3 +84,7 @@ composer.phar
 /scratch
 /testing.md
 *.dump
+
+**/caddy
+frankenphp
+frankenphp-worker.php

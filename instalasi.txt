@@ -87,7 +87,7 @@ Gunakan panduan ini jika Anda ingin menjalankan aplikasi secara utuh menggunakan
    - Ketik: `chmod +x setup-docker.sh && ./setup-docker.sh`
 
 Keterangan: 
-Skrip akan otomatis menyalin .env, menginstal komposer & Node.js, mengkompilasi file frontend, dan men-generate key aplikasi di dalam kontainer.
+Skrip akan otomatis menyalin .env, menginstal komposer & Node.js, mengkompilasi file frontend, dan men-generate key aplikasi di dalam kontainer. Container Docker sekarang dijalankan menggunakan **Laravel Octane dengan FrankenPHP** yang melayani request di port 80 (di-mapping ke port 8000 host).
 Setelah skrip selesai berjalan, langsung buka browser Anda ke:
 http://localhost:8000/setup
 untuk menekan tombol instalasi database. Selesai!

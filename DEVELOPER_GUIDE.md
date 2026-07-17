@@ -11,18 +11,20 @@ Aplikasi ini dibangun menggunakan arsitektur *Monolith* bergaya *Single Page App
 - **Node.js**: `v18.x` atau lebih baru.
 - **Database Utama**: `MySQL/MariaDB` (Direkomendasikan), `PostgreSQL` (`^13.x`), atau `SQLite` (lokal/testing).
 - **Cache & Session Stores**: `Redis` (`^7.x`), `MongoDB` (melalui `mongodb/laravel-mongodb`), atau `Amazon DynamoDB` (via AWS SDK).
-- **Web Server**: `NGINX`, `Apache HTTP Server`, `LiteSpeed (LSWS)`, `Microsoft IIS (Internet Information Services)`, atau `Caddy`.
+- **Web Server / Application Server**: `Laravel Octane (FrankenPHP)` (Direkomendasikan untuk Produksi), `NGINX`, `Apache HTTP Server`, `LiteSpeed (LSWS)`, `Microsoft IIS`, atau `Caddy`.
 
 ### 1.2 Versi Pustaka Utama (Dependencies)
 | Kategori | Paket / Pustaka | Versi | Peran |
 | :--- | :--- | :--- | :--- |
 | **Backend** | `laravel/framework` | `^12.0` | Framework inti backend. |
+| | `laravel/octane` | `^2.17` | Server performa tinggi Laravel (FrankenPHP). |
 | | `inertiajs/inertia-laravel` | `^2.0` | Adaptor Inertia untuk merender React dari Controller. |
 | | `laravel/sanctum` | `^4.0` | Autentikasi token & SPA stateful. |
 | **Frontend** | `react` & `react-dom` | `^18.2.0` | Pustaka antarmuka pengguna. |
 | | `@inertiajs/react` | `^2.0.0` | Adaptor Inertia sisi klien. |
 | | `tailwindcss` | `^3.2.1` | Framework CSS Utility-first. |
 | | `vite` | `^4.0.0` | Bundler aset (menggantikan Webpack). |
+
 | **Security**| `Http::post` (REST API)| `N/A` | Google reCAPTCHA Enterprise Validation (Tanpa SDK berat). |
 
 
@@ -87,4 +89,4 @@ Catatan untuk programmer yang menangani produksi:
 2. HAPUS file `public/hot` di server produksi agar *Vite* mengarahkan aset ke folder kompilasi (menghindari layar putih blank).
 3. Matikan batasan `open_basedir` / *Anti-XSS* pada panel hosting agar `index.php` bisa membaca folder `vendor`.
 4. Ubah `SESSION_DRIVER=database` menjadi `file` sementara saat menjalankan `/setup` pertama kali, lalu kembalikan ke `database` setelah instalasi sukses.
-5. Tersedia skrip otomatis untuk Docker: `setup-docker.ps1` (Windows) dan `setup-docker.sh` (Mac/Linux).
+5. Container Docker dikonfigurasi menggunakan **Laravel Octane (FrankenPHP)** yang melayani request secara ultra-cepat tanpa Nginx/PHP-FPM tradisional. Skrip otomatis tersedia: `setup-docker.ps1` (Windows) dan `setup-docker.sh` (Mac/Linux).
