@@ -6,7 +6,15 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import { ThemeProvider } from './Contexts/ThemeContext';
 
+import { registerSW } from 'virtual:pwa-register';
+
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+
+// Registrasi Service Worker di produksi
+if (import.meta.env.PROD) {
+    registerSW({ immediate: true });
+}
+
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,

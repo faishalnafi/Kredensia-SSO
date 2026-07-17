@@ -104,7 +104,9 @@ export default function TataLetakUtama({ children, title }) {
                     </p>
                     {menuItems.map((item, index) => {
                         const Tag = item.eksternal ? 'a' : Link;
-                        const extraProps = item.eksternal ? { target: '_blank', rel: 'noopener noreferrer' } : {};
+                        const extraProps = item.eksternal 
+                            ? { target: '_blank', rel: 'noopener noreferrer' } 
+                            : { prefetch: 'hover' };
                         return (
                             <Tag 
                                 key={index}
