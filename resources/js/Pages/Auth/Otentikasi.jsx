@@ -130,10 +130,11 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
         e.preventDefault();
         
         // Execute reCAPTCHA first if available
+        const siteKey = settings?.recaptcha_site_key || '6LerIVItAAAAACqA267mMQcSd1awHuR3xKqDhdJ9';
         if (window.grecaptcha && window.grecaptcha.enterprise) {
             window.grecaptcha.enterprise.ready(async () => {
                 try {
-                    const token = await window.grecaptcha.enterprise.execute('6LerIVItAAAAACqA267mMQcSd1awHuR3xKqDhdJ9', {action: 'LOGIN'});
+                    const token = await window.grecaptcha.enterprise.execute(siteKey, {action: 'LOGIN'});
                     lanjutkanLogin(token);
                 } catch (error) {
                     console.error("reCAPTCHA Error", error);

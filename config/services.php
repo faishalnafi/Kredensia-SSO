@@ -41,4 +41,11 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
+    'recaptcha' => [
+        'site_key' => env('RECAPTCHA_SITE_KEY', '6LerIVItAAAAACqA267mMQcSd1awHuR3xKqDhdJ9'),
+        'project_id' => env('RECAPTCHA_PROJECT_ID'),
+        'api_key' => env('RECAPTCHA_API_KEY'),
+    ],
+
 ];
+

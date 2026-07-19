@@ -39,10 +39,12 @@ class HandleInertiaRequests extends Middleware
                     'nama_aplikasi' => $data->nama_aplikasi,
                     'logo_primer_url' => $data->logo_primer_url,
                     'favicon_url' => $data->favicon_url,
+                    'recaptcha_site_key' => config('services.recaptcha.site_key'),
                 ] : [
                     'nama_aplikasi' => 'SSO Sekolah',
                     'logo_primer_url' => null,
                     'favicon_url' => '/favicon.ico',
+                    'recaptcha_site_key' => config('services.recaptcha.site_key'),
                 ];
             } catch (\Exception $e) {
                 // Return default settings if table doesn't exist yet (during setup)
@@ -50,6 +52,7 @@ class HandleInertiaRequests extends Middleware
                     'nama_aplikasi' => 'SSO Sekolah',
                     'logo_primer_url' => null,
                     'favicon_url' => '/favicon.ico',
+                    'recaptcha_site_key' => config('services.recaptcha.site_key'),
                 ];
             }
         });
