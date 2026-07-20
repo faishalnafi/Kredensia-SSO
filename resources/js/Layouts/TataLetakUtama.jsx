@@ -18,6 +18,8 @@ export default function TataLetakUtama({ children, title }) {
     // Susun menuItems secara dinamis berdasarkan peran
     let menuItems = [];
 
+    const biodataBelumLengkap = Boolean(auth.user?.biodata_belum_lengkap);
+
     if (isSuperadmin) {
         menuItems = [
             { nama: 'Beranda Sistem', rute: route('superadmin.beranda'), ikon: 'dashboard', aktif: url.startsWith('/superadmin/beranda') },
@@ -52,9 +54,10 @@ export default function TataLetakUtama({ children, title }) {
     } else {
         // Pengguna Umum (Siswa, Guru, dll)
         menuItems = [
-            { nama: 'Katalog Aplikasi', rute: route('dasbor'), ikon: 'grid_view', aktif: url === '/dasbor' },
-            { nama: 'Profil Saya', rute: route('profil.indeks'), ikon: 'person', aktif: url.startsWith('/profil-saya') },
-            { nama: 'Keamanan Akun', rute: route('keamanan.indeks'), ikon: 'security', aktif: url.startsWith('/keamanan-akun') },
+            { nama: 'Lengkapi Biodata', rute: route('biodata.wajib'), ikon: 'badge', aktif: url.startsWith('/biodata-wajib'), dikunci: false },
+            { nama: 'Katalog Aplikasi', rute: route('dasbor'), ikon: 'grid_view', aktif: url === '/dasbor', dikunci: biodataBelumLengkap },
+            { nama: 'Profil Saya', rute: route('profil.indeks'), ikon: 'person', aktif: url.startsWith('/profil-saya'), dikunci: biodataBelumLengkap },
+            { nama: 'Keamanan Akun', rute: route('keamanan.indeks'), ikon: 'security', aktif: url.startsWith('/keamanan-akun'), dikunci: biodataBelumLengkap },
         ];
     }
 
@@ -106,10 +109,40 @@ export default function TataLetakUtama({ children, title }) {
                 </div>
 
                 <div className="flex-1 overflow-y-auto py-6 px-4 space-y-1">
+                    {biodataBelumLengkap && (
+                        <div className="mx-1 mb-4 p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 rounded-2xl text-xs text-amber-800 dark:text-amber-300 space-y-1">
+                            <div className="flex items-center gap-1.5 font-bold">
+                                <span className="material-symbols-rounded text-base text-amber-600 dark:text-amber-400">lock</span>
+                                Menu Dikunci
+                            </div>
+                            <p className="text-[11px] leading-relaxed opacity-90">
+                                Harap lengkapi seluruh biodata wajib untuk membuka akses ke semua menu.
+                            </p>
+                        </div>
+                    )}
+
                     <p className="px-3 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4">
                         Menu Portal
                     </p>
                     {menuItems.map((item, index) => {
+                        if (item.dikunci) {
+                            return (
+                                <div 
+                                    key={index}
+                                    className="flex items-center justify-between px-3 py-3 rounded-xl font-semibold text-sm text-slate-400 dark:text-slate-600 bg-slate-100/50 dark:bg-slate-900/30 cursor-not-allowed select-none opacity-60"
+                                    title="Fitur dikunci sampai Anda melengkapi biodata wajib"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <span className="material-symbols-rounded text-xl">
+                                            {item.ikon}
+                                        </span>
+                                        {item.nama}
+                                    </div>
+                                    <span className="material-symbols-rounded text-base text-amber-500">lock</span>
+                                </div>
+                            );
+                        }
+
                         const Tag = item.eksternal ? 'a' : Link;
                         const extraProps = item.eksternal 
                             ? { target: '_blank', rel: 'noopener noreferrer' } 

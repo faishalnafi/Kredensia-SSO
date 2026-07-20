@@ -65,18 +65,53 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'auth' => [
                 'user' => $user ? [
-                    'id' => $user->id,
+                    'id'           => $user->id,
                     'nama_lengkap' => $user->nama_lengkap,
-                    'email' => $user->email,
-                    'nik' => $user->nik,
-                    'nip_nis' => $user->nip_nis,
-                    'no_telp' => $user->no_telp,
-                    'jk' => $user->jk,
-                    'peran' => $user->roles->pluck('nama_role')->toArray(),
-                    'avatar_url' => $user->avatar_url,
+                    'email'        => $user->email,
+                    'nik'          => $user->nik,
+                    'nip_nis'      => $user->nip_nis,
+                    'no_telp'      => $user->no_telp,
+                    'jk'           => $user->jk,
+                    'alamat'       => $user->alamat,
+                    'peran'        => $user->roles->pluck('nama_role')->toArray(),
+                    'avatar_url'   => $user->avatar_url,
+                    // Prop wajib untuk fitur lock menu:
+                    // true  = biodata belum pernah disubmit → menu dikunci
+                    // false = sudah submit atau user adalah admin/superadmin
+                    'biodata_belum_lengkap' => $this->periksaBiodataBelumLengkap($user),
                 ] : null,
             ],
             'settings' => $settings,
+            'flash'    => [
+                'sukses' => $request->session()->get('sukses'),
+                'info'   => $request->session()->get('info'),
+                'error'  => $request->session()->get('error'),
+            ],
         ];
+    }
+
+    /**
+     * Cek apakah biodata pengguna belum dilengkapi.
+     * Admin dan Super Admin selalu dianggap tidak perlu mengisi biodata.
+     */
+    private function periksaBiodataBelumLengkap($user): bool
+    {
+        if (!$user) return false;
+
+        # Load roles jika belum
+        if (!$user->relationLoaded('roles')) {
+            $user->load('roles');
+        }
+
+        $namaPeran = $user->roles->pluck('nama_role')->toArray();
+        $peranDibebaskan = ['Super Admin', 'Admin', 'superadmin', 'admin'];
+
+        foreach ($peranDibebaskan as $peran) {
+            if (in_array($peran, $namaPeran, true)) {
+                return false; // Admin tidak perlu biodata
+            }
+        }
+
+        return !$user->biodataSudahDilengkapi();
     }
 }

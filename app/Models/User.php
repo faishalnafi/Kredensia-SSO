@@ -32,6 +32,7 @@ class User extends Authenticatable
         'google_avatar',
         'is_active',
         'claimed_at',
+        'biodata_dilengkapi_pada',
         'kelas_id',
     ];
 
@@ -47,11 +48,35 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'password' => 'hashed',
-            'is_active' => 'boolean',
-            'tgl_lahir' => 'date',
-            'claimed_at' => 'datetime',
+            'password'                => 'hashed',
+            'is_active'               => 'boolean',
+            'tgl_lahir'               => 'date',
+            'claimed_at'              => 'datetime',
+            'biodata_dilengkapi_pada' => 'datetime',
         ];
+    }
+
+    /**
+     * Cek apakah user sudah pernah submit form biodata wajib.
+     * Berlaku terlepas dari status persetujuan admin.
+     */
+    public function biodataSudahDilengkapi(): bool
+    {
+        return !is_null($this->biodata_dilengkapi_pada);
+    }
+
+    /**
+     * Cek apakah semua field biodata wajib sudah terisi di database.
+     */
+    public function biodataLengkap(): bool
+    {
+        return !empty($this->nama_lengkap)
+            && !empty($this->jk)
+            && !is_null($this->tgl_lahir)
+            && !empty($this->nik)
+            && !empty($this->nip_nis)
+            && !empty($this->no_telp)
+            && !empty($this->alamat);
     }
 
     /**

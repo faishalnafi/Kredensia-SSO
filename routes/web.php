@@ -46,6 +46,7 @@ use App\Http\Controllers\Superadmin\HapusDataController;
 use App\Http\Controllers\Admin\DasborAdminController;
 use App\Http\Controllers\Admin\HapusDataAdminController;
 use App\Http\Controllers\ImportPenggunaController;
+use App\Http\Controllers\BiodataWajibController;
 
 // Rute Dokumentasi API Standalone (Tanpa Sidebar/Menu Portal)
 Route::get('/api/docs', [DokumentasiApiController::class, 'standalone'])->name('api.docs');
@@ -62,17 +63,24 @@ Route::prefix('api/v1')->group(function () {
 
 // Rute Umum yang dapat diakses oleh semua pengguna terautentikasi
 Route::middleware('auth')->group(function () {
-    Route::get('/dasbor', [UserKatalogController::class, 'tampilkanKatalog'])->name('dasbor');
-    Route::get('/beranda', [KatalogAplikasiController::class, 'indeks'])->name('beranda');
-    Route::get('/profil-saya', [ProfilSayaController::class, 'indeks'])->name('profil.indeks');
-    Route::get('/keamanan-akun', [KeamananAkunController::class, 'indeks'])->name('keamanan.indeks');
-    Route::post('/keamanan-akun/ajukan-perubahan', [KeamananAkunController::class, 'ajukanPerubahan'])->name('keamanan.ajukan_perubahan');
-    Route::delete('/keamanan-akun/sesi/{id}', [KeamananAkunController::class, 'hapusSesi'])->name('keamanan.sesi.hapus');
-    Route::post('/keamanan-akun/sesi/hapus-lainnya', [KeamananAkunController::class, 'hapusSesiLainnya'])->name('keamanan.sesi.hapus_lainnya');
-    
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    # Rute khusus pengisian biodata wajib (TIDAK dikenai biodata.check agar tidak loop)
+    Route::get('/biodata-wajib', [BiodataWajibController::class, 'indeks'])->name('biodata.wajib');
+    Route::post('/biodata-wajib', [BiodataWajibController::class, 'simpan'])->name('biodata.simpan');
+
+    # Semua rute di bawah ini memerlukan biodata sudah dilengkapi
+    Route::middleware('biodata.check')->group(function () {
+        Route::get('/dasbor', [UserKatalogController::class, 'tampilkanKatalog'])->name('dasbor');
+        Route::get('/beranda', [KatalogAplikasiController::class, 'indeks'])->name('beranda');
+        Route::get('/profil-saya', [ProfilSayaController::class, 'indeks'])->name('profil.indeks');
+        Route::get('/keamanan-akun', [KeamananAkunController::class, 'indeks'])->name('keamanan.indeks');
+        Route::post('/keamanan-akun/ajukan-perubahan', [KeamananAkunController::class, 'ajukanPerubahan'])->name('keamanan.ajukan_perubahan');
+        Route::delete('/keamanan-akun/sesi/{id}', [KeamananAkunController::class, 'hapusSesi'])->name('keamanan.sesi.hapus');
+        Route::post('/keamanan-akun/sesi/hapus-lainnya', [KeamananAkunController::class, 'hapusSesiLainnya'])->name('keamanan.sesi.hapus_lainnya');
+        
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    });
 });
 
 // Rute khusus Admin

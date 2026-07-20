@@ -25,15 +25,16 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'nama_lengkap' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'password' => static::$password ??= Hash::make('password'),
-            'remember_token' => Str::random(10),
+            'nama_lengkap'            => fake()->name(),
+            'email'                   => fake()->unique()->safeEmail(),
+            'password'                => static::$password ??= Hash::make('password'),
+            'remember_token'          => Str::random(10),
+            'biodata_dilengkapi_pada' => now(),
         ];
     }
 
     /**
-     * Indicate that the model's email address should be unverified.
+     * State for unverified / unclaimed user.
      */
     public function unverified(): static
     {
@@ -41,4 +42,15 @@ class UserFactory extends Factory
             'claimed_at' => null,
         ]);
     }
+
+    /**
+     * State for user with uncompleted biodata.
+     */
+    public function uncompletedBiodata(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'biodata_dilengkapi_pada' => null,
+        ]);
+    }
 }
+

@@ -22,9 +22,10 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->alias([
-            'superadmin' => \App\Http\Middleware\PeriksaPeranSuperadmin::class,
-            'admin' => \App\Http\Middleware\PeriksaPeranAdmin::class,
-            'auth.apikey' => \App\Http\Middleware\AutentikasiApiKey::class,
+            'superadmin'    => \App\Http\Middleware\PeriksaPeranSuperadmin::class,
+            'admin'         => \App\Http\Middleware\PeriksaPeranAdmin::class,
+            'auth.apikey'   => \App\Http\Middleware\AutentikasiApiKey::class,
+            'biodata.check' => \App\Http\Middleware\PeriksaBiodataLengkap::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
