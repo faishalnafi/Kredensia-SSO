@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import TataLetakUtama from '@/Layouts/TataLetakUtama';
 import InputError from '@/Components/InputError';
+import Swal from 'sweetalert2';
 
 export default function IndeksKelas({ daftarKelas, daftarTahunPelajaran }) {
     const [modalBuka, setModalBuka] = useState(false);
@@ -58,6 +59,12 @@ export default function IndeksKelas({ daftarKelas, daftarTahunPelajaran }) {
                 onSuccess: () => {
                     setModalBuka(false);
                     reset();
+                    Swal.fire({
+                        title: 'Berhasil!',
+                        text: 'Data kelas berhasil diperbarui.',
+                        icon: 'success',
+                        confirmButtonColor: '#000066',
+                    });
                 }
             });
         } else {
@@ -65,16 +72,42 @@ export default function IndeksKelas({ daftarKelas, daftarTahunPelajaran }) {
                 onSuccess: () => {
                     setModalBuka(false);
                     reset();
+                    Swal.fire({
+                        title: 'Berhasil!',
+                        text: 'Kelas baru berhasil ditambahkan.',
+                        icon: 'success',
+                        confirmButtonColor: '#000066',
+                    });
                 }
             });
         }
     };
 
     const tanganiHapus = (id) => {
-        if (confirm('Apakah Anda yakin ingin menghapus kelas ini?')) {
-            const userRolePath = window.location.pathname.startsWith('/superadmin') ? 'superadmin' : 'admin';
-            destroy(route(`${userRolePath}.kelas.destroy`, id));
-        }
+        Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: 'Data kelas ini akan dihapus secara permanen dari sistem.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#000066',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const userRolePath = window.location.pathname.startsWith('/superadmin') ? 'superadmin' : 'admin';
+                destroy(route(`${userRolePath}.kelas.destroy`, id), {
+                    onSuccess: () => {
+                        Swal.fire({
+                            title: 'Terhapus!',
+                            text: 'Kelas berhasil dihapus.',
+                            icon: 'success',
+                            confirmButtonColor: '#000066',
+                        });
+                    }
+                });
+            }
+        });
     };
 
     // Filter data berdasarkan kata kunci pencarian utama dan kata kunci pencarian tabel

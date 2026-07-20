@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Head, useForm, router } from '@inertiajs/react';
 import TataLetakUtama from '@/Layouts/TataLetakUtama';
 import InputError from '@/Components/InputError';
+import Swal from 'sweetalert2';
 
 export default function IndeksTahunPelajaran({ daftarTahunPelajaran }) {
     const [modalBuka, setModalBuka] = useState(false);
@@ -31,27 +32,95 @@ export default function IndeksTahunPelajaran({ daftarTahunPelajaran }) {
             onSuccess: () => {
                 setModalBuka(false);
                 reset();
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: 'Tahun pelajaran baru berhasil ditambahkan.',
+                    icon: 'success',
+                    confirmButtonColor: '#000066',
+                });
             }
         });
     };
 
     const tanganiHapus = (id) => {
-        if (confirm('Apakah Anda yakin ingin menghapus tahun pelajaran ini? Semua data kelas terkait akan ikut terhapus.')) {
-            const userRolePath = window.location.pathname.startsWith('/superadmin') ? 'superadmin' : 'admin';
-            router.delete(route(`${userRolePath}.tahun-pelajaran.destroy`, id));
-        }
+        Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: 'Menghapus tahun pelajaran ini akan menghapus semua data kelas yang terikat!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#000066',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const userRolePath = window.location.pathname.startsWith('/superadmin') ? 'superadmin' : 'admin';
+                router.delete(route(`${userRolePath}.tahun-pelajaran.destroy`, id), {
+                    onSuccess: () => {
+                        Swal.fire({
+                            title: 'Terhapus!',
+                            text: 'Tahun pelajaran berhasil dihapus.',
+                            icon: 'success',
+                            confirmButtonColor: '#000066',
+                        });
+                    }
+                });
+            }
+        });
     };
 
     const tetapkanAktif = (id) => {
-        const userRolePath = window.location.pathname.startsWith('/superadmin') ? 'superadmin' : 'admin';
-        router.post(route(`${userRolePath}.tahun-pelajaran.aktif`, id));
+        Swal.fire({
+            title: 'Aktifkan Tahun Pelajaran?',
+            text: 'Ini akan menonaktifkan tahun pelajaran lain yang sedang berjalan.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#000066',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, Aktifkan!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const userRolePath = window.location.pathname.startsWith('/superadmin') ? 'superadmin' : 'admin';
+                router.post(route(`${userRolePath}.tahun-pelajaran.aktif`, id), {}, {
+                    onSuccess: () => {
+                        Swal.fire({
+                            title: 'Aktif!',
+                            text: 'Tahun pelajaran berhasil diaktifkan.',
+                            icon: 'success',
+                            confirmButtonColor: '#000066',
+                        });
+                    }
+                });
+            }
+        });
     };
 
     const jalankanBulkUpdate = () => {
-        if (confirm('Apakah Anda yakin ingin menyinkronkan dan melakukan pembaruan massal pada seluruh tahun pelajaran?')) {
-            const userRolePath = window.location.pathname.startsWith('/superadmin') ? 'superadmin' : 'admin';
-            router.post(route(`${userRolePath}.tahun-pelajaran.bulk-update`));
-        }
+        Swal.fire({
+            title: 'Jalankan Bulk Update?',
+            text: 'Ini akan menyinkronkan seluruh periode akademik pada semua aplikasi terintegrasi.',
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonColor: '#000066',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, Sinkronkan!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const userRolePath = window.location.pathname.startsWith('/superadmin') ? 'superadmin' : 'admin';
+                router.post(route(`${userRolePath}.tahun-pelajaran.bulk-update`), {}, {
+                    onSuccess: () => {
+                        Swal.fire({
+                            title: 'Selesai!',
+                            text: 'Bulk update tahun pelajaran berhasil diselesaikan.',
+                            icon: 'success',
+                            confirmButtonColor: '#000066',
+                        });
+                    }
+                });
+            }
+        });
     };
 
     // Filter data berdasarkan kata kunci pencarian
