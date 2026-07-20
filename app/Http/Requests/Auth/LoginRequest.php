@@ -36,11 +36,21 @@ class LoginRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $aturan = [
             'email' => ['required', 'string', 'email:rfc,dns', 'max:255'],
             'password' => ['required', 'string', 'max:255'],
-            'recaptcha_token' => ['required', 'string'],
         ];
+
+        // Hanya wajibkan reCAPTCHA jika konfigurasinya lengkap di .env
+        $projectId = env('RECAPTCHA_PROJECT_ID');
+        $apiKey = env('RECAPTCHA_API_KEY');
+        $siteKey = env('RECAPTCHA_SITE_KEY');
+
+        if ($projectId && $apiKey && $siteKey) {
+            $aturan['recaptcha_token'] = ['required', 'string'];
+        }
+
+        return $aturan;
     }
 
     /**

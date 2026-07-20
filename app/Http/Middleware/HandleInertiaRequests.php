@@ -32,19 +32,23 @@ class HandleInertiaRequests extends Middleware
     {
         $user = $request->user();
         
-        $settings = Cache::remember('platform_settings', 3600, function() {
+        $recaptchaSiteKey = (env('RECAPTCHA_SITE_KEY') && env('RECAPTCHA_PROJECT_ID') && env('RECAPTCHA_API_KEY')) 
+            ? env('RECAPTCHA_SITE_KEY') 
+            : null;
+
+        $settings = Cache::remember('platform_settings', 3600, function() use ($recaptchaSiteKey) {
             try {
                 $data = \App\Models\PengaturanSistem::first();
                 return $data ? [
                     'nama_aplikasi' => $data->nama_aplikasi,
                     'logo_primer_url' => $data->logo_primer_url,
                     'favicon_url' => $data->favicon_url,
-                    'recaptcha_site_key' => config('services.recaptcha.site_key'),
+                    'recaptcha_site_key' => $recaptchaSiteKey,
                 ] : [
                     'nama_aplikasi' => 'SSO Sekolah',
                     'logo_primer_url' => null,
                     'favicon_url' => '/favicon.ico',
-                    'recaptcha_site_key' => config('services.recaptcha.site_key'),
+                    'recaptcha_site_key' => $recaptchaSiteKey,
                 ];
             } catch (\Exception $e) {
                 // Return default settings if table doesn't exist yet (during setup)
@@ -52,7 +56,7 @@ class HandleInertiaRequests extends Middleware
                     'nama_aplikasi' => 'SSO Sekolah',
                     'logo_primer_url' => null,
                     'favicon_url' => '/favicon.ico',
-                    'recaptcha_site_key' => config('services.recaptcha.site_key'),
+                    'recaptcha_site_key' => $recaptchaSiteKey,
                 ];
             }
         });
