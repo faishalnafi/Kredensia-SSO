@@ -23,7 +23,7 @@ class RecaptchaService
      * @param string $expectedAction Action yang diharapkan (default: 'LOGIN')
      * @return bool True jika valid dan skor memadai, False jika gagal
      */
-    public static function verify(string $token, string $expectedAction = 'LOGIN'): bool
+    public static function verify(?string $token, string $expectedAction = 'LOGIN'): bool
     {
         $projectId = env('RECAPTCHA_PROJECT_ID');
         $apiKey = env('RECAPTCHA_API_KEY');
@@ -32,6 +32,11 @@ class RecaptchaService
         if (!$projectId || !$apiKey || !$siteKey) {
             Log::warning('reCAPTCHA konfigurasi tidak lengkap. Melewati validasi.');
             return true; // Bypass jika tidak dikonfigurasi (misal di local)
+        }
+
+        if (empty($token)) {
+            Log::error('reCAPTCHA Token kosong saat konfigurasi aktif.');
+            return false;
         }
 
         $url = "https://recaptchaenterprise.googleapis.com/v1/projects/{$projectId}/assessments?key={$apiKey}";
