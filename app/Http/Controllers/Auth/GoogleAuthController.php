@@ -157,6 +157,7 @@ class GoogleAuthController extends Controller
             return redirect()->intended(route('admin.beranda'));
         }
 
-        return redirect()->intended(route('beranda'));
+        return redirect()->intended(route('dasbor'));
     }
 }
+

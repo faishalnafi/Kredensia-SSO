@@ -20,9 +20,9 @@ class BiodataWajibController extends Controller
     {
         $user = $request->user();
 
-        # Jika sudah pernah submit, langsung arahkan ke beranda
+        # Jika sudah pernah submit, langsung arahkan ke katalog aplikasi
         if ($user->biodataSudahDilengkapi()) {
-            return redirect()->route('beranda');
+            return redirect()->route('dasbor');
         }
 
         return Inertia::render('BiodataWajib/Indeks', [
@@ -56,7 +56,7 @@ class BiodataWajibController extends Controller
 
         # Jika sudah pernah submit, tolak permintaan duplikat
         if ($user->biodataSudahDilengkapi()) {
-            return redirect()->route('beranda')->with('info', 'Biodata Anda sudah dilengkapi sebelumnya.');
+            return redirect()->route('dasbor')->with('info', 'Biodata Anda sudah dilengkapi sebelumnya.');
         }
 
         $validated = $request->validate([
