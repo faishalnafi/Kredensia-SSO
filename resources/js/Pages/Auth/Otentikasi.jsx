@@ -445,7 +445,7 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                     <div className={`
                         absolute inset-y-0 w-full lg:w-1/2 left-0
                         flex flex-col justify-center px-6 lg:px-12 py-12 z-10
-                        overflow-y-auto
+                        overflow-y-auto scrollbar-none
                         transition-all duration-500
                         ${modeAktif === 'masuk' ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}
                     `}>
@@ -637,7 +637,7 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                     <div className={`
                         absolute inset-y-0 w-full lg:w-1/2 lg:left-1/2
                         flex flex-col justify-center px-6 lg:px-12 py-12 z-10
-                        overflow-y-auto
+                        overflow-y-auto scrollbar-none
                         transition-all duration-500
                         ${modeAktif === 'verifikasi' ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}
                     `}>
