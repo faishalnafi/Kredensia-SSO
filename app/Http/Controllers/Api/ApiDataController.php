@@ -71,7 +71,7 @@ class ApiDataController extends Controller
      */
     public function daftarMembers(Request $request): JsonResponse
     {
-        $query = User::with('roles:id,nama_role');
+        $query = User::with(['roles:id,nama_role', 'kelas', 'kelas.tahunPelajaran']);
 
         # Filter pencarian pencocokan umum
         if ($request->filled('search')) {
@@ -99,7 +99,7 @@ class ApiDataController extends Controller
 
         $perPage = min((int) $request->input('per_page', 50), 100);
 
-        $data = $query->select(['id', 'nama_lengkap', 'email', 'nik', 'nip_nis', 'jk', 'no_telp', 'tgl_lahir', 'is_active', 'claimed_at', 'created_at', 'updated_at'])
+        $data = $query->select(['id', 'nama_lengkap', 'email', 'nik', 'nip_nis', 'jk', 'no_telp', 'tgl_lahir', 'is_active', 'claimed_at', 'created_at', 'updated_at', 'kelas_id'])
             ->orderBy('nama_lengkap')
             ->paginate($perPage);
 
@@ -121,8 +121,8 @@ class ApiDataController extends Controller
      */
     public function detailMember(string $id): JsonResponse
     {
-        $pengguna = User::with('roles:id,nama_role')
-            ->select(['id', 'nama_lengkap', 'email', 'nik', 'nip_nis', 'jk', 'no_telp', 'tgl_lahir', 'is_active', 'claimed_at', 'created_at', 'updated_at'])
+        $pengguna = User::with(['roles:id,nama_role', 'kelas', 'kelas.tahunPelajaran'])
+            ->select(['id', 'nama_lengkap', 'email', 'nik', 'nip_nis', 'jk', 'no_telp', 'tgl_lahir', 'is_active', 'claimed_at', 'created_at', 'updated_at', 'kelas_id'])
             ->find($id);
 
         if (!$pengguna) {

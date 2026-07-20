@@ -13,6 +13,7 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
     const [selectedUserId, setSelectedUserId] = useState(null);
     const [cari, setCari] = useState(filters.cari || '');
     const [modalImportBuka, setModalImportBuka] = useState(false);
+    const [tampilkanSandi, setTampilkanSandi] = useState(false);
 
     const {
         data: importData,
@@ -127,6 +128,7 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
         }
         reset();
         clearErrors();
+        setTampilkanSandi(false);
         setEditMode(false);
         setSelectedUserId(null);
         setModalBuka(true);
@@ -134,6 +136,7 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
 
     const bukaModalEdit = (user) => {
         clearErrors();
+        setTampilkanSandi(false);
         setEditMode(true);
         setSelectedUserId(user.id);
         setData({
@@ -453,14 +456,25 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                                     <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">
                                         {editMode ? 'Ganti Kata Sandi (Opsional)' : 'Kata Sandi'}
                                     </label>
-                                    <input 
-                                        type="password"
-                                        value={data.password}
-                                        onChange={e => setData('password', e.target.value)}
-                                        placeholder={editMode ? 'Kosongkan jika tidak diubah' : 'Minimal 8 karakter'}
-                                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#0F91FC] dark:text-white"
-                                        required={!editMode}
-                                    />
+                                    <div className="relative">
+                                        <input 
+                                            type={tampilkanSandi ? 'text' : 'password'}
+                                            value={data.password}
+                                            onChange={e => setData('password', e.target.value)}
+                                            placeholder={editMode ? 'Kosongkan jika tidak diubah' : 'Minimal 8 karakter'}
+                                            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl pl-4 pr-10 py-2.5 text-sm focus:outline-none focus:border-[#0F91FC] dark:text-white"
+                                            required={!editMode}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setTampilkanSandi(!tampilkanSandi)}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-650 dark:hover:text-slate-200 focus:outline-none"
+                                        >
+                                            <span className="material-symbols-rounded text-lg">
+                                                {tampilkanSandi ? 'visibility_off' : 'visibility'}
+                                            </span>
+                                        </button>
+                                    </div>
                                     <InputError message={errors.password} className="mt-1" />
                                 </div>
 
