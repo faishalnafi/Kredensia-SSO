@@ -103,6 +103,16 @@ export default function ImportPengguna({ adaTahunPelajaranAktif = true, tahunPel
 
                     // Petakan header ke index kolom
                     const headerAsli = barisData[0].map(h => String(h).trim().toLowerCase());
+
+                    // Validasi ketat ketersediaan kolom wajib
+                    const kolomWajib = ['nama_lengkap', 'nik', 'nip_nis', 'tgl_lahir'];
+                    const kolomHilang = kolomWajib.filter(k => !headerAsli.includes(k));
+
+                    if (kolomHilang.length > 0) {
+                        reject(new Error(`Format berkas tidak sesuai! Kolom header wajib berikut tidak ditemukan: ${kolomHilang.join(', ')}.`));
+                        return;
+                    }
+
                     const dataTerpetakan = [];
 
                     for (let i = 1; i < barisData.length; i++) {
