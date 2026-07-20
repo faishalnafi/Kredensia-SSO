@@ -464,6 +464,7 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                                             placeholder={editMode ? 'Kosongkan jika tidak diubah' : 'Minimal 8 karakter'}
                                             className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl pl-4 pr-10 py-2.5 text-sm focus:outline-none focus:border-[#0F91FC] dark:text-white"
                                             required={!editMode}
+                                            autoComplete="new-password"
                                         />
                                         <button
                                             type="button"
