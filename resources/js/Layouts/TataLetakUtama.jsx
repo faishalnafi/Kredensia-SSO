@@ -43,7 +43,6 @@ export default function TataLetakUtama({ children, title }) {
             { nama: 'Log Aktivitas', rute: route('admin.log.indeks'), ikon: 'history', aktif: url.startsWith('/admin/log-aktivitas') },
             { nama: 'Tahun Pelajaran', rute: route('admin.tahun-pelajaran.index'), ikon: 'calendar_month', aktif: url.startsWith('/admin/tahun-pelajaran') },
             { nama: 'Manajemen Kelas', rute: route('admin.kelas.index'), ikon: 'meeting_room', aktif: url.startsWith('/admin/kelas') },
-            { nama: 'Katalog Aplikasi', rute: route('dasbor'), ikon: 'grid_view', aktif: url === '/dasbor' },
             { nama: 'Profil Saya', rute: route('profil.indeks'), ikon: 'person', aktif: url.startsWith('/profil-saya') },
             { nama: 'Keamanan Akun', rute: route('keamanan.indeks'), ikon: 'security', aktif: url.startsWith('/keamanan-akun') },
         ];
