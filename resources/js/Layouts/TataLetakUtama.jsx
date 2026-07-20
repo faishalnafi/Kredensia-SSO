@@ -24,6 +24,7 @@ export default function TataLetakUtama({ children, title }) {
             { nama: 'Aplikasi Portal', rute: route('superadmin.aplikasi.indeks'), ikon: 'apps', aktif: url.startsWith('/superadmin/manajemen-aplikasi') },
             { nama: 'Peran & Akses', rute: route('superadmin.peran.indeks'), ikon: 'admin_panel_settings', aktif: url.startsWith('/superadmin/manajemen-peran') },
             { nama: 'Manajemen Pengguna', rute: route('superadmin.pengguna.indeks'), ikon: 'group', aktif: url.startsWith('/superadmin/manajemen-pengguna') },
+            { nama: 'Import Pengguna', rute: route('superadmin.import-pengguna.indeks'), ikon: 'upload_file', aktif: url.startsWith('/superadmin/import-pengguna') },
             { nama: 'Pengaturan Sistem', rute: route('superadmin.pengaturan.indeks'), ikon: 'settings', aktif: url.startsWith('/superadmin/pengaturan-sistem') },
             { nama: 'Persetujuan Data', rute: route('superadmin.persetujuan.indeks'), ikon: 'fact_check', aktif: url.startsWith('/superadmin/persetujuan-data') },
             { nama: 'Log Aktivitas', rute: route('superadmin.log.indeks'), ikon: 'history', aktif: url.startsWith('/superadmin/log-aktivitas') },
@@ -38,6 +39,7 @@ export default function TataLetakUtama({ children, title }) {
         menuItems = [
             { nama: 'Beranda Admin', rute: route('admin.beranda'), ikon: 'dashboard', aktif: url.startsWith('/admin/beranda') },
             { nama: 'Manajemen Pengguna', rute: route('admin.pengguna.indeks'), ikon: 'group', aktif: url.startsWith('/admin/manajemen-pengguna') },
+            { nama: 'Import Pengguna', rute: route('admin.import-pengguna.indeks'), ikon: 'upload_file', aktif: url.startsWith('/admin/import-pengguna') },
             { nama: 'Persetujuan Data', rute: route('admin.persetujuan.indeks'), ikon: 'fact_check', aktif: url.startsWith('/admin/persetujuan-data') },
             { nama: 'Log Aktivitas', rute: route('admin.log.indeks'), ikon: 'history', aktif: url.startsWith('/admin/log-aktivitas') },
             { nama: 'Tahun Pelajaran', rute: route('admin.tahun-pelajaran.index'), ikon: 'calendar_month', aktif: url.startsWith('/admin/tahun-pelajaran') },

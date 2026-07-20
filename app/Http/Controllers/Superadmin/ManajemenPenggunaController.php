@@ -445,35 +445,55 @@ class ManajemenPenggunaController extends Controller
         $output .= ' xmlns:x="urn:schemas-microsoft-com:office:excel"' . "\n";
         $output .= ' xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"' . "\n";
         $output .= ' xmlns:html="http://www.w3.org/TR/REC-html40">' . "\n";
-        $output .= ' <Worksheet ss:Name="Import Pengguna">' . "\n";
+
+        // Sheet 1: Import Siswa
+        $output .= ' <Worksheet ss:Name="Import Siswa">' . "\n";
         $output .= '  <Table>' . "\n";
-        
-        // Headers row
         $output .= '   <Row>' . "\n";
-        $columns = ['nama_lengkap', 'email', 'password', 'jk', 'tgl_lahir', 'nik', 'nip_nis', 'no_telp', 'alamat', 'nama_peran'];
-        foreach ($columns as $col) {
+        $kolomSiswa = ['nama_lengkap', 'nik', 'nip_nis', 'tgl_lahir', 'jk', 'no_telp', 'alamat', 'kelas'];
+        foreach ($kolomSiswa as $col) {
             $output .= '    <Cell><Data ss:Type="String">' . htmlspecialchars($col) . '</Data></Cell>' . "\n";
         }
         $output .= '   </Row>' . "\n";
-        
-        // Sample data row 1
         $output .= '   <Row>' . "\n";
-        $row1 = ['Budi Santoso', 'budi.santoso@sekolah.sch.id', 'password123', 'L', '2008-04-15', '3515012345670002', '260012345', '081234567891', 'Sidoarjo, Jawa Timur', 'Siswa'];
-        foreach ($row1 as $val) {
+        $barisSiswa1 = ['Budi Santoso', '3515012345670002', '0078901234', '2008-04-15', 'L', '081234567891', 'Sidoarjo, Jawa Timur', 'XII IPA 1'];
+        foreach ($barisSiswa1 as $val) {
             $output .= '    <Cell><Data ss:Type="String">' . htmlspecialchars((string)$val) . '</Data></Cell>' . "\n";
         }
         $output .= '   </Row>' . "\n";
-
-        // Sample data row 2
         $output .= '   <Row>' . "\n";
-        $row2 = ['Siti Aminah', 'siti.aminah@sekolah.sch.id', 'rahasia567', 'P', '1985-08-20', '3515012345670003', '198508202010122001', '085712345678', 'Surabaya, Jawa Timur', 'Guru'];
-        foreach ($row2 as $val) {
+        $barisSiswa2 = ['Rina Wulandari', '3515012345670005', '0078901237', '2008-11-22', 'P', '', '', 'XII IPS 2'];
+        foreach ($barisSiswa2 as $val) {
             $output .= '    <Cell><Data ss:Type="String">' . htmlspecialchars((string)$val) . '</Data></Cell>' . "\n";
         }
         $output .= '   </Row>' . "\n";
-
         $output .= '  </Table>' . "\n";
         $output .= ' </Worksheet>' . "\n";
+
+        // Sheet 2: Import Guru
+        $output .= ' <Worksheet ss:Name="Import Guru">' . "\n";
+        $output .= '  <Table>' . "\n";
+        $output .= '   <Row>' . "\n";
+        $kolomGuru = ['nama_lengkap', 'nik', 'nip_nis', 'tgl_lahir', 'jk', 'no_telp', 'alamat', 'peran'];
+        foreach ($kolomGuru as $col) {
+            $output .= '    <Cell><Data ss:Type="String">' . htmlspecialchars($col) . '</Data></Cell>' . "\n";
+        }
+        $output .= '   </Row>' . "\n";
+        $output .= '   <Row>' . "\n";
+        $barisGuru1 = ['Ahmad Fauzi', '3515012345670003', '198508202010122001', '1985-08-20', 'L', '085712345678', 'Surabaya, Jawa Timur', 'Guru, Wali Kelas'];
+        foreach ($barisGuru1 as $val) {
+            $output .= '    <Cell><Data ss:Type="String">' . htmlspecialchars((string)$val) . '</Data></Cell>' . "\n";
+        }
+        $output .= '   </Row>' . "\n";
+        $output .= '   <Row>' . "\n";
+        $barisGuru2 = ['Siti Aminah', '3515012345670004', '199001152015042002', '1990-01-15', 'P', '087654321098', 'Malang, Jawa Timur', 'Guru, Staf Kurikulum'];
+        foreach ($barisGuru2 as $val) {
+            $output .= '    <Cell><Data ss:Type="String">' . htmlspecialchars((string)$val) . '</Data></Cell>' . "\n";
+        }
+        $output .= '   </Row>' . "\n";
+        $output .= '  </Table>' . "\n";
+        $output .= ' </Worksheet>' . "\n";
+
         $output .= '</Workbook>';
 
         return response($output, 200)
@@ -481,6 +501,313 @@ class ManajemenPenggunaController extends Controller
             ->header('Content-Disposition', 'attachment; filename=' . $filename)
             ->header('Pragma', 'no-cache')
             ->header('Expires', '0');
+    }
+
+    /**
+     * Unduh template CSV khusus import siswa.
+     */
+    public function unduhTemplateSiswa()
+    {
+        $headers = [
+            'Content-type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename=template_import_siswa.csv',
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0'
+        ];
+
+        $columns = ['nama_lengkap', 'nik', 'nip_nis', 'tgl_lahir', 'jk', 'no_telp', 'alamat', 'kelas'];
+
+        $callback = function() use ($columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+            fputcsv($file, [
+                'Budi Santoso',
+                '3515012345670002',
+                '0078901234',
+                '2008-04-15',
+                'L',
+                '081234567891',
+                'Sidoarjo, Jawa Timur',
+                'XII IPA 1'
+            ]);
+            fputcsv($file, [
+                'Rina Wulandari',
+                '3515012345670005',
+                '0078901237',
+                '2008-11-22',
+                'P',
+                '',
+                '',
+                'XII IPS 2'
+            ]);
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Unduh template CSV khusus import guru.
+     */
+    public function unduhTemplateGuru()
+    {
+        $headers = [
+            'Content-type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename=template_import_guru.csv',
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0'
+        ];
+
+        $columns = ['nama_lengkap', 'nik', 'nip_nis', 'tgl_lahir', 'jk', 'no_telp', 'alamat', 'peran'];
+
+        $callback = function() use ($columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+            fputcsv($file, [
+                'Ahmad Fauzi',
+                '3515012345670003',
+                '198508202010122001',
+                '1985-08-20',
+                'L',
+                '085712345678',
+                'Surabaya, Jawa Timur',
+                'Guru, Wali Kelas'
+            ]);
+            fputcsv($file, [
+                'Siti Aminah',
+                '3515012345670004',
+                '199001152015042002',
+                '1990-01-15',
+                'P',
+                '087654321098',
+                'Malang, Jawa Timur',
+                'Guru, Staf Kurikulum'
+            ]);
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Proses import batch siswa via JSON API.
+     * Menerima array batch baris siswa, melakukan upsert berdasarkan NIK/NISN.
+     */
+    public function importBatchSiswa(Request $request)
+    {
+        $request->validate([
+            'batch' => ['required', 'array'],
+            'batch.*.nama_lengkap' => ['required', 'string', 'max:255'],
+            'batch.*.nik' => ['required', 'string', 'max:20'],
+            'batch.*.nip_nis' => ['required', 'string', 'max:30'],
+            'batch.*.tgl_lahir' => ['required', 'string'],
+            'batch.*.jk' => ['nullable', 'string'],
+            'batch.*.no_telp' => ['nullable', 'string', 'max:20'],
+            'batch.*.alamat' => ['nullable', 'string'],
+            'batch.*.kelas' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $berhasil = 0;
+        $gagal = 0;
+        $daftarError = [];
+
+        // Ambil tahun pelajaran aktif untuk pembuatan kelas otomatis
+        $tpAktif = \App\Models\TahunPelajaran::where('is_aktif', true)->first();
+
+        // Cari atau buat role "Siswa" secara otomatis
+        $roleSiswa = \App\Models\Role::whereRaw('LOWER(nama_role) = ?', ['siswa'])->first();
+        if (!$roleSiswa) {
+            $roleSiswa = \App\Models\Role::create(['nama_role' => 'Siswa', 'is_active' => true]);
+        }
+
+        foreach ($request->batch as $index => $baris) {
+            try {
+                $nik = trim((string)($baris['nik'] ?? ''));
+                $nipNis = trim((string)($baris['nip_nis'] ?? ''));
+                $namaLengkap = trim((string)($baris['nama_lengkap'] ?? ''));
+                $tglLahir = trim((string)($baris['tgl_lahir'] ?? ''));
+
+                if (empty($namaLengkap) || empty($nik) || empty($nipNis) || empty($tglLahir)) {
+                    $gagal++;
+                    $daftarError[] = "Baris " . ($baris['_nomor_baris'] ?? ($index + 1)) . ": Nama, NIK, NISN, dan Tanggal Lahir wajib diisi.";
+                    continue;
+                }
+
+                // Cek duplikasi berdasarkan NIK atau NIP/NIS (upsert logic)
+                $pengguna = User::where('nik', $nik)->orWhere('nip_nis', $nipNis)->first();
+
+                $dataPengguna = [
+                    'nama_lengkap' => $namaLengkap,
+                    'jk' => in_array(strtoupper(trim($baris['jk'] ?? '')), ['L', 'P']) ? strtoupper(trim($baris['jk'])) : null,
+                    'tgl_lahir' => $tglLahir,
+                    'nik' => $nik,
+                    'nip_nis' => $nipNis,
+                    'no_telp' => !empty($baris['no_telp']) ? trim((string)$baris['no_telp']) : null,
+                    'alamat' => !empty($baris['alamat']) ? trim((string)$baris['alamat']) : null,
+                    'is_active' => true,
+                ];
+
+                // Handle kelas - cari atau buat otomatis
+                $namaKelas = trim(strtoupper((string)($baris['kelas'] ?? '')));
+                if (!empty($namaKelas) && $tpAktif) {
+                    // Deteksi tingkat dari nama kelas (kata pertama: X, XI, XII, dll)
+                    $tingkat = '';
+                    if (preg_match('/^(XII|XI|X|IX|VIII|VII|VI|V|IV|III|II|I)\b/i', $namaKelas, $matches)) {
+                        $tingkat = strtoupper($matches[1]);
+                    }
+
+                    // Deteksi jurusan - ambil kata setelah tingkat dan angka, tanpa angka di akhir
+                    $jurusan = null;
+                    $sisaNama = trim(preg_replace('/^(XII|XI|X|IX|VIII|VII|VI|V|IV|III|II|I)\s*/i', '', $namaKelas));
+                    // Hapus angka di akhir (nomor kelas) beserta spasi
+                    $sisaNama = trim(preg_replace('/\s*\d+\s*$/', '', $sisaNama));
+                    if (!empty($sisaNama)) {
+                        $jurusan = $sisaNama;
+                    }
+
+                    $kelas = \App\Models\Kelas::whereRaw('UPPER(nama_kelas) = ?', [$namaKelas])
+                        ->where('tahun_pelajaran_id', $tpAktif->id)
+                        ->first();
+
+                    if (!$kelas) {
+                        $kelas = \App\Models\Kelas::create([
+                            'nama_kelas' => $namaKelas,
+                            'tingkat' => $tingkat,
+                            'jurusan' => $jurusan,
+                            'tahun_pelajaran_id' => $tpAktif->id,
+                        ]);
+                    }
+
+                    $dataPengguna['kelas_id'] = $kelas->id;
+                }
+
+                if ($pengguna) {
+                    // Update data yang sudah ada
+                    $pengguna->update($dataPengguna);
+                } else {
+                    // Buat pengguna baru tanpa email/password (akan diklaim nanti)
+                    $pengguna = User::create($dataPengguna);
+                }
+
+                // Pastikan role Siswa terhubung (sync tanpa detach role lain)
+                if (!$pengguna->roles()->where('role_id', $roleSiswa->id)->exists()) {
+                    $pengguna->roles()->attach($roleSiswa->id);
+                }
+
+                $berhasil++;
+            } catch (\Exception $e) {
+                $gagal++;
+                $daftarError[] = "Baris " . ($baris['_nomor_baris'] ?? ($index + 1)) . ": " . $e->getMessage();
+            }
+        }
+
+        return response()->json([
+            'berhasil' => $berhasil,
+            'gagal' => $gagal,
+            'errors' => $daftarError,
+        ]);
+    }
+
+    /**
+     * Proses import batch guru via JSON API.
+     * Menerima array batch baris guru, melakukan upsert berdasarkan NIK/NIP.
+     * Mendukung multi-role dari kolom peran (comma separated).
+     */
+    public function importBatchGuru(Request $request)
+    {
+        $request->validate([
+            'batch' => ['required', 'array'],
+            'batch.*.nama_lengkap' => ['required', 'string', 'max:255'],
+            'batch.*.nik' => ['required', 'string', 'max:20'],
+            'batch.*.nip_nis' => ['required', 'string', 'max:30'],
+            'batch.*.tgl_lahir' => ['required', 'string'],
+            'batch.*.jk' => ['nullable', 'string'],
+            'batch.*.no_telp' => ['nullable', 'string', 'max:20'],
+            'batch.*.alamat' => ['nullable', 'string'],
+            'batch.*.peran' => ['nullable', 'string'],
+        ]);
+
+        $berhasil = 0;
+        $gagal = 0;
+        $daftarError = [];
+
+        foreach ($request->batch as $index => $baris) {
+            try {
+                $nik = trim((string)($baris['nik'] ?? ''));
+                $nipNis = trim((string)($baris['nip_nis'] ?? ''));
+                $namaLengkap = trim((string)($baris['nama_lengkap'] ?? ''));
+                $tglLahir = trim((string)($baris['tgl_lahir'] ?? ''));
+
+                if (empty($namaLengkap) || empty($nik) || empty($nipNis) || empty($tglLahir)) {
+                    $gagal++;
+                    $daftarError[] = "Baris " . ($baris['_nomor_baris'] ?? ($index + 1)) . ": Nama, NIK, NIP, dan Tanggal Lahir wajib diisi.";
+                    continue;
+                }
+
+                // Cek duplikasi berdasarkan NIK atau NIP
+                $pengguna = User::where('nik', $nik)->orWhere('nip_nis', $nipNis)->first();
+
+                $dataPengguna = [
+                    'nama_lengkap' => $namaLengkap,
+                    'jk' => in_array(strtoupper(trim($baris['jk'] ?? '')), ['L', 'P']) ? strtoupper(trim($baris['jk'])) : null,
+                    'tgl_lahir' => $tglLahir,
+                    'nik' => $nik,
+                    'nip_nis' => $nipNis,
+                    'no_telp' => !empty($baris['no_telp']) ? trim((string)$baris['no_telp']) : null,
+                    'alamat' => !empty($baris['alamat']) ? trim((string)$baris['alamat']) : null,
+                    'is_active' => true,
+                ];
+
+                if ($pengguna) {
+                    $pengguna->update($dataPengguna);
+                } else {
+                    $pengguna = User::create($dataPengguna);
+                }
+
+                // Handle multi-role dari kolom peran (comma separated)
+                $peranRaw = trim((string)($baris['peran'] ?? ''));
+                if (!empty($peranRaw)) {
+                    $peranList = array_map('trim', explode(',', $peranRaw));
+                    $roleIds = [];
+
+                    foreach ($peranList as $namaPeran) {
+                        if (empty($namaPeran)) continue;
+
+                        $role = Role::whereRaw('LOWER(nama_role) = ?', [strtolower($namaPeran)])->first();
+                        if (!$role) {
+                            $role = Role::create(['nama_role' => ucwords($namaPeran), 'is_active' => true]);
+                        }
+                        $roleIds[] = $role->id;
+                    }
+
+                    if (!empty($roleIds)) {
+                        $pengguna->roles()->syncWithoutDetaching($roleIds);
+                    }
+                } else {
+                    // Default: assign role "Guru" jika kolom peran kosong
+                    $roleGuru = Role::whereRaw('LOWER(nama_role) = ?', ['guru'])->first();
+                    if (!$roleGuru) {
+                        $roleGuru = Role::create(['nama_role' => 'Guru', 'is_active' => true]);
+                    }
+                    if (!$pengguna->roles()->where('role_id', $roleGuru->id)->exists()) {
+                        $pengguna->roles()->attach($roleGuru->id);
+                    }
+                }
+
+                $berhasil++;
+            } catch (\Exception $e) {
+                $gagal++;
+                $daftarError[] = "Baris " . ($baris['_nomor_baris'] ?? ($index + 1)) . ": " . $e->getMessage();
+            }
+        }
+
+        return response()->json([
+            'berhasil' => $berhasil,
+            'gagal' => $gagal,
+            'errors' => $daftarError,
+        ]);
     }
 
     /**

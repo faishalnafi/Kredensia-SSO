@@ -42,6 +42,7 @@ use App\Http\Controllers\Superadmin\KeamananAkunController;
 use App\Http\Controllers\Superadmin\DokumentasiApiController;
 use App\Http\Controllers\Superadmin\KunciApiController;
 use App\Http\Controllers\Admin\DasborAdminController;
+use App\Http\Controllers\ImportPenggunaController;
 
 // Rute Dokumentasi API Standalone (Tanpa Sidebar/Menu Portal)
 Route::get('/api/docs', [DokumentasiApiController::class, 'standalone'])->name('api.docs');
@@ -75,6 +76,11 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/beranda', [DasborAdminController::class, 'indeks'])->name('beranda');
     Route::get('/manajemen-pengguna', [ManajemenPenggunaController::class, 'indeks'])->name('pengguna.indeks');
+    Route::post('/manajemen-pengguna/import-batch-siswa', [ManajemenPenggunaController::class, 'importBatchSiswa'])->name('pengguna.import-batch-siswa');
+    Route::post('/manajemen-pengguna/import-batch-guru', [ManajemenPenggunaController::class, 'importBatchGuru'])->name('pengguna.import-batch-guru');
+    Route::get('/manajemen-pengguna/template-siswa', [ManajemenPenggunaController::class, 'unduhTemplateSiswa'])->name('pengguna.template-siswa');
+    Route::get('/manajemen-pengguna/template-guru', [ManajemenPenggunaController::class, 'unduhTemplateGuru'])->name('pengguna.template-guru');
+    Route::get('/import-pengguna', [ImportPenggunaController::class, 'indeks'])->name('import-pengguna.indeks');
     
     Route::get('/persetujuan-data', [PersetujuanDataController::class, 'indeks'])->name('persetujuan.indeks');
     Route::post('/persetujuan-data/{id}/setujui', [PersetujuanDataController::class, 'setujui'])->name('persetujuan.setujui');
@@ -117,6 +123,11 @@ Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmi
     Route::get('/manajemen-pengguna/template-csv', [ManajemenPenggunaController::class, 'unduhTemplate'])->name('pengguna.template-csv');
     Route::get('/manajemen-pengguna/template-excel', [ManajemenPenggunaController::class, 'unduhTemplateExcel'])->name('pengguna.template-excel');
     Route::post('/manajemen-pengguna/import', [ManajemenPenggunaController::class, 'import'])->name('pengguna.import');
+    Route::post('/manajemen-pengguna/import-batch-siswa', [ManajemenPenggunaController::class, 'importBatchSiswa'])->name('pengguna.import-batch-siswa');
+    Route::post('/manajemen-pengguna/import-batch-guru', [ManajemenPenggunaController::class, 'importBatchGuru'])->name('pengguna.import-batch-guru');
+    Route::get('/manajemen-pengguna/template-siswa', [ManajemenPenggunaController::class, 'unduhTemplateSiswa'])->name('pengguna.template-siswa');
+    Route::get('/manajemen-pengguna/template-guru', [ManajemenPenggunaController::class, 'unduhTemplateGuru'])->name('pengguna.template-guru');
+    Route::get('/import-pengguna', [ImportPenggunaController::class, 'indeks'])->name('import-pengguna.indeks');
 
     Route::get('/pengaturan-sistem', [PengaturanSistemController::class, 'indeks'])->name('pengaturan.indeks');
     Route::post('/pengaturan-sistem', [PengaturanSistemController::class, 'perbarui'])->name('pengaturan.perbarui');
