@@ -218,6 +218,38 @@ class ManajemenPenggunaController extends Controller
     }
 
     /**
+     * Otentikasi / Masuk sebagai pengguna lain (Impersonation).
+     */
+    public function loginSebagaiPengguna(Request $request, string $id): RedirectResponse
+    {
+        if ($id === auth()->id()) {
+            return redirect()->back()->with('error', 'Anda sudah masuk menggunakan akun ini.');
+        }
+
+        $targetUser = User::findOrFail($id);
+
+        \App\Services\LayananLogAktivitas::catat(
+            'Masuk sebagai pengguna lain: ' . $targetUser->nama_lengkap . ' (' . ($targetUser->email ?: $targetUser->nik) . ')',
+            auth()->user()->email ?? '',
+            auth()->id()
+        );
+
+        \Illuminate\Support\Facades\Auth::login($targetUser);
+        $request->session()->regenerate();
+
+        if ($targetUser->hasRole('Super Admin') || $targetUser->hasRole('superadmin')) {
+            return redirect()->route('superadmin.beranda')->with('success', 'Berhasil masuk sebagai ' . $targetUser->nama_lengkap);
+        }
+
+        if ($targetUser->hasRole('Admin') || $targetUser->hasRole('admin')) {
+            return redirect()->route('admin.beranda')->with('success', 'Berhasil masuk sebagai ' . $targetUser->nama_lengkap);
+        }
+
+        return redirect()->route('dasbor')->with('success', 'Berhasil masuk sebagai ' . $targetUser->nama_lengkap);
+    }
+
+
+    /**
      * Unduh template CSV untuk import massal pengguna.
      */
     public function unduhTemplate(): \Symfony\Component\HttpFoundation\StreamedResponse

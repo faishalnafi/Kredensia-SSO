@@ -187,6 +187,17 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
         }
     };
 
+    const tanganiLoginSebagai = (user) => {
+        if (user.id === auth.user.id) {
+            alert('Anda sudah masuk dengan akun ini.');
+            return;
+        }
+
+        if (confirm(`Apakah Anda yakin ingin masuk sebagai pengguna "${user.nama_lengkap}" (${user.email || user.nik})? Sesi Anda akan beralih ke akun ini.`)) {
+            router.post(route(`${pathPrefix}.pengguna.login-sebagai`, user.id));
+        }
+    };
+
     const toggleRoleSelection = (roleId) => {
         const currentSelection = [...data.selected_roles];
         const index = currentSelection.indexOf(roleId);
@@ -342,7 +353,16 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                                                     </span>
                                                 )}
                                             </td>
-                                            <td className="px-6 py-4 text-right space-x-1.5">
+                                             <td className="px-6 py-4 text-right space-x-1.5">
+                                                {user.id !== auth.user.id && (
+                                                    <button 
+                                                        onClick={() => tanganiLoginSebagai(user)}
+                                                        className="text-emerald-600 hover:text-emerald-800 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 p-2 rounded-xl transition-colors"
+                                                        title="Masuk sebagai Pengguna ini (Login As User)"
+                                                    >
+                                                        <span className="material-symbols-rounded text-lg">passkey</span>
+                                                    </button>
+                                                )}
                                                 <button 
                                                     onClick={() => bukaModalEdit(user)}
                                                     className="text-blue-500 hover:text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 p-2 rounded-xl transition-colors"

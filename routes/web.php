@@ -99,6 +99,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/manajemen-pengguna', [ManajemenPenggunaController::class, 'simpan'])->name('pengguna.simpan');
     Route::put('/manajemen-pengguna/{id}', [ManajemenPenggunaController::class, 'perbarui'])->name('pengguna.perbarui');
     Route::delete('/manajemen-pengguna/{id}', [ManajemenPenggunaController::class, 'hapus'])->name('pengguna.hapus');
+    Route::post('/manajemen-pengguna/{id}/login-sebagai', [ManajemenPenggunaController::class, 'loginSebagaiPengguna'])->name('pengguna.login-sebagai');
     Route::get('/manajemen-pengguna/template-csv', [ManajemenPenggunaController::class, 'unduhTemplate'])->name('pengguna.template-csv');
     Route::get('/manajemen-pengguna/template-excel', [ManajemenPenggunaController::class, 'unduhTemplateExcel'])->name('pengguna.template-excel');
     Route::post('/manajemen-pengguna/import', [ManajemenPenggunaController::class, 'import'])->name('pengguna.import');
@@ -150,6 +151,7 @@ Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmi
     Route::post('/manajemen-pengguna', [ManajemenPenggunaController::class, 'simpan'])->name('pengguna.simpan');
     Route::put('/manajemen-pengguna/{id}', [ManajemenPenggunaController::class, 'perbarui'])->name('pengguna.perbarui');
     Route::delete('/manajemen-pengguna/{id}', [ManajemenPenggunaController::class, 'hapus'])->name('pengguna.hapus');
+    Route::post('/manajemen-pengguna/{id}/login-sebagai', [ManajemenPenggunaController::class, 'loginSebagaiPengguna'])->name('pengguna.login-sebagai');
     Route::get('/manajemen-pengguna/template-csv', [ManajemenPenggunaController::class, 'unduhTemplate'])->name('pengguna.template-csv');
     Route::get('/manajemen-pengguna/template-excel', [ManajemenPenggunaController::class, 'unduhTemplateExcel'])->name('pengguna.template-excel');
     Route::post('/manajemen-pengguna/import', [ManajemenPenggunaController::class, 'import'])->name('pengguna.import');

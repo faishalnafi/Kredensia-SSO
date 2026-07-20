@@ -72,21 +72,35 @@ class SetupController extends Controller
 
             // 3. Buat User Superadmin
             $superadmin = User::create([
-                'nama_lengkap' => 'Super Admin',
-                'email' => 'superadmin@faishalnafi.com',
-                'password' => Hash::make('superadmin'),
-                'is_active' => true,
-                'claimed_at' => now(),
+                'nama_lengkap'            => 'Super Admin',
+                'email'                   => 'superadmin@faishalnafi.com',
+                'password'                => Hash::make('@Password123'),
+                'jk'                      => 'L',
+                'tgl_lahir'               => '2000-10-01',
+                'nik'                     => '1029384756564738',
+                'nip_nis'                 => '123456789012345678',
+                'no_telp'                 => '081234567890',
+                'alamat'                  => 'Jakarta',
+                'is_active'               => true,
+                'claimed_at'              => now(),
+                'biodata_dilengkapi_pada' => now(),
             ]);
             $superadmin->roles()->attach($roleSuperAdmin->id);
 
             // 4. Buat User Admin
             $admin = User::create([
-                'nama_lengkap' => 'Admin',
-                'email' => 'admin@faishalnafi.com',
-                'password' => Hash::make('admin'),
-                'is_active' => true,
-                'claimed_at' => now(),
+                'nama_lengkap'            => 'Admin',
+                'email'                   => 'admin@faishalnafi.com',
+                'password'                => Hash::make('@Password123'),
+                'jk'                      => 'P',
+                'tgl_lahir'               => '2000-10-01',
+                'nik'                     => '1029384756102938',
+                'nip_nis'                 => '123456789098765432',
+                'no_telp'                 => '081234567891',
+                'alamat'                  => 'Jakarta',
+                'is_active'               => true,
+                'claimed_at'              => now(),
+                'biodata_dilengkapi_pada' => now(),
             ]);
             $admin->roles()->attach($roleAdmin->id);
 

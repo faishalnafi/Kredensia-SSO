@@ -132,13 +132,13 @@
                     <div class="p-3 bg-slate-950/70 border border-slate-800 rounded-xl space-y-1">
                         <span class="text-[#0F91FC] font-bold block">[ 1. Akun Super Admin ]</span>
                         <div>Email: <span class="text-white select-all">superadmin@faishalnafi.com</span></div>
-                        <div>Sandi: <span class="text-white select-all">superadmin</span></div>
+                        <div>Sandi: <span class="text-white select-all">@Password123</span></div>
                     </div>
                     
                     <div class="p-3 bg-slate-950/70 border border-slate-800 rounded-xl space-y-1">
                         <span class="text-emerald-400 font-bold block">[ 2. Akun Admin ]</span>
                         <div>Email: <span class="text-white select-all">admin@faishalnafi.com</span></div>
-                        <div>Sandi: <span class="text-white select-all">admin</span></div>
+                        <div>Sandi: <span class="text-white select-all">@Password123</span></div>
                     </div>
                 </div>
             </div>
