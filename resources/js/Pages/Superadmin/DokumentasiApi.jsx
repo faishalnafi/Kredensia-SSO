@@ -343,7 +343,7 @@ export default function DokumentasiApi() {
     {
       "id": "998df9a8-e123-4567-8910-abcdef123456",
       "nama_lengkap": "Nafi' Mukhtar",
-      "email": "nafi@smage.sch.id",
+      "email": "nafi@kredensia.id",
       "nik": "3515012345670001",
       "nip_nis": "12345",
       "jk": "L",

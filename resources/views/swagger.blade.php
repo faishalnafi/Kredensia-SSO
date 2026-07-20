@@ -42,7 +42,7 @@
                     <span class="material-symbols-rounded text-xl">vpn_key</span>
                 </div>
                 <div>
-                    <h1 class="text-base font-extrabold tracking-tight text-white">SMAGE ID</h1>
+                    <h1 class="text-base font-extrabold tracking-tight text-white">Kredensia ID</h1>
                     <p class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">SSO Portal API Docs</p>
                 </div>
             </div>
@@ -157,7 +157,7 @@
                 </p>
 
                 <div class="relative">
-                    <pre class="bg-slate-950 text-sky-400 font-mono text-sm px-5 py-4 rounded-2xl border border-slate-800 pr-16 select-all overflow-x-auto" id="baseurl-text">https://portal.smage.my.id/api/v1</pre>
+                    <pre class="bg-slate-950 text-sky-400 font-mono text-sm px-5 py-4 rounded-2xl border border-slate-800 pr-16 select-all overflow-x-auto" id="baseurl-text">https://portal.kredensia.id/api/v1</pre>
                     <button onclick="salinBaseUrl()" id="baseurl-btn" class="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-slate-800 hover:bg-slate-700 text-slate-300">
                         Salin
                     </button>
@@ -187,7 +187,7 @@
                     <div class="space-y-2">
                         <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Contoh Request (cURL)</span>
                         <div class="relative font-mono">
-                            <pre class="bg-slate-950 text-slate-300 text-xs px-5 py-4 rounded-2xl border border-slate-800 overflow-x-auto pr-16 leading-relaxed" id="curl-test-text">curl -X GET "https://portal.smage.my.id/api/v1/test" \
+                            <pre class="bg-slate-950 text-slate-300 text-xs px-5 py-4 rounded-2xl border border-slate-800 overflow-x-auto pr-16 leading-relaxed" id="curl-test-text">curl -X GET "https://portal.kredensia.id/api/v1/test" \
   -H "X-API-Key: YOUR_API_KEY_HERE"</pre>
                             <button onclick="salinSeksi('curl-test-text', 'copy-test-btn')" id="copy-test-btn" class="absolute right-3 top-3 px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-[10px] font-bold text-slate-300 rounded-md transition-all">Copy</button>
                         </div>
@@ -278,7 +278,7 @@
                     <div class="space-y-2 font-mono">
                         <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Contoh Request (cURL)</span>
                         <div class="relative">
-                            <pre class="bg-slate-950 text-slate-300 text-xs px-5 py-4 rounded-2xl border border-slate-800 overflow-x-auto pr-16 leading-relaxed" id="curl-members-text">curl -X GET "https://portal.smage.my.id/api/v1/members?role=siswa&page=1&per_page=10" \
+                            <pre class="bg-slate-950 text-slate-300 text-xs px-5 py-4 rounded-2xl border border-slate-800 overflow-x-auto pr-16 leading-relaxed" id="curl-members-text">curl -X GET "https://portal.kredensia.id/api/v1/members?role=siswa&page=1&per_page=10" \
   -H "X-API-Key: YOUR_API_KEY_HERE"</pre>
                             <button onclick="salinSeksi('curl-members-text', 'copy-mem-btn')" id="copy-mem-btn" class="absolute right-3 top-3 px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-[10px] font-bold text-slate-300 rounded-md transition-all">Copy</button>
                         </div>
@@ -294,7 +294,7 @@
     {
       "id": "998df9a8-e123-4567-8910-abcdef123456",
       "nama_lengkap": "Nafi' Mukhtar",
-      "email": "nafi@smage.sch.id",
+      "email": "nafi@kredensia.id",
       "nik": "3515012345670001",
       "nip_nis": "12345",
       "jk": "L",
@@ -380,7 +380,7 @@
 &lt;?php
 
 $apiKey = 'YOUR_API_KEY_HERE';
-$url = 'https://portal.smage.my.id/api/v1/members?role=siswa';
+$url = 'https://portal.kredensia.id/api/v1/members?role=siswa';
 
 $ch = curl_init($url);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -485,7 +485,7 @@ if ($statusCode === 200) {
         document.getElementById('curl-members-text').innerText = `curl -X GET "` + apiBaseUrl + `/v1/members?role=siswa&page=1&per_page=10" \\\n  -H "X-API-Key: YOUR_API_KEY_HERE"`;
         
         const phpCodeNode = document.getElementById('php-code');
-        phpCodeNode.innerHTML = phpCodeNode.innerHTML.replace('https://portal.smage.my.id/api', apiBaseUrl);
+        phpCodeNode.innerHTML = phpCodeNode.innerHTML.replace('https://portal.kredensia.id/api', apiBaseUrl);
 
         function scrollKe(id) {
             const el = document.getElementById(id);

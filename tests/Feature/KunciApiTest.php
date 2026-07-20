@@ -116,8 +116,8 @@ class KunciApiTest extends TestCase
         
         // Buat file CSV di memory
         $csvContent = "nama_lengkap,email,password,jk,tgl_lahir,nik,nip_nis,no_telp,alamat,nama_peran\n";
-        $csvContent .= "Budi Santoso,budi@smage.sch.id,secret123,L,2008-04-15,3515012345670002,260012345,081234567891,Sidoarjo,Siswa\n";
-        $csvContent .= "Siti Aminah,siti@smage.sch.id,secret567,P,1985-08-20,3515012345670003,198508202010,085712345678,Surabaya,Guru BK\n";
+        $csvContent .= "Budi Santoso,budi@kredensia.id,secret123,L,2008-04-15,3515012345670002,260012345,081234567891,Sidoarjo,Siswa\n";
+        $csvContent .= "Siti Aminah,siti@kredensia.id,secret567,P,1985-08-20,3515012345670003,198508202010,085712345678,Surabaya,Guru BK\n";
 
         $tempFile = tmpfile();
         fwrite($tempFile, $csvContent);
@@ -143,12 +143,12 @@ class KunciApiTest extends TestCase
 
         // Pastikan user tersimpan
         $this->assertDatabaseHas('users', [
-            'email' => 'budi@smage.sch.id',
+            'email' => 'budi@kredensia.id',
             'nama_lengkap' => 'Budi Santoso'
         ]);
 
         $this->assertDatabaseHas('users', [
-            'email' => 'siti@smage.sch.id',
+            'email' => 'siti@kredensia.id',
             'nama_lengkap' => 'Siti Aminah'
         ]);
 
@@ -158,11 +158,11 @@ class KunciApiTest extends TestCase
         ]);
 
         // Pastikan Budi memiliki role Siswa
-        $budi = User::where('email', 'budi@smage.sch.id')->first();
+        $budi = User::where('email', 'budi@kredensia.id')->first();
         $this->assertTrue($budi->roles->contains('nama_role', 'Siswa'));
 
         // Pastikan Siti memiliki role Guru BK
-        $siti = User::where('email', 'siti@smage.sch.id')->first();
+        $siti = User::where('email', 'siti@kredensia.id')->first();
         $this->assertTrue($siti->roles->contains('nama_role', 'Guru BK'));
 
         fclose($tempFile);
