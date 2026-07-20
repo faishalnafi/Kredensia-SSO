@@ -135,6 +135,19 @@ class DatabaseSeeder extends Seeder
         // Joko Purwanto adalah Guru DAN GDS (Multi-role)
         $guruGDS->roles()->attach([$roleGuru->id, $roleGDS->id]);
 
+        $guruAulia = User::create([
+            'nama_lengkap' => 'Aulia Rahma, S.Pd',
+            'email' => 'aulia@sekolah.sch.id',
+            'password' => Hash::make('guru123'),
+            'jk' => 'P',
+            'tgl_lahir' => '1992-04-18',
+            'nik' => '3201020304050099',
+            'nip_nis' => '199204182018012001',
+            'is_active' => true,
+            'claimed_at' => now(), // langsung set aktif & terklaim agar bisa langsung login
+        ]);
+        $guruAulia->roles()->attach([$roleGuru->id]);
+
         $siswa = User::create([
             'nama_lengkap' => 'Ahmad Fauzi',
             'email' => 'siswa@sekolah.sch.id',
