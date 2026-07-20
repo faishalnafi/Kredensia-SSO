@@ -31,6 +31,8 @@ export default function TataLetakUtama({ children, title }) {
             { nama: 'Tahun Pelajaran', rute: route('superadmin.tahun-pelajaran.index'), ikon: 'calendar_month', aktif: url.startsWith('/superadmin/tahun-pelajaran') },
             { nama: 'Manajemen Kelas', rute: route('superadmin.kelas.index'), ikon: 'meeting_room', aktif: url.startsWith('/superadmin/kelas') },
             { nama: 'Dokumentasi API', rute: route('superadmin.dokumentasi.indeks'), ikon: 'api', aktif: url.startsWith('/superadmin/dokumentasi-api') },
+            { nama: 'Backup & Restore', rute: route('superadmin.backup-restore.indeks'), ikon: 'cloud_sync', aktif: url.startsWith('/superadmin/backup-restore') },
+            { nama: 'Hapus Data', rute: route('superadmin.hapus-data.indeks'), ikon: 'delete_sweep', aktif: url.startsWith('/superadmin/hapus-data') },
             { nama: 'Profil Saya', rute: route('profil.indeks'), ikon: 'person', aktif: url.startsWith('/profil-saya') },
             { nama: 'Keamanan Akun', rute: route('keamanan.indeks'), ikon: 'security', aktif: url.startsWith('/keamanan-akun') },
         ];
@@ -43,6 +45,7 @@ export default function TataLetakUtama({ children, title }) {
             { nama: 'Log Aktivitas', rute: route('admin.log.indeks'), ikon: 'history', aktif: url.startsWith('/admin/log-aktivitas') },
             { nama: 'Tahun Pelajaran', rute: route('admin.tahun-pelajaran.index'), ikon: 'calendar_month', aktif: url.startsWith('/admin/tahun-pelajaran') },
             { nama: 'Manajemen Kelas', rute: route('admin.kelas.index'), ikon: 'meeting_room', aktif: url.startsWith('/admin/kelas') },
+            { nama: 'Hapus Data', rute: route('admin.hapus-data.indeks'), ikon: 'delete_sweep', aktif: url.startsWith('/admin/hapus-data') },
             { nama: 'Profil Saya', rute: route('profil.indeks'), ikon: 'person', aktif: url.startsWith('/profil-saya') },
             { nama: 'Keamanan Akun', rute: route('keamanan.indeks'), ikon: 'security', aktif: url.startsWith('/keamanan-akun') },
         ];

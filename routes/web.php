@@ -41,7 +41,10 @@ use App\Http\Controllers\Superadmin\ProfilSayaController;
 use App\Http\Controllers\Superadmin\KeamananAkunController;
 use App\Http\Controllers\Superadmin\DokumentasiApiController;
 use App\Http\Controllers\Superadmin\KunciApiController;
+use App\Http\Controllers\Superadmin\BackupRestoreController;
+use App\Http\Controllers\Superadmin\HapusDataController;
 use App\Http\Controllers\Admin\DasborAdminController;
+use App\Http\Controllers\Admin\HapusDataAdminController;
 use App\Http\Controllers\ImportPenggunaController;
 
 // Rute Dokumentasi API Standalone (Tanpa Sidebar/Menu Portal)
@@ -114,6 +117,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/kelas', [App\Http\Controllers\KelasController::class, 'store'])->name('kelas.store');
     Route::put('/kelas/{kelas}', [App\Http\Controllers\KelasController::class, 'update'])->name('kelas.update');
     Route::delete('/kelas/{kelas}', [App\Http\Controllers\KelasController::class, 'destroy'])->name('kelas.destroy');
+
+    # Hapus Data Keseluruhan (Admin)
+    Route::get('/hapus-data', [HapusDataAdminController::class, 'indeks'])->name('hapus-data.indeks');
+    Route::get('/hapus-data/unduh-backup', [HapusDataAdminController::class, 'unduhBackup'])->name('hapus-data.unduh-backup');
+    Route::delete('/hapus-data', [HapusDataAdminController::class, 'prosesHapus'])->name('hapus-data.proses');
 });
 
 // Rute khusus Superadmin
@@ -171,6 +179,16 @@ Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmi
     Route::post('/kelas', [App\Http\Controllers\KelasController::class, 'store'])->name('kelas.store');
     Route::put('/kelas/{kelas}', [App\Http\Controllers\KelasController::class, 'update'])->name('kelas.update');
     Route::delete('/kelas/{kelas}', [App\Http\Controllers\KelasController::class, 'destroy'])->name('kelas.destroy');
+
+    # Backup & Restore Data (Superadmin only)
+    Route::get('/backup-restore', [BackupRestoreController::class, 'indeks'])->name('backup-restore.indeks');
+    Route::get('/backup-restore/unduh', [BackupRestoreController::class, 'unduhBackup'])->name('backup-restore.unduh');
+    Route::post('/backup-restore/restore', [BackupRestoreController::class, 'unggahRestore'])->name('backup-restore.restore');
+
+    # Hapus Data Keseluruhan (Superadmin)
+    Route::get('/hapus-data', [HapusDataController::class, 'indeks'])->name('hapus-data.indeks');
+    Route::get('/hapus-data/unduh-backup', [HapusDataController::class, 'unduhBackup'])->name('hapus-data.unduh-backup');
+    Route::delete('/hapus-data', [HapusDataController::class, 'prosesHapus'])->name('hapus-data.proses');
 });
 
 require __DIR__.'/auth.php';
