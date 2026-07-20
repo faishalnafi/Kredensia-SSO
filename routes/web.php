@@ -75,7 +75,22 @@ Route::middleware('auth')->group(function () {
 // Rute khusus Admin
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/beranda', [DasborAdminController::class, 'indeks'])->name('beranda');
+    
+    // Manajemen Aplikasi untuk Admin
+    Route::get('/manajemen-aplikasi', [AplikasiTerdaftarController::class, 'indeks'])->name('aplikasi.indeks');
+    Route::post('/manajemen-aplikasi', [AplikasiTerdaftarController::class, 'simpan'])->name('aplikasi.simpan');
+    Route::put('/manajemen-aplikasi/{id}', [AplikasiTerdaftarController::class, 'perbarui'])->name('aplikasi.perbarui');
+    Route::delete('/manajemen-aplikasi/{id}', [AplikasiTerdaftarController::class, 'hapus'])->name('aplikasi.hapus');
+    Route::post('/manajemen-aplikasi/{id}/generate-secret', [AplikasiTerdaftarController::class, 'regenerateSecret'])->name('aplikasi.regenerate');
+
+    // Manajemen Pengguna untuk Admin
     Route::get('/manajemen-pengguna', [ManajemenPenggunaController::class, 'indeks'])->name('pengguna.indeks');
+    Route::post('/manajemen-pengguna', [ManajemenPenggunaController::class, 'simpan'])->name('pengguna.simpan');
+    Route::put('/manajemen-pengguna/{id}', [ManajemenPenggunaController::class, 'perbarui'])->name('pengguna.perbarui');
+    Route::delete('/manajemen-pengguna/{id}', [ManajemenPenggunaController::class, 'hapus'])->name('pengguna.hapus');
+    Route::get('/manajemen-pengguna/template-csv', [ManajemenPenggunaController::class, 'unduhTemplate'])->name('pengguna.template-csv');
+    Route::get('/manajemen-pengguna/template-excel', [ManajemenPenggunaController::class, 'unduhTemplateExcel'])->name('pengguna.template-excel');
+    Route::post('/manajemen-pengguna/import', [ManajemenPenggunaController::class, 'import'])->name('pengguna.import');
     Route::post('/manajemen-pengguna/import-batch-siswa', [ManajemenPenggunaController::class, 'importBatchSiswa'])->name('pengguna.import-batch-siswa');
     Route::post('/manajemen-pengguna/import-batch-guru', [ManajemenPenggunaController::class, 'importBatchGuru'])->name('pengguna.import-batch-guru');
     Route::get('/manajemen-pengguna/template-siswa', [ManajemenPenggunaController::class, 'unduhTemplateSiswa'])->name('pengguna.template-siswa');

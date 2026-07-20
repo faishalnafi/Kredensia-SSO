@@ -120,7 +120,7 @@ class AplikasiTerdaftarController extends Controller
         Cache::forget('superadmin:statistik');
         \App\Services\LayananLogAktivitas::catat('Mendaftarkan aplikasi baru: ' . $app->nama_aplikasi);
 
-        return redirect()->route('superadmin.aplikasi.indeks')
+        return redirect()->route($this->dapatkanRuteIndeks())
             ->with('success', 'Aplikasi berhasil ditambahkan.')
             ->with('api_key_baru', $clientSecret);
     }
@@ -228,7 +228,7 @@ class AplikasiTerdaftarController extends Controller
                 Cache::forget('superadmin:statistik');
                 \App\Services\LayananLogAktivitas::catat('Memperbarui data aplikasi: ' . $updateData['nama_aplikasi'] . ' (URL Callback berubah, Client ID & Secret baru dibuat)');
                 
-                return redirect()->route('superadmin.aplikasi.indeks')
+                return redirect()->route($this->dapatkanRuteIndeks())
                     ->with('success', 'Data aplikasi diperbarui, Client ID & Secret baru berhasil dibuat.')
                     ->with('api_key_baru', $newSecret);
 
@@ -249,7 +249,7 @@ class AplikasiTerdaftarController extends Controller
         Cache::forget('superadmin:statistik');
         \App\Services\LayananLogAktivitas::catat('Memperbarui data aplikasi: ' . $app->nama_aplikasi);
 
-        return redirect()->route('superadmin.aplikasi.indeks')->with('success', 'Data aplikasi berhasil diperbarui.');
+        return redirect()->route($this->dapatkanRuteIndeks())->with('success', 'Data aplikasi berhasil diperbarui.');
     }
 
     /**
@@ -276,7 +276,7 @@ class AplikasiTerdaftarController extends Controller
         Cache::forget('superadmin:statistik');
         \App\Services\LayananLogAktivitas::catat('Menghapus aplikasi: ' . $app->nama_aplikasi);
 
-        return redirect()->route('superadmin.aplikasi.indeks')->with('success', 'Aplikasi berhasil dihapus.');
+        return redirect()->route($this->dapatkanRuteIndeks())->with('success', 'Aplikasi berhasil dihapus.');
     }
 
     /**
@@ -287,7 +287,7 @@ class AplikasiTerdaftarController extends Controller
         $app = RegisteredApp::findOrFail($id);
 
         if (empty($app->login_callback_url)) {
-            return redirect()->route('superadmin.aplikasi.indeks')
+            return redirect()->route($this->dapatkanRuteIndeks())
                 ->with('error', 'Gagal: Aplikasi non-SSO (tidak ada URL callback) tidak membutuhkan Client Secret.');
         }
 
@@ -301,7 +301,7 @@ class AplikasiTerdaftarController extends Controller
 
         \App\Services\LayananLogAktivitas::catat('Meregenerasi Client Secret aplikasi: ' . $app->nama_aplikasi);
 
-        return redirect()->route('superadmin.aplikasi.indeks')
+        return redirect()->route($this->dapatkanRuteIndeks())
             ->with('success', 'Client Secret berhasil digenerate ulang.')
             ->with('api_key_baru', $clientSecretBaru);
     }
@@ -351,5 +351,14 @@ class AplikasiTerdaftarController extends Controller
         @unlink($tempPath);
 
         return $fileName;
+    }
+
+    /**
+     * Dapatkan nama rute indeks aplikasi berdasarkan prefix request.
+     */
+    private function dapatkanRuteIndeks(): string
+    {
+        $prefix = request()->is('admin/*') ? 'admin' : 'superadmin';
+        return "{$prefix}.aplikasi.indeks";
     }
 }

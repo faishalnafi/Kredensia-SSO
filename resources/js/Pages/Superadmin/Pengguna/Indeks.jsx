@@ -25,9 +25,11 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
         file_import: null
     });
 
+    const pathPrefix = window.location.pathname.startsWith('/superadmin') ? 'superadmin' : 'admin';
+
     const tanganiImport = (e) => {
         e.preventDefault();
-        postImport(route('superadmin.pengguna.import'), {
+        postImport(route(`${pathPrefix}.pengguna.import`), {
             onSuccess: () => {
                 setModalImportBuka(false);
                 resetImport();
@@ -153,14 +155,14 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
     const tanganiSubmit = (e) => {
         e.preventDefault();
         if (editMode) {
-            put(route('superadmin.pengguna.perbarui', selectedUserId), {
+            put(route(`${pathPrefix}.pengguna.perbarui`, selectedUserId), {
                 onSuccess: () => {
                     setModalBuka(false);
                     reset();
                 }
             });
         } else {
-            post(route('superadmin.pengguna.simpan'), {
+            post(route(`${pathPrefix}.pengguna.simpan`), {
                 onSuccess: () => {
                     setModalBuka(false);
                     reset();
@@ -176,7 +178,7 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
         }
 
         if (confirm(`Apakah Anda yakin ingin menghapus pengguna "${user.nama_lengkap}"? Seluruh data otentikasi dan peran untuk pengguna ini akan dihapus secara permanen.`)) {
-            destroy(route('superadmin.pengguna.hapus', user.id), {
+            destroy(route(`${pathPrefix}.pengguna.hapus`, user.id), {
                 preserveScroll: true
             });
         }

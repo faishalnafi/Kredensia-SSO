@@ -131,6 +131,8 @@ export default function ManajemenAplikasi({ daftarAplikasi, daftarPeran, apiKeyB
         setData('sort_order', sortVal);
     };
 
+    const pathPrefix = window.location.pathname.startsWith('/superadmin') ? 'superadmin' : 'admin';
+
     const tanganiSubmit = (e) => {
         e.preventDefault();
 
@@ -149,7 +151,7 @@ export default function ManajemenAplikasi({ daftarAplikasi, daftarPeran, apiKeyB
         if (editMode) {
             // Gunakan method put() bawaan useForm agar array selected_roles ter-serialize dengan benar
             // saat dikirim sebagai multipart/form-data bersama logo_file
-            put(route('superadmin.aplikasi.perbarui', selectedAppId), {
+            put(route(`${pathPrefix}.aplikasi.perbarui`, selectedAppId), {
                 onSuccess: () => {
                     setModalBuka(false);
                     reset();
@@ -158,7 +160,7 @@ export default function ManajemenAplikasi({ daftarAplikasi, daftarPeran, apiKeyB
             });
         } else {
             // Gunakan method post() bawaan useForm agar array selected_roles ter-serialize dengan benar
-            post(route('superadmin.aplikasi.simpan'), {
+            post(route(`${pathPrefix}.aplikasi.simpan`), {
                 onSuccess: () => {
                     setModalBuka(false);
                     reset();
@@ -170,13 +172,13 @@ export default function ManajemenAplikasi({ daftarAplikasi, daftarPeran, apiKeyB
 
     const tanganiHapus = (id, nama) => {
         if (confirm(`Apakah Anda yakin ingin menghapus aplikasi "${nama}"?`)) {
-            router.delete(route('superadmin.aplikasi.hapus', id));
+            router.delete(route(`${pathPrefix}.aplikasi.hapus`, id));
         }
     };
 
     const tanganiRegenerateSecret = (id, nama) => {
         if (confirm(`PERINGATAN KESELAMATAN:\nApakah Anda yakin ingin men-generate ulang Client Secret untuk "${nama}"?\n\nKunci lama akan langsung tidak berlaku dan integrasi sistem eksternal tersebut akan terputus sampai Anda memasukkan kunci baru.`)) {
-            router.post(route('superadmin.aplikasi.regenerate', id));
+            router.post(route(`${pathPrefix}.aplikasi.regenerate`, id));
         }
     };
 

@@ -37,6 +37,7 @@ export default function TataLetakUtama({ children, title }) {
     } else if (isAdmin) {
         menuItems = [
             { nama: 'Beranda Admin', rute: route('admin.beranda'), ikon: 'dashboard', aktif: url.startsWith('/admin/beranda') },
+            { nama: 'Aplikasi Portal', rute: route('admin.aplikasi.indeks'), ikon: 'apps', aktif: url.startsWith('/admin/manajemen-aplikasi') },
             { nama: 'Manajemen Pengguna', rute: route('admin.pengguna.indeks'), ikon: 'group', aktif: url.startsWith('/admin/manajemen-pengguna') },
             { nama: 'Persetujuan Data', rute: route('admin.persetujuan.indeks'), ikon: 'fact_check', aktif: url.startsWith('/admin/persetujuan-data') },
             { nama: 'Log Aktivitas', rute: route('admin.log.indeks'), ikon: 'history', aktif: url.startsWith('/admin/log-aktivitas') },
