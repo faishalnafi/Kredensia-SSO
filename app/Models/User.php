@@ -94,4 +94,13 @@ class User extends Authenticatable
         $hash = md5(strtolower(trim($this->email ?? '')));
         return "https://www.gravatar.com/avatar/{$hash}?d=identicon";
     }
+
+    /**
+     * Relasi ke Kelas jika pengguna ini bertindak sebagai Wali Kelas.
+     */
+    public function kelasWali()
+    {
+        return $this->hasOne(Kelas::class, 'wali_kelas_id');
+    }
 }
+

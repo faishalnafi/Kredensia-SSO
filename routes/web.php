@@ -81,6 +81,18 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/persetujuan-data/{id}/tolak', [PersetujuanDataController::class, 'tolak'])->name('persetujuan.tolak');
 
     Route::get('/log-aktivitas', [LogAktivitasController::class, 'indeks'])->name('log.indeks');
+
+    // Manajemen Tahun Pelajaran & Kelas
+    Route::get('/tahun-pelajaran', [App\Http\Controllers\TahunPelajaranController::class, 'index'])->name('tahun-pelajaran.index');
+    Route::post('/tahun-pelajaran', [App\Http\Controllers\TahunPelajaranController::class, 'store'])->name('tahun-pelajaran.store');
+    Route::put('/tahun-pelajaran/{tahunPelajaran}', [App\Http\Controllers\TahunPelajaranController::class, 'update'])->name('tahun-pelajaran.update');
+    Route::delete('/tahun-pelajaran/{tahunPelajaran}', [App\Http\Controllers\TahunPelajaranController::class, 'destroy'])->name('tahun-pelajaran.destroy');
+    Route::post('/tahun-pelajaran/{tahunPelajaran}/aktif', [App\Http\Controllers\TahunPelajaranController::class, 'setAktif'])->name('tahun-pelajaran.aktif');
+
+    Route::get('/kelas', [App\Http\Controllers\KelasController::class, 'index'])->name('kelas.index');
+    Route::post('/kelas', [App\Http\Controllers\KelasController::class, 'store'])->name('kelas.store');
+    Route::put('/kelas/{kelas}', [App\Http\Controllers\KelasController::class, 'update'])->name('kelas.update');
+    Route::delete('/kelas/{kelas}', [App\Http\Controllers\KelasController::class, 'destroy'])->name('kelas.destroy');
 });
 
 // Rute khusus Superadmin
@@ -121,6 +133,18 @@ Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmi
     Route::post('/kunci-api/{id}/regenerasi', [KunciApiController::class, 'regenerasi'])->name('kunci-api.regenerasi');
 
     Route::get('/dokumentasi-api', [DokumentasiApiController::class, 'indeks'])->name('dokumentasi.indeks');
+
+    // Manajemen Tahun Pelajaran & Kelas
+    Route::get('/tahun-pelajaran', [App\Http\Controllers\TahunPelajaranController::class, 'index'])->name('tahun-pelajaran.index');
+    Route::post('/tahun-pelajaran', [App\Http\Controllers\TahunPelajaranController::class, 'store'])->name('tahun-pelajaran.store');
+    Route::put('/tahun-pelajaran/{tahunPelajaran}', [App\Http\Controllers\TahunPelajaranController::class, 'update'])->name('tahun-pelajaran.update');
+    Route::delete('/tahun-pelajaran/{tahunPelajaran}', [App\Http\Controllers\TahunPelajaranController::class, 'destroy'])->name('tahun-pelajaran.destroy');
+    Route::post('/tahun-pelajaran/{tahunPelajaran}/aktif', [App\Http\Controllers\TahunPelajaranController::class, 'setAktif'])->name('tahun-pelajaran.aktif');
+
+    Route::get('/kelas', [App\Http\Controllers\KelasController::class, 'index'])->name('kelas.index');
+    Route::post('/kelas', [App\Http\Controllers\KelasController::class, 'store'])->name('kelas.store');
+    Route::put('/kelas/{kelas}', [App\Http\Controllers\KelasController::class, 'update'])->name('kelas.update');
+    Route::delete('/kelas/{kelas}', [App\Http\Controllers\KelasController::class, 'destroy'])->name('kelas.destroy');
 });
 
 require __DIR__.'/auth.php';
