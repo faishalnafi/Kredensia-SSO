@@ -14,6 +14,11 @@ class ImportPenggunaController extends Controller
      */
     public function indeks(): Response
     {
-        return Inertia::render('Pengguna/ImportPengguna');
+        $tpAktif = \App\Models\TahunPelajaran::where('is_aktif', true)->first();
+
+        return Inertia::render('Pengguna/ImportPengguna', [
+            'adaTahunPelajaranAktif' => (bool)$tpAktif,
+            'tahunPelajaranAktif' => $tpAktif ? "{$tpAktif->tahun_mulai}/{$tpAktif->tahun_selesai}" : null,
+        ]);
     }
 }

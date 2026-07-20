@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Head, useForm, router, usePage } from '@inertiajs/react';
 import TataLetakUtama from '@/Layouts/TataLetakUtama';
 import InputError from '@/Components/InputError';
+import Swal from 'sweetalert2';
 
-export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPeran = [], filters }) {
+export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPeran = [], filters, adaTahunPelajaranAktif = true }) {
     const { auth } = usePage().props;
     const [modalBuka, setModalBuka] = useState(false);
     const [editMode, setEditMode] = useState(false);
@@ -102,6 +103,24 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
     };
 
     const bukaModalTambah = () => {
+        if (!adaTahunPelajaranAktif) {
+            const userRolePath = window.location.pathname.startsWith('/superadmin') ? 'superadmin' : 'admin';
+            Swal.fire({
+                title: 'Tahun Pelajaran Belum Aktif!',
+                text: 'Minimal harus ada 1 Tahun Pelajaran yang ditambahkan dan diaktifkan terlebih dahulu sebelum menambah pengguna.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#000066',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Kelola Tahun Pelajaran',
+                cancelButtonText: 'Batal'
+            }).then((res) => {
+                if (res.isConfirmed) {
+                    router.visit(route(`${userRolePath}.tahun-pelajaran.index`));
+                }
+            });
+            return;
+        }
         reset();
         clearErrors();
         setEditMode(false);

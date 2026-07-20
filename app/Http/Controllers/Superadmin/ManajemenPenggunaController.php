@@ -43,10 +43,15 @@ class ManajemenPenggunaController extends Controller
         // Ambil peran aktif untuk dropdown pilihan peran
         $daftarPeran = Role::where('is_active', true)->get();
 
+        // Ambil tahun pelajaran aktif
+        $tpAktif = \App\Models\TahunPelajaran::where('is_aktif', true)->first();
+
         return Inertia::render('Superadmin/Pengguna/Indeks', [
             'daftarPengguna' => $daftarPengguna,
             'daftarPeran' => $daftarPeran,
-            'filters' => $request->only(['cari'])
+            'filters' => $request->only(['cari']),
+            'adaTahunPelajaranAktif' => (bool)$tpAktif,
+            'tahunPelajaranAktif' => $tpAktif ? "{$tpAktif->tahun_mulai}/{$tpAktif->tahun_selesai}" : null,
         ]);
     }
 
@@ -55,6 +60,11 @@ class ManajemenPenggunaController extends Controller
      */
     public function simpan(Request $request): RedirectResponse
     {
+        $tpAktif = \App\Models\TahunPelajaran::where('is_aktif', true)->first();
+        if (!$tpAktif) {
+            return redirect()->back()->with('error', 'Gagal: Minimal harus ada 1 Tahun Pelajaran yang ditambahkan dan diaktifkan terlebih dahulu!');
+        }
+
         $request->validate([
             'nama_lengkap' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],

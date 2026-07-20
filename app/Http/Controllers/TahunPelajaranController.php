@@ -52,10 +52,12 @@ class TahunPelajaranController extends Controller
     {
         DB::transaction(function () use ($request) {
             $isAktif = $request->boolean('is_aktif');
+            $adaAktifLain = TahunPelajaran::where('is_aktif', true)->exists();
 
-            if ($isAktif) {
-                // Nonaktifkan semua tahun pelajaran lain terlebih dahulu
+            // Jika belum ada tahun pelajaran yang aktif, atau jika pengguna memilih aktif
+            if (!$adaAktifLain || $isAktif) {
                 TahunPelajaran::query()->update(['is_aktif' => false]);
+                $isAktif = true;
             }
 
             TahunPelajaran::create([
@@ -80,8 +82,19 @@ class TahunPelajaranController extends Controller
             $isAktif = $request->boolean('is_aktif');
 
             if ($isAktif) {
-                // Nonaktifkan semua tahun pelajaran lain terlebih dahulu
+                // Nonaktifkan semua tahun pelajaran lain
                 TahunPelajaran::query()->where('id', '!=', $tahunPelajaran->id)->update(['is_aktif' => false]);
+            } else {
+                // Jika pengguna mencoba menonaktifkan dan tidak ada TP aktif lainnya, tahan agar tetap aktif
+                $adaAktifLain = TahunPelajaran::where('id', '!=', $tahunPelajaran->id)->where('is_aktif', true)->exists();
+                if (!$adaAktifLain) {
+                    $terbaru = TahunPelajaran::where('id', '!=', $tahunPelajaran->id)->orderBy('tahun_mulai', 'desc')->first();
+                    if ($terbaru) {
+                        $terbaru->update(['is_aktif' => true]);
+                    } else {
+                        $isAktif = true; // Tetap aktif jika hanya ada 1 TP
+                    }
+                }
             }
 
             $tahunPelajaran->update([
@@ -102,10 +115,22 @@ class TahunPelajaranController extends Controller
      */
     public function destroy(TahunPelajaran $tahunPelajaran): RedirectResponse
     {
-        $label = $tahunPelajaran->tahun_mulai . '/' . $tahunPelajaran->tahun_selesai . ' - ' . $tahunPelajaran->semester;
-        $tahunPelajaran->delete();
+        DB::transaction(function () use ($tahunPelajaran) {
+            $wasActive = $tahunPelajaran->is_aktif;
+            $label = $tahunPelajaran->tahun_mulai . '/' . $tahunPelajaran->tahun_selesai . ' - ' . $tahunPelajaran->semester;
+            
+            $tahunPelajaran->delete();
 
-        \App\Services\LayananLogAktivitas::catat('Menghapus tahun pelajaran: ' . $label);
+            // Jika yang dihapus adalah TP aktif, otomatis aktifkan TP terbaru lainnya
+            if ($wasActive) {
+                $terbaru = TahunPelajaran::orderBy('tahun_mulai', 'desc')->first();
+                if ($terbaru) {
+                    $terbaru->update(['is_aktif' => true]);
+                }
+            }
+
+            \App\Services\LayananLogAktivitas::catat('Menghapus tahun pelajaran: ' . $label);
+        });
 
         return redirect()->back()->with('success', 'Tahun pelajaran berhasil dihapus.');
     }
@@ -116,12 +141,13 @@ class TahunPelajaranController extends Controller
     public function setAktif(TahunPelajaran $tahunPelajaran): RedirectResponse
     {
         DB::transaction(function () use ($tahunPelajaran) {
+            // Pastikan hanya 1 tahun pelajaran yang aktif
             TahunPelajaran::query()->update(['is_aktif' => false]);
             $tahunPelajaran->update(['is_aktif' => true]);
         });
 
         \App\Services\LayananLogAktivitas::catat('Mengaktifkan tahun pelajaran: ' . $tahunPelajaran->tahun_mulai . '/' . $tahunPelajaran->tahun_selesai . ' - ' . $tahunPelajaran->semester);
 
-        return redirect()->back()->with('success', "Tahun pelajaran {$tahunPelajaran->label} sekarang menjadi aktif.");
+        return redirect()->back()->with('success', "Tahun pelajaran {$tahunPelajaran->tahun_mulai}/{$tahunPelajaran->tahun_selesai} sekarang menjadi aktif.");
     }
 }

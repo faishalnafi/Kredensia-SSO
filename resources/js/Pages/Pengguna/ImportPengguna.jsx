@@ -15,7 +15,7 @@ import axios from 'axios';
  * - Progress bar SweetAlert2 real-time
  * - Ringkasan hasil import (berhasil & gagal)
  */
-export default function ImportPengguna() {
+export default function ImportPengguna({ adaTahunPelajaranAktif = true, tahunPelajaranAktif = null }) {
     const [tabAktif, setTabAktif] = useState('siswa');
     const [fileSiswa, setFileSiswa] = useState(null);
     const [fileGuru, setFileGuru] = useState(null);
@@ -25,6 +25,31 @@ export default function ImportPengguna() {
 
     const inputFileSiswaRef = useRef(null);
     const inputFileGuruRef = useRef(null);
+
+    /**
+     * Memverifikasi keberadaan tahun pelajaran aktif sebelum melakukan aksi import.
+     */
+    const meverifikasiTahunPelajaranAktif = () => {
+        if (!adaTahunPelajaranAktif) {
+            const userRolePath = window.location.pathname.startsWith('/superadmin') ? 'superadmin' : 'admin';
+            Swal.fire({
+                title: 'Tahun Pelajaran Belum Aktif!',
+                text: 'Minimal harus ada 1 Tahun Pelajaran yang ditambahkan dan diaktifkan terlebih dahulu sebelum mengimpor data pengguna.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#000066',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Kelola Tahun Pelajaran',
+                cancelButtonText: 'Batal'
+            }).then((res) => {
+                if (res.isConfirmed) {
+                    router.visit(route(`${userRolePath}.tahun-pelajaran.index`));
+                }
+            });
+            return false;
+        }
+        return true;
+    };
 
     // Kolom yang diharapkan di template
     const kolomSiswa = ['nama_lengkap', 'nik', 'nip_nis', 'tgl_lahir', 'jk', 'no_telp', 'alamat', 'kelas'];
@@ -121,6 +146,10 @@ export default function ImportPengguna() {
      * Membaca file dan menampilkan pratinjau data.
      */
     const tanganiPilihFileSiswa = async (e) => {
+        if (!meverifikasiTahunPelajaranAktif()) {
+            e.target.value = '';
+            return;
+        }
         const file = e.target.files[0];
         if (!file) return;
 
@@ -145,6 +174,10 @@ export default function ImportPengguna() {
      * Membaca file dan menampilkan pratinjau data.
      */
     const tanganiPilihFileGuru = async (e) => {
+        if (!meverifikasiTahunPelajaranAktif()) {
+            e.target.value = '';
+            return;
+        }
         const file = e.target.files[0];
         if (!file) return;
 
@@ -314,6 +347,8 @@ export default function ImportPengguna() {
      * Menampilkan dialog konfirmasi sebelum memulai proses import batch.
      */
     const mulaiImportSiswa = () => {
+        if (!meverifikasiTahunPelajaranAktif()) return;
+
         if (dataPratinjauSiswa.length === 0) {
             Swal.fire({
                 title: 'Tidak Ada Data!',
@@ -345,6 +380,8 @@ export default function ImportPengguna() {
      * Menampilkan dialog konfirmasi sebelum memulai proses import batch.
      */
     const mulaiImportGuru = () => {
+        if (!meverifikasiTahunPelajaranAktif()) return;
+
         if (dataPratinjauGuru.length === 0) {
             Swal.fire({
                 title: 'Tidak Ada Data!',
@@ -386,10 +423,23 @@ export default function ImportPengguna() {
                 {/* Header */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
-                        <h1 className="text-2xl font-black text-slate-800 dark:text-white">
-                            Import Pengguna
-                        </h1>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                        <div className="flex items-center gap-3">
+                            <h1 className="text-2xl font-black text-slate-800 dark:text-white">
+                                Import Pengguna
+                            </h1>
+                            {tahunPelajaranAktif ? (
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 rounded-full text-xs font-black uppercase tracking-wide">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    Sesi TP Aktif: {tahunPelajaranAktif}
+                                </span>
+                            ) : (
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-rose-500/15 text-rose-600 dark:text-rose-400 rounded-full text-xs font-black uppercase tracking-wide">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                                    Belum Ada TP Aktif
+                                </span>
+                            )}
+                        </div>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                             Import massal data siswa dan guru dari file Excel atau CSV.
                         </p>
                     </div>
