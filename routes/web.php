@@ -88,6 +88,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::put('/tahun-pelajaran/{tahunPelajaran}', [App\Http\Controllers\TahunPelajaranController::class, 'update'])->name('tahun-pelajaran.update');
     Route::delete('/tahun-pelajaran/{tahunPelajaran}', [App\Http\Controllers\TahunPelajaranController::class, 'destroy'])->name('tahun-pelajaran.destroy');
     Route::post('/tahun-pelajaran/{tahunPelajaran}/aktif', [App\Http\Controllers\TahunPelajaranController::class, 'setAktif'])->name('tahun-pelajaran.aktif');
+    Route::post('/tahun-pelajaran/bulk-update', [App\Http\Controllers\TahunPelajaranController::class, 'bulkUpdate'])->name('tahun-pelajaran.bulk-update');
 
     Route::get('/kelas', [App\Http\Controllers\KelasController::class, 'index'])->name('kelas.index');
     Route::post('/kelas', [App\Http\Controllers\KelasController::class, 'store'])->name('kelas.store');
@@ -140,6 +141,7 @@ Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmi
     Route::put('/tahun-pelajaran/{tahunPelajaran}', [App\Http\Controllers\TahunPelajaranController::class, 'update'])->name('tahun-pelajaran.update');
     Route::delete('/tahun-pelajaran/{tahunPelajaran}', [App\Http\Controllers\TahunPelajaranController::class, 'destroy'])->name('tahun-pelajaran.destroy');
     Route::post('/tahun-pelajaran/{tahunPelajaran}/aktif', [App\Http\Controllers\TahunPelajaranController::class, 'setAktif'])->name('tahun-pelajaran.aktif');
+    Route::post('/tahun-pelajaran/bulk-update', [App\Http\Controllers\TahunPelajaranController::class, 'bulkUpdate'])->name('tahun-pelajaran.bulk-update');
 
     Route::get('/kelas', [App\Http\Controllers\KelasController::class, 'index'])->name('kelas.index');
     Route::post('/kelas', [App\Http\Controllers\KelasController::class, 'store'])->name('kelas.store');

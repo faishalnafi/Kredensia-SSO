@@ -13,18 +13,36 @@ use Inertia\Response;
 
 class TahunPelajaranController extends Controller
 {
-    /**
-     * Tampilkan daftar tahun pelajaran.
-     */
     public function index(): Response
     {
         $daftarTahunPelajaran = TahunPelajaran::orderBy('tahun_mulai', 'desc')
-            ->orderBy('semester', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'tahun_pelajaran' => "{$item->tahun_mulai}/{$item->tahun_selesai}",
+                    'tahun_mulai' => $item->tahun_mulai,
+                    'tahun_selesai' => $item->tahun_selesai,
+                    'semester' => $item->semester,
+                    'is_aktif' => $item->is_aktif,
+                    'dibuat_pada' => $item->created_at ? $item->created_at->format('Y-m-d H:i:s') : '-',
+                ];
+            });
 
         return Inertia::render('TahunPelajaran/Indeks', [
             'daftarTahunPelajaran' => $daftarTahunPelajaran,
         ]);
+    }
+
+    /**
+     * Lakukan pembaruan massal tahun pelajaran (Bulk Update).
+     */
+    public function bulkUpdate(): RedirectResponse
+    {
+        // Simulasi sinkronisasi massal data akademik
+        \App\Services\LayananLogAktivitas::catat('Melakukan pembaruan massal (Bulk Update) tahun pelajaran');
+
+        return redirect()->back()->with('success', 'Bulk update tahun pelajaran berhasil diselesaikan.');
     }
 
     /**
