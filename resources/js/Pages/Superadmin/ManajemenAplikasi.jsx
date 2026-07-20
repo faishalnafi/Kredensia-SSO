@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Head, useForm, router } from '@inertiajs/react';
 import TataLetakUtama from '@/Layouts/TataLetakUtama';
 import InputError from '@/Components/InputError';
+import Swal from 'sweetalert2';
+
 
 export default function ManajemenAplikasi({ daftarAplikasi, daftarPeran, apiKeyBaru }) {
     const [modalBuka, setModalBuka] = useState(false);
@@ -170,14 +172,38 @@ export default function ManajemenAplikasi({ daftarAplikasi, daftarPeran, apiKeyB
         }
     };
 
-    const tanganiHapus = (id, nama) => {
-        if (confirm(`Apakah Anda yakin ingin menghapus aplikasi "${nama}"?`)) {
+    const tanganiHapus = async (id, nama) => {
+        const res = await Swal.fire({
+            title: 'Hapus Aplikasi?',
+            html: `Apakah Anda yakin ingin menghapus aplikasi <strong>"${nama}"</strong>?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: '🗑️ Ya, Hapus',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl font-bold px-5 py-2.5', cancelButton: 'rounded-xl font-bold px-5 py-2.5' }
+        });
+
+        if (res.isConfirmed) {
             router.delete(route(`${pathPrefix}.aplikasi.hapus`, id));
         }
     };
 
-    const tanganiRegenerateSecret = (id, nama) => {
-        if (confirm(`PERINGATAN KESELAMATAN:\nApakah Anda yakin ingin men-generate ulang Client Secret untuk "${nama}"?\n\nKunci lama akan langsung tidak berlaku dan integrasi sistem eksternal tersebut akan terputus sampai Anda memasukkan kunci baru.`)) {
+    const tanganiRegenerateSecret = async (id, nama) => {
+        const res = await Swal.fire({
+            title: 'Generate Ulang Client Secret?',
+            html: `Apakah Anda yakin ingin men-generate ulang Client Secret untuk <strong>"${nama}"</strong>?<br/><span style="font-size:0.85rem;color:#ef4444;margin-top:6px;display:block;">Kunci lama akan langsung tidak berlaku dan integrasi sistem eksternal tersebut akan terputus sampai Anda memasukkan kunci baru.</span>`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: '⚡ Ya, Generate Ulang',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#f59e0b',
+            cancelButtonColor: '#6b7280',
+            customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl font-bold px-5 py-2.5', cancelButton: 'rounded-xl font-bold px-5 py-2.5' }
+        });
+
+        if (res.isConfirmed) {
             router.post(route(`${pathPrefix}.aplikasi.regenerate`, id));
         }
     };
@@ -221,12 +247,24 @@ export default function ManajemenAplikasi({ daftarAplikasi, daftarPeran, apiKeyB
 
     const validateAndSetFile = (file) => {
         if (!file.type.startsWith('image/')) {
-            alert('File harus berupa berkas gambar (PNG, JPG, JPEG, GIF, SVG, WebP).');
+            Swal.fire({
+                title: 'Format File Salah',
+                text: 'File harus berupa berkas gambar (PNG, JPG, JPEG, GIF, SVG, WebP).',
+                icon: 'warning',
+                confirmButtonColor: '#0F91FC',
+                customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl font-bold px-5 py-2.5' }
+            });
             return;
         }
 
         if (file.size > 10 * 1024 * 1024) {
-            alert('File terlalu besar! Ukuran maksimum adalah 10MB (akan otomatis dikompresi ke 5MB oleh server).');
+            Swal.fire({
+                title: 'Ukuran File Terlalu Besar',
+                text: 'Ukuran maksimum adalah 10MB (akan otomatis dikompresi ke 5MB oleh server).',
+                icon: 'warning',
+                confirmButtonColor: '#0F91FC',
+                customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl font-bold px-5 py-2.5' }
+            });
             return;
         }
 
@@ -241,7 +279,13 @@ export default function ManajemenAplikasi({ daftarAplikasi, daftarPeran, apiKeyB
                 setCopyState(prev => ({ ...prev, [key]: false }));
             }, 2000);
         }).catch(err => {
-            alert('Gagal menyalin teks: ' + err);
+            Swal.fire({
+                title: 'Gagal Menyalin',
+                text: 'Gagal menyalin teks: ' + err,
+                icon: 'error',
+                confirmButtonColor: '#0F91FC',
+                customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl font-bold px-5 py-2.5' }
+            });
         });
     };
 

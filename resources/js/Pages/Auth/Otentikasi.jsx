@@ -3,6 +3,8 @@ import { Head, Link, useForm, router, usePage } from '@inertiajs/react';
 import InputError from '@/Components/InputError';
 import Checkbox from '@/Components/Checkbox';
 import axios from 'axios';
+import Swal from 'sweetalert2';
+
 
 /**
  * Komponen Otentikasi Terpadu
@@ -297,7 +299,13 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                     });
                 }
             } else {
-                alert('Terjadi kesalahan koneksi saat memverifikasi data.');
+                Swal.fire({
+                    title: 'Kesalahan Koneksi',
+                    text: 'Terjadi kesalahan koneksi saat memverifikasi data.',
+                    icon: 'error',
+                    confirmButtonColor: '#0F91FC',
+                    customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl font-bold px-5 py-2.5' }
+                });
             }
         });
     };

@@ -1,26 +1,52 @@
 import React from 'react';
 import { Head, router } from '@inertiajs/react';
 import TataLetakUtama from '@/Layouts/TataLetakUtama';
+import Swal from 'sweetalert2';
 
 export default function PersetujuanData({ daftarKoreksi = [] }) {
     const isAdmin = route().current().startsWith('admin.');
     const basePrefix = isAdmin ? 'admin.' : 'superadmin.';
 
-    const setujuiKoreksi = (id, nama) => {
-        if (confirm(`Apakah Anda yakin ingin menyetujui pengajuan perbaikan data dari "${nama}"? Profil pengguna asli akan langsung diperbarui.`)) {
+    const setujuiKoreksi = async (id, nama) => {
+        const res = await Swal.fire({
+            title: 'Setujui Pengajuan Data?',
+            html: `Apakah Anda yakin ingin menyetujui pengajuan perbaikan data dari <strong>"${nama}"</strong>?<br/><span style="font-size:0.85rem;color:#10b981;margin-top:6px;display:block;">Profil pengguna asli akan langsung diperbarui.</span>`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: '✅ Ya, Setujui',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#10b981',
+            cancelButtonColor: '#6b7280',
+            customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl font-bold px-5 py-2.5', cancelButton: 'rounded-xl font-bold px-5 py-2.5' }
+        });
+
+        if (res.isConfirmed) {
             router.post(route(`${basePrefix}persetujuan.setujui`, id), {}, {
                 preserveScroll: true
             });
         }
     };
 
-    const tolakKoreksi = (id, nama) => {
-        if (confirm(`Apakah Anda yakin ingin menolak pengajuan perbaikan data dari "${nama}"?`)) {
+    const tolakKoreksi = async (id, nama) => {
+        const res = await Swal.fire({
+            title: 'Tolak Pengajuan Data?',
+            html: `Apakah Anda yakin ingin menolak pengajuan perbaikan data dari <strong>"${nama}"</strong>?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: '❌ Ya, Tolak',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl font-bold px-5 py-2.5', cancelButton: 'rounded-xl font-bold px-5 py-2.5' }
+        });
+
+        if (res.isConfirmed) {
             router.post(route(`${basePrefix}persetujuan.tolak`, id), {}, {
                 preserveScroll: true
             });
         }
     };
+
 
     return (
         <>

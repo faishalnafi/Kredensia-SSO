@@ -174,29 +174,66 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
         }
     };
 
-    const tanganiHapus = (user) => {
+    const tanganiHapus = async (user) => {
         if (user.id === auth.user.id) {
-            alert('Anda tidak dapat menghapus akun Anda sendiri yang sedang digunakan.');
+            Swal.fire({
+                title: 'Tindakan Ditolak',
+                text: 'Anda tidak dapat menghapus akun Anda sendiri yang sedang digunakan.',
+                icon: 'warning',
+                confirmButtonColor: '#0F91FC',
+                customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl font-bold px-5 py-2.5' }
+            });
             return;
         }
 
-        if (confirm(`Apakah Anda yakin ingin menghapus pengguna "${user.nama_lengkap}"? Seluruh data otentikasi dan peran untuk pengguna ini akan dihapus secara permanen.`)) {
+        const res = await Swal.fire({
+            title: 'Hapus Pengguna?',
+            html: `Apakah Anda yakin ingin menghapus <strong>"${user.nama_lengkap}"</strong>?<br/><span style="font-size:0.85rem;color:#ef4444;margin-top:6px;display:block;">Seluruh data otentikasi dan peran untuk pengguna ini akan dihapus secara permanen.</span>`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: '🗑️ Ya, Hapus',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl font-bold px-5 py-2.5', cancelButton: 'rounded-xl font-bold px-5 py-2.5' }
+        });
+
+        if (res.isConfirmed) {
             destroy(route(`${pathPrefix}.pengguna.hapus`, user.id), {
                 preserveScroll: true
             });
         }
     };
 
-    const tanganiLoginSebagai = (user) => {
+    const tanganiLoginSebagai = async (user) => {
         if (user.id === auth.user.id) {
-            alert('Anda sudah masuk dengan akun ini.');
+            Swal.fire({
+                title: 'Informasi',
+                text: 'Anda sudah masuk dengan akun ini.',
+                icon: 'info',
+                confirmButtonColor: '#0F91FC',
+                customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl font-bold px-5 py-2.5' }
+            });
             return;
         }
 
-        if (confirm(`Apakah Anda yakin ingin masuk sebagai pengguna "${user.nama_lengkap}" (${user.email || user.nik})? Sesi Anda akan beralih ke akun ini.`)) {
+        const res = await Swal.fire({
+            title: 'Masuk Sebagai Pengguna?',
+            html: `Sesi Anda akan beralih ke akun <strong>"${user.nama_lengkap}"</strong> (${user.email || user.nik}).`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: '🔑 Ya, Masuk Sekarang',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#10b981',
+            cancelButtonColor: '#6b7280',
+            customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl font-bold px-5 py-2.5', cancelButton: 'rounded-xl font-bold px-5 py-2.5' }
+        });
+
+        if (res.isConfirmed) {
             router.post(route(`${pathPrefix}.pengguna.login-sebagai`, user.id));
         }
     };
+
 
     const toggleRoleSelection = (roleId) => {
         const currentSelection = [...data.selected_roles];

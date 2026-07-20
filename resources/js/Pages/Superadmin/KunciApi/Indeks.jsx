@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Head, useForm, router } from '@inertiajs/react';
 import TataLetakUtama from '@/Layouts/TataLetakUtama';
 import InputError from '@/Components/InputError';
+import Swal from 'sweetalert2';
 
 /**
  * Halaman Manajemen Kunci API (General Access) — Superadmin SSO
@@ -10,6 +11,7 @@ import InputError from '@/Components/InputError';
  * kustomisasi prefix key, dan pengeditan nama aplikasi/domain.
  */
 export default function IndeksKunciApi({ daftarKunci = [], kunciBaru = null }) {
+
     const [modalBuka, setModalBuka] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [selectedId, setSelectedId] = useState(null);
@@ -108,7 +110,13 @@ export default function IndeksKunciApi({ daftarKunci = [], kunciBaru = null }) {
                 setCopyStates(prev => ({ ...prev, [key]: false }));
             }, 2000);
         }).catch(() => {
-            alert('Gagal menyalin token.');
+            Swal.fire({
+                title: 'Gagal Menyalin',
+                text: 'Gagal menyalin token ke papan klip.',
+                icon: 'error',
+                confirmButtonColor: '#0F91FC',
+                customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl font-bold px-5 py-2.5' }
+            });
         });
     };
 

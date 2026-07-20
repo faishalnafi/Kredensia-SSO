@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import TataLetakUtama from '@/Layouts/TataLetakUtama';
 import InputError from '@/Components/InputError';
+import Swal from 'sweetalert2';
 
 export default function IndeksPeran({ daftarPeran = [] }) {
+
     const [modalBuka, setModalBuka] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [selectedRoleId, setSelectedRoleId] = useState(null);
@@ -67,13 +69,31 @@ export default function IndeksPeran({ daftarPeran = [] }) {
         }
     };
 
-    const tanganiHapus = (role) => {
+    const tanganiHapus = async (role) => {
         if (isSystemRole(role.nama_role)) {
-            alert('Peran sistem (Super Admin / Admin) tidak boleh dihapus.');
+            Swal.fire({
+                title: 'Tindakan Ditolak',
+                text: 'Peran sistem (Super Admin / Admin) tidak boleh dihapus.',
+                icon: 'warning',
+                confirmButtonColor: '#0F91FC',
+                customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl font-bold px-5 py-2.5' }
+            });
             return;
         }
 
-        if (confirm(`Apakah Anda yakin ingin menghapus peran "${role.nama_role}"? Seluruh akses pengguna dan aplikasi yang terhubung ke peran ini akan dilepas.`)) {
+        const res = await Swal.fire({
+            title: 'Hapus Peran?',
+            html: `Apakah Anda yakin ingin menghapus peran <strong>"${role.nama_role}"</strong>?<br/><span style="font-size:0.85rem;color:#ef4444;margin-top:6px;display:block;">Seluruh akses pengguna dan aplikasi yang terhubung ke peran ini akan dilepas.</span>`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: '🗑️ Ya, Hapus',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl font-bold px-5 py-2.5', cancelButton: 'rounded-xl font-bold px-5 py-2.5' }
+        });
+
+        if (res.isConfirmed) {
             destroy(route('superadmin.peran.hapus', role.id), {
                 preserveScroll: true
             });

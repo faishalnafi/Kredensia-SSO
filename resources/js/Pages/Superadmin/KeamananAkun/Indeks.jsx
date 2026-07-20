@@ -2,6 +2,7 @@ import React from 'react';
 import { Head, useForm, router } from '@inertiajs/react';
 import TataLetakUtama from '@/Layouts/TataLetakUtama';
 import InputError from '@/Components/InputError';
+import Swal from 'sweetalert2';
 
 export default function KeamananAkun({ daftarSesi = [], pengguna = {}, pendingCorrection = null }) {
     // Form untuk Ganti Kata Sandi
@@ -44,8 +45,20 @@ export default function KeamananAkun({ daftarSesi = [], pengguna = {}, pendingCo
     };
 
     // Fungsi untuk mengakhiri sesi perangkat tertentu
-    const akhiriSesi = (id) => {
-        if (confirm('Apakah Anda yakin ingin mengakhiri sesi perangkat ini? Perangkat tersebut akan otomatis keluar (logout).')) {
+    const akhiriSesi = async (id) => {
+        const res = await Swal.fire({
+            title: 'Akhiri Sesi Perangkat?',
+            text: 'Apakah Anda yakin ingin mengakhiri sesi perangkat ini? Perangkat tersebut akan otomatis keluar (logout).',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: '🚪 Ya, Akhiri Sesi',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl font-bold px-5 py-2.5', cancelButton: 'rounded-xl font-bold px-5 py-2.5' }
+        });
+
+        if (res.isConfirmed) {
             router.delete(route('keamanan.sesi.hapus', id), {
                 preserveScroll: true
             });
@@ -53,13 +66,26 @@ export default function KeamananAkun({ daftarSesi = [], pengguna = {}, pendingCo
     };
 
     // Fungsi untuk mengakhiri seluruh sesi perangkat lainnya
-    const akhiriSesiLainnya = () => {
-        if (confirm('Apakah Anda yakin ingin mengakhiri semua sesi perangkat lainnya? Semua browser lain yang terhubung dengan akun ini akan langsung keluar.')) {
+    const akhiriSesiLainnya = async () => {
+        const res = await Swal.fire({
+            title: 'Keluar dari Semua Sesi Lainnya?',
+            text: 'Apakah Anda yakin ingin mengakhiri semua sesi perangkat lainnya? Semua browser lain yang terhubung dengan akun ini akan langsung keluar.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: '🚪 Ya, Keluar dari Sesi Lainnya',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl font-bold px-5 py-2.5', cancelButton: 'rounded-xl font-bold px-5 py-2.5' }
+        });
+
+        if (res.isConfirmed) {
             router.post(route('keamanan.sesi.hapus_lainnya'), {}, {
                 preserveScroll: true
             });
         }
     };
+
 
     return (
         <>

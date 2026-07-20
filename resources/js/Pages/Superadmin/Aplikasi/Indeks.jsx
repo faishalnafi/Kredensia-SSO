@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Head, useForm, router } from '@inertiajs/react';
 import TataLetakUtama from '@/Layouts/TataLetakUtama';
 import InputError from '@/Components/InputError';
+import Swal from 'sweetalert2';
 
 export default function IndeksAplikasi({ daftarAplikasi, daftarPeran }) {
+
     const [modalBuka, setModalBuka] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [selectedAppId, setSelectedAppId] = useState(null);
@@ -158,8 +160,20 @@ export default function IndeksAplikasi({ daftarAplikasi, daftarPeran }) {
         }
     };
 
-    const tanganiHapus = (id, nama) => {
-        if (confirm(`Apakah Anda yakin ingin menghapus aplikasi "${nama}"?`)) {
+    const tanganiHapus = async (id, nama) => {
+        const res = await Swal.fire({
+            title: 'Hapus Aplikasi?',
+            html: `Apakah Anda yakin ingin menghapus aplikasi <strong>"${nama}"</strong>?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: '🗑️ Ya, Hapus',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl font-bold px-5 py-2.5', cancelButton: 'rounded-xl font-bold px-5 py-2.5' }
+        });
+
+        if (res.isConfirmed) {
             router.delete(route('superadmin.aplikasi.hapus', id));
         }
     };
@@ -203,12 +217,24 @@ export default function IndeksAplikasi({ daftarAplikasi, daftarPeran }) {
 
     const validateAndSetFile = (file) => {
         if (!file.type.startsWith('image/')) {
-            alert('File harus berupa berkas gambar (PNG, JPG, JPEG, GIF, SVG, WebP).');
+            Swal.fire({
+                title: 'Format File Salah',
+                text: 'File harus berupa berkas gambar (PNG, JPG, JPEG, GIF, SVG, WebP).',
+                icon: 'warning',
+                confirmButtonColor: '#0F91FC',
+                customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl font-bold px-5 py-2.5' }
+            });
             return;
         }
 
         if (file.size > 10 * 1024 * 1024) {
-            alert('File terlalu besar! Ukuran maksimum adalah 10MB (akan otomatis dikompresi ke 5MB oleh server).');
+            Swal.fire({
+                title: 'Ukuran File Terlalu Besar',
+                text: 'Ukuran maksimum adalah 10MB (akan otomatis dikompresi ke 5MB oleh server).',
+                icon: 'warning',
+                confirmButtonColor: '#0F91FC',
+                customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl font-bold px-5 py-2.5' }
+            });
             return;
         }
 
