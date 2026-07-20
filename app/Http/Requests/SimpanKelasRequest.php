@@ -28,7 +28,8 @@ class SimpanKelasRequest extends FormRequest
         return [
             'nama_kelas' => ['required', 'string', 'max:100'],
             'tingkat' => ['required', 'string', 'max:20'],
-            'tahun_pelajaran_id' => ['required', 'uuid', 'exists:tahun_pelajaran,id'],
+            'jurusan' => ['nullable', 'string', 'max:100'],
+            'tahun_pelajaran_id' => ['nullable', 'uuid', 'exists:tahun_pelajaran,id'],
             'wali_kelas_id' => ['nullable', 'uuid', 'exists:users,id'],
         ];
     }
@@ -47,7 +48,8 @@ class SimpanKelasRequest extends FormRequest
             'tingkat.required' => 'Tingkat kelas wajib diisi.',
             'tingkat.string' => 'Tingkat kelas harus berupa teks.',
             'tingkat.max' => 'Tingkat kelas tidak boleh lebih dari 20 karakter.',
-            'tahun_pelajaran_id.required' => 'Tahun pelajaran wajib dipilih.',
+            'jurusan.string' => 'Jurusan harus berupa teks.',
+            'jurusan.max' => 'Jurusan tidak boleh lebih dari 100 karakter.',
             'tahun_pelajaran_id.uuid' => 'Format tahun pelajaran tidak valid.',
             'tahun_pelajaran_id.exists' => 'Tahun pelajaran yang dipilih tidak terdaftar.',
             'wali_kelas_id.uuid' => 'Format wali kelas tidak valid.',

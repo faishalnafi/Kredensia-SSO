@@ -17,6 +17,7 @@ return new class extends Migration
             $blueprint->uuid('id')->primary();
             $blueprint->string('nama_kelas', 100);
             $blueprint->string('tingkat', 20); // e.g. "X", "XI", "XII"
+            $blueprint->string('jurusan', 100)->nullable();
             $blueprint->uuid('tahun_pelajaran_id');
             $blueprint->uuid('wali_kelas_id')->nullable();
             $blueprint->timestamps();

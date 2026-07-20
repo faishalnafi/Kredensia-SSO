@@ -32,6 +32,7 @@ class User extends Authenticatable
         'google_avatar',
         'is_active',
         'claimed_at',
+        'kelas_id',
     ];
 
     protected $appends = [
@@ -101,6 +102,14 @@ class User extends Authenticatable
     public function kelasWali()
     {
         return $this->hasOne(Kelas::class, 'wali_kelas_id');
+    }
+
+    /**
+     * Relasi ke Kelas tempat pengguna ini terdaftar sebagai siswa.
+     */
+    public function kelas()
+    {
+        return $this->belongsTo(Kelas::class, 'kelas_id');
     }
 }
 

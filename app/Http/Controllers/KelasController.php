@@ -19,8 +19,9 @@ class KelasController extends Controller
      */
     public function index(): Response
     {
-        // Ambil daftar kelas lengkap dengan relasi tahun pelajaran dan wali kelas
+        // Ambil daftar kelas lengkap dengan relasi tahun pelajaran, wali kelas, serta jumlah siswa
         $daftarKelas = Kelas::with(['tahunPelajaran', 'waliKelas'])
+            ->withCount('siswa')
             ->orderBy('tingkat', 'asc')
             ->orderBy('nama_kelas', 'asc')
             ->get();
@@ -49,11 +50,24 @@ class KelasController extends Controller
      */
     public function store(SimpanKelasRequest $request): RedirectResponse
     {
+        // Cari tahun pelajaran aktif otomatis jika tidak disuplai
+        $tahunPelajaranId = $request->tahun_pelajaran_id;
+        if (empty($tahunPelajaranId)) {
+            $aktif = TahunPelajaran::where('is_aktif', true)->first() 
+                ?: TahunPelajaran::orderBy('tahun_mulai', 'desc')->first();
+            $tahunPelajaranId = $aktif ? $aktif->id : null;
+        }
+
+        if (empty($tahunPelajaranId)) {
+            return redirect()->back()->withErrors(['tahun_pelajaran_id' => 'Harap buat minimal satu Tahun Pelajaran terlebih dahulu sebelum membuat kelas.']);
+        }
+
         Kelas::create([
             'nama_kelas' => $request->nama_kelas,
             'tingkat' => $request->tingkat,
-            'tahun_pelajaran_id' => $request->tahun_pelajaran_id,
-            'wali_kelas_id' => $request->wali_kelas_id,
+            'jurusan' => $request->jurusan,
+            'tahun_pelajaran_id' => $tahunPelajaranId,
+            'wali_kelas_id' => $request->wali_kelas_id ?: null,
         ]);
 
         \App\Services\LayananLogAktivitas::catat('Menambahkan kelas baru: ' . $request->nama_kelas . ' (Tingkat ' . $request->tingkat . ')');
@@ -67,11 +81,18 @@ class KelasController extends Controller
     public function update(SimpanKelasRequest $request, Kelas $kelas): RedirectResponse
     {
         $namaLama = $kelas->nama_kelas;
+
+        $tahunPelajaranId = $request->tahun_pelajaran_id;
+        if (empty($tahunPelajaranId)) {
+            $tahunPelajaranId = $kelas->tahun_pelajaran_id;
+        }
+
         $kelas->update([
             'nama_kelas' => $request->nama_kelas,
             'tingkat' => $request->tingkat,
-            'tahun_pelajaran_id' => $request->tahun_pelajaran_id,
-            'wali_kelas_id' => $request->wali_kelas_id,
+            'jurusan' => $request->jurusan,
+            'tahun_pelajaran_id' => $tahunPelajaranId,
+            'wali_kelas_id' => $request->wali_kelas_id ?: null,
         ]);
 
         \App\Services\LayananLogAktivitas::catat('Memperbarui data kelas: ' . $namaLama . ' -> ' . $request->nama_kelas . ' (Tingkat ' . $request->tingkat . ')');

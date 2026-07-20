@@ -27,6 +27,7 @@ class Kelas extends Model
     protected $fillable = [
         'nama_kelas',
         'tingkat',
+        'jurusan',
         'tahun_pelajaran_id',
         'wali_kelas_id',
     ];
@@ -45,5 +46,13 @@ class Kelas extends Model
     public function waliKelas(): BelongsTo
     {
         return $this->belongsTo(User::class, 'wali_kelas_id');
+    }
+
+    /**
+     * Relasi ke model User (sebagai Siswa di kelas ini).
+     */
+    public function siswa()
+    {
+        return $this->hasMany(User::class, 'kelas_id');
     }
 }
