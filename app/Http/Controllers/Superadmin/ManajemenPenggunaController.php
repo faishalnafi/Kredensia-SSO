@@ -460,19 +460,19 @@ class ManajemenPenggunaController extends Controller
         $output .= ' <Worksheet ss:Name="Import Siswa">' . "\n";
         $output .= '  <Table>' . "\n";
         $output .= '   <Row>' . "\n";
-        $kolomSiswa = ['nama_lengkap', 'nik', 'nip_nis', 'tgl_lahir', 'jk', 'no_telp', 'alamat', 'kelas'];
+        $kolomSiswa = ['nama_lengkap', 'nik', 'nip_nis', 'tgl_lahir', 'jk', 'no_telp', 'alamat', 'jenjang', 'kelas', 'jurusan'];
         foreach ($kolomSiswa as $col) {
             $output .= '    <Cell><Data ss:Type="String">' . htmlspecialchars($col) . '</Data></Cell>' . "\n";
         }
         $output .= '   </Row>' . "\n";
         $output .= '   <Row>' . "\n";
-        $barisSiswa1 = ['Budi Santoso', '3515012345670002', '0078901234', '2008-04-15', 'L', '081234567891', 'Sidoarjo, Jawa Timur', 'XII IPA 1'];
+        $barisSiswa1 = ['Budi Santoso', '3515012345670002', '0078901234', '2008-04-15', 'L', '081234567891', 'Sidoarjo, Jawa Timur', 'XII', 'XII IPA 1', 'IPA'];
         foreach ($barisSiswa1 as $val) {
             $output .= '    <Cell><Data ss:Type="String">' . htmlspecialchars((string)$val) . '</Data></Cell>' . "\n";
         }
         $output .= '   </Row>' . "\n";
         $output .= '   <Row>' . "\n";
-        $barisSiswa2 = ['Rina Wulandari', '3515012345670005', '0078901237', '2008-11-22', 'P', '', '', 'XII IPS 2'];
+        $barisSiswa2 = ['Rina Wulandari', '3515012345670005', '0078901237', '2008-11-22', 'P', '', '', 'XII', 'XII IPS 2', 'IPS'];
         foreach ($barisSiswa2 as $val) {
             $output .= '    <Cell><Data ss:Type="String">' . htmlspecialchars((string)$val) . '</Data></Cell>' . "\n";
         }
@@ -490,14 +490,14 @@ class ManajemenPenggunaController extends Controller
         }
         $output .= '   </Row>' . "\n";
         $output .= '   <Row>' . "\n";
-        $barisGuru1 = ['Ahmad Fauzi', '3515012345670003', '198508202010122001', '1985-08-20', 'L', '085712345678', 'Surabaya, Jawa Timur', 'Guru, Wali Kelas'];
-        foreach ($barisGuru1 as $val) {
+        $row1 = ['Ahmad Fauzi', '3515012345670003', '198508202010122001', '1985-08-20', 'L', '085712345678', 'Surabaya, Jawa Timur', 'Guru, Wali Kelas'];
+        foreach ($row1 as $val) {
             $output .= '    <Cell><Data ss:Type="String">' . htmlspecialchars((string)$val) . '</Data></Cell>' . "\n";
         }
         $output .= '   </Row>' . "\n";
         $output .= '   <Row>' . "\n";
-        $barisGuru2 = ['Siti Aminah', '3515012345670004', '199001152015042002', '1990-01-15', 'P', '087654321098', 'Malang, Jawa Timur', 'Guru, Staf Kurikulum'];
-        foreach ($barisGuru2 as $val) {
+        $row2 = ['Siti Aminah', '3515012345670004', '199001152015042002', '1990-01-15', 'P', '087654321098', 'Malang, Jawa Timur', 'Guru, Staf Kurikulum'];
+        foreach ($row2 as $val) {
             $output .= '    <Cell><Data ss:Type="String">' . htmlspecialchars((string)$val) . '</Data></Cell>' . "\n";
         }
         $output .= '   </Row>' . "\n";
@@ -526,7 +526,7 @@ class ManajemenPenggunaController extends Controller
             'Expires' => '0'
         ];
 
-        $columns = ['nama_lengkap', 'nik', 'nip_nis', 'tgl_lahir', 'jk', 'no_telp', 'alamat', 'kelas'];
+        $columns = ['nama_lengkap', 'nik', 'nip_nis', 'tgl_lahir', 'jk', 'no_telp', 'alamat', 'jenjang', 'kelas', 'jurusan'];
 
         $callback = function() use ($columns) {
             $file = fopen('php://output', 'w');
@@ -539,7 +539,9 @@ class ManajemenPenggunaController extends Controller
                 'L',
                 '081234567891',
                 'Sidoarjo, Jawa Timur',
-                'XII IPA 1'
+                'XII',
+                'XII IPA 1',
+                'IPA'
             ]);
             fputcsv($file, [
                 'Rina Wulandari',
@@ -549,7 +551,9 @@ class ManajemenPenggunaController extends Controller
                 'P',
                 '',
                 '',
-                'XII IPS 2'
+                'XII',
+                'XII IPS 2',
+                'IPS'
             ]);
             fclose($file);
         };
@@ -616,7 +620,9 @@ class ManajemenPenggunaController extends Controller
             'batch.*.jk' => ['nullable', 'string'],
             'batch.*.no_telp' => ['nullable', 'string', 'max:20'],
             'batch.*.alamat' => ['nullable', 'string'],
+            'batch.*.jenjang' => ['nullable', 'string', 'max:50'],
             'batch.*.kelas' => ['nullable', 'string', 'max:100'],
+            'batch.*.jurusan' => ['nullable', 'string', 'max:100'],
         ]);
 
         $berhasil = 0;
@@ -625,6 +631,13 @@ class ManajemenPenggunaController extends Controller
 
         // Ambil tahun pelajaran aktif untuk pembuatan kelas otomatis
         $tpAktif = \App\Models\TahunPelajaran::where('is_aktif', true)->first();
+        if (!$tpAktif) {
+            return response()->json([
+                'berhasil' => 0,
+                'gagal' => count($request->batch),
+                'errors' => ['Minimal harus ada 1 Tahun Pelajaran yang ditambahkan dan diaktifkan terlebih dahulu!'],
+            ], 422);
+        }
 
         // Cari atau buat role "Siswa" secara otomatis
         $roleSiswa = \App\Models\Role::whereRaw('LOWER(nama_role) = ?', ['siswa'])->first();
@@ -661,20 +674,26 @@ class ManajemenPenggunaController extends Controller
 
                 // Handle kelas - cari atau buat otomatis
                 $namaKelas = trim(strtoupper((string)($baris['kelas'] ?? '')));
+                $jenjangInput = trim(strtoupper((string)($baris['jenjang'] ?? '')));
+                $jurusanInput = trim((string)($baris['jurusan'] ?? ''));
+
                 if (!empty($namaKelas) && $tpAktif) {
-                    // Deteksi tingkat dari nama kelas (kata pertama: X, XI, XII, dll)
-                    $tingkat = '';
-                    if (preg_match('/^(XII|XI|X|IX|VIII|VII|VI|V|IV|III|II|I)\b/i', $namaKelas, $matches)) {
-                        $tingkat = strtoupper($matches[1]);
+                    // Deteksi atau gunakan tingkat/jenjang
+                    $tingkat = $jenjangInput;
+                    if (empty($tingkat)) {
+                        if (preg_match('/^(XII|XI|X|IX|VIII|VII|VI|V|IV|III|II|I)\b/i', $namaKelas, $matches)) {
+                            $tingkat = strtoupper($matches[1]);
+                        }
                     }
 
-                    // Deteksi jurusan - ambil kata setelah tingkat dan angka, tanpa angka di akhir
-                    $jurusan = null;
-                    $sisaNama = trim(preg_replace('/^(XII|XI|X|IX|VIII|VII|VI|V|IV|III|II|I)\s*/i', '', $namaKelas));
-                    // Hapus angka di akhir (nomor kelas) beserta spasi
-                    $sisaNama = trim(preg_replace('/\s*\d+\s*$/', '', $sisaNama));
-                    if (!empty($sisaNama)) {
-                        $jurusan = $sisaNama;
+                    // Deteksi atau gunakan jurusan
+                    $jurusan = !empty($jurusanInput) ? $jurusanInput : null;
+                    if (empty($jurusan)) {
+                        $sisaNama = trim(preg_replace('/^(XII|XI|X|IX|VIII|VII|VI|V|IV|III|II|I)\s*/i', '', $namaKelas));
+                        $sisaNama = trim(preg_replace('/\s*\d+\s*$/', '', $sisaNama));
+                        if (!empty($sisaNama)) {
+                            $jurusan = $sisaNama;
+                        }
                     }
 
                     $kelas = \App\Models\Kelas::whereRaw('UPPER(nama_kelas) = ?', [$namaKelas])

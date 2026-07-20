@@ -52,7 +52,7 @@ export default function ImportPengguna({ adaTahunPelajaranAktif = true, tahunPel
     };
 
     // Kolom yang diharapkan di template
-    const kolomSiswa = ['nama_lengkap', 'nik', 'nip_nis', 'tgl_lahir', 'jk', 'no_telp', 'alamat', 'kelas'];
+    const kolomSiswa = ['nama_lengkap', 'nik', 'nip_nis', 'tgl_lahir', 'jk', 'no_telp', 'alamat', 'jenjang', 'kelas', 'jurusan'];
     const kolomGuru = ['nama_lengkap', 'nik', 'nip_nis', 'tgl_lahir', 'jk', 'no_telp', 'alamat', 'peran'];
 
     // Label tampilan kolom yang lebih ramah pengguna
@@ -64,7 +64,9 @@ export default function ImportPengguna({ adaTahunPelajaranAktif = true, tahunPel
         jk: 'JK',
         no_telp: 'No. Telp',
         alamat: 'Alamat',
+        jenjang: 'Jenjang',
         kelas: 'Kelas',
+        jurusan: 'Jurusan',
     };
     const labelKolomGuru = {
         nama_lengkap: 'Nama Lengkap',
@@ -693,7 +695,9 @@ export default function ImportPengguna({ adaTahunPelajaranAktif = true, tahunPel
                                 <p><span className="font-bold">jk</span> — L (Laki-laki) atau P (Perempuan)</p>
                                 <p><span className="font-bold">no_telp</span> — Nomor telepon</p>
                                 <p><span className="font-bold">alamat</span> — Alamat lengkap</p>
-                                <p><span className="font-bold">kelas</span> — Contoh: <code className="bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">XII IPA 1</code>. Sistem akan otomatis membuat kelas jika belum ada.</p>
+                                <p><span className="font-bold">jenjang</span> — Tingkat kelas, contoh: <code className="bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">XII</code></p>
+                                <p><span className="font-bold">kelas</span> — Nama kelas lengkap, contoh: <code className="bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">XII IPA 1</code></p>
+                                <p><span className="font-bold">jurusan</span> — Jurusan kelas, contoh: <code className="bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">IPA</code></p>
                             </div>
                         </div>
                         <div className="space-y-3">
