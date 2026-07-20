@@ -121,8 +121,8 @@ class LoginRequest extends FormRequest
 
         RateLimiter::clear($this->throttleKey());
 
-        // 5. Atur masa hidup sesi dinamis
-        $lifetime = $this->boolean('remember') ? 1440 : 720;
+        // 5. Atur masa hidup sesi dinamis (jika dicentang 1 hari, jika tidak 120 menit)
+        $lifetime = $this->boolean('remember') ? 1440 : 120;
         session(['session_lifetime' => $lifetime]);
         config(['session.lifetime' => $lifetime]);
     }

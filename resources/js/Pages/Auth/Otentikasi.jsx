@@ -30,7 +30,7 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
     };
 
     const [modeAktif, setModeAktif] = useState(ambilModeAwal);
-    const [applePopupBuka, setApplePopupBuka] = useState(false);
+    const [premiumPopup, setPremiumPopup] = useState({ buka: false, tipe: '' });
     const [logoGagal, setLogoGagal] = useState(false);
     const [tahapKlaim, setTahapKlaim] = useState(1);
     const [tampilkanSandi, setTampilkanSandi] = useState(false);
@@ -499,11 +499,12 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
 
                             {/* Formulir Login */}
                             <form onSubmit={tanganiLogin} className="w-full space-y-4 text-left">
-                                <div className="grid grid-cols-2 gap-3 w-full mb-2">
+                                <div className="w-full space-y-2 mb-2">
+                                    {/* Google OAuth (Full Width) */}
                                     <button
                                         type="button"
                                         onClick={() => window.location.href = route('auth.google')}
-                                        className="flex items-center justify-center gap-2 px-3 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all focus:ring-4 focus:ring-slate-100 dark:focus:ring-slate-800 shadow-sm"
+                                        className="w-full flex items-center justify-center gap-2 px-3 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all focus:ring-4 focus:ring-slate-100 dark:focus:ring-slate-800 shadow-sm"
                                     >
                                         <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                                             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -511,18 +512,35 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
                                             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                                         </svg>
-                                        Google
+                                        Masuk dengan Google
                                     </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setApplePopupBuka(true)}
-                                        className="flex items-center justify-center gap-2 px-3 py-3.5 bg-black text-white dark:bg-white dark:text-black border border-black dark:border-white rounded-xl text-xs font-bold hover:bg-neutral-900 dark:hover:bg-neutral-100 transition-all focus:ring-4 focus:ring-neutral-200 dark:focus:ring-slate-800 shadow-sm"
-                                    >
-                                        <svg className="w-4 h-4 shrink-0 fill-current" viewBox="0 0 24 24">
-                                            <path d="M18.71 19.5C17.88 20.74 17 21.95 15.66 21.97C14.32 22 13.89 21.18 12.37 21.18C10.84 21.18 10.37 21.95 9.1 22C7.79 22.05 6.8 20.68 5.96 19.48C4.25 17 2.94 12.45 4.7 9.39C5.57 7.87 7.13 6.91 8.82 6.88C10.1 6.86 11.32 7.75 12.11 7.75C12.89 7.75 14.37 6.68 15.92 6.84C16.57 6.87 18.39 7.1 19.56 8.82C19.47 8.88 17.39 10.1 17.41 12.63C17.44 15.65 20.06 16.66 20.1 16.67C20.08 16.74 19.67 18.11 18.71 19.5M15.97 4.17C16.63 3.37 17.07 2.28 16.95 1C15.85 1.04 14.51 1.73 13.73 2.64C13.07 3.41 12.49 4.52 12.64 5.78C13.87 5.87 15.12 5.17 15.97 4.17Z" />
-                                        </svg>
-                                        Apple
-                                    </button>
+
+                                    {/* Apple & Microsoft (Grid 2 Kolom) */}
+                                    <div className="grid grid-cols-2 gap-3 w-full">
+                                        <button
+                                            type="button"
+                                            onClick={() => setPremiumPopup({ buka: true, tipe: 'Apple' })}
+                                            className="flex items-center justify-center gap-2 px-3 py-3.5 bg-black text-white dark:bg-white dark:text-black border border-black dark:border-white rounded-xl text-xs font-bold hover:bg-neutral-900 dark:hover:bg-neutral-100 transition-all focus:ring-4 focus:ring-neutral-200 dark:focus:ring-slate-800 shadow-sm"
+                                        >
+                                            <svg className="w-4 h-4 shrink-0 fill-current" viewBox="0 0 24 24">
+                                                <path d="M18.71 19.5C17.88 20.74 17 21.95 15.66 21.97C14.32 22 13.89 21.18 12.37 21.18C10.84 21.18 10.37 21.95 9.1 22C7.79 22.05 6.8 20.68 5.96 19.48C4.25 17 2.94 12.45 4.7 9.39C5.57 7.87 7.13 6.91 8.82 6.88C10.1 6.86 11.32 7.75 12.11 7.75C12.89 7.75 14.37 6.68 15.92 6.84C16.57 6.87 18.39 7.1 19.56 8.82C19.47 8.88 17.39 10.1 17.41 12.63C17.44 15.65 20.06 16.66 20.1 16.67C20.08 16.74 19.67 18.11 18.71 19.5M15.97 4.17C16.63 3.37 17.07 2.28 16.95 1C15.85 1.04 14.51 1.73 13.73 2.64C13.07 3.41 12.49 4.52 12.64 5.78C13.87 5.87 15.12 5.17 15.97 4.17Z" />
+                                            </svg>
+                                            Apple
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setPremiumPopup({ buka: true, tipe: 'Microsoft' })}
+                                            className="flex items-center justify-center gap-2 px-3 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all focus:ring-4 focus:ring-slate-100 dark:focus:ring-slate-800 shadow-sm"
+                                        >
+                                            <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 23 23">
+                                                <path fill="#f35325" d="M0 0h11v11H0z" />
+                                                <path fill="#81bc06" d="M12 0h11v11H12z" />
+                                                <path fill="#05a6f0" d="M0 12h11v11H0z" />
+                                                <path fill="#ffba08" d="M12 12h11v11H12z" />
+                                            </svg>
+                                            Microsoft
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div className="flex justify-center items-center gap-4 mb-3 text-xs font-semibold text-slate-500 dark:text-slate-400">
@@ -947,8 +965,8 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                 </div>
             </main>
 
-            {/* Modal Informasi Apple (Donasi / Langganan) */}
-            {applePopupBuka && (
+            {/* Modal Informasi Fitur Premium (Apple / Microsoft) */}
+            {premiumPopup.buka && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
                     <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl w-full max-w-md p-6 shadow-2xl space-y-5 text-center">
                         <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto text-slate-800 dark:text-white">
@@ -957,7 +975,7 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                         <div className="space-y-2">
                             <h3 className="font-extrabold text-lg text-slate-800 dark:text-white">Fitur Eksklusif Gold</h3>
                             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                                Otentikasi masuk "Masuk dengan Apple" merupakan fitur tambahan premium. Lakukan donasi pengembangan atau langganan paket Gold untuk mengaktifkan integrasi Apple Developer ID.
+                                Otentikasi masuk "Masuk dengan {premiumPopup.tipe}" merupakan fitur tambahan premium. Lakukan donasi pengembangan atau langganan paket Gold untuk mengaktifkan integrasi OAuth2 {premiumPopup.tipe}.
                             </p>
                         </div>
                         <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200/40 dark:border-amber-800/30 p-4 rounded-2xl text-left text-xs leading-relaxed text-amber-800 dark:text-amber-400 font-bold space-y-1">
@@ -982,7 +1000,7 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                             </a>
                             <button
                                 type="button"
-                                onClick={() => setApplePopupBuka(false)}
+                                onClick={() => setPremiumPopup({ buka: false, tipe: '' })}
                                 className="w-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold py-3.5 px-4 rounded-xl text-xs uppercase tracking-widest transition-all"
                             >
                                 Tutup
