@@ -80,7 +80,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/manajemen-pengguna/import-batch-guru', [ManajemenPenggunaController::class, 'importBatchGuru'])->name('pengguna.import-batch-guru');
     Route::get('/manajemen-pengguna/template-siswa', [ManajemenPenggunaController::class, 'unduhTemplateSiswa'])->name('pengguna.template-siswa');
     Route::get('/manajemen-pengguna/template-guru', [ManajemenPenggunaController::class, 'unduhTemplateGuru'])->name('pengguna.template-guru');
-    Route::get('/import-pengguna', [ImportPenggunaController::class, 'indeks'])->name('import-pengguna.indeks');
     
     Route::get('/persetujuan-data', [PersetujuanDataController::class, 'indeks'])->name('persetujuan.indeks');
     Route::post('/persetujuan-data/{id}/setujui', [PersetujuanDataController::class, 'setujui'])->name('persetujuan.setujui');
@@ -127,7 +126,6 @@ Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmi
     Route::post('/manajemen-pengguna/import-batch-guru', [ManajemenPenggunaController::class, 'importBatchGuru'])->name('pengguna.import-batch-guru');
     Route::get('/manajemen-pengguna/template-siswa', [ManajemenPenggunaController::class, 'unduhTemplateSiswa'])->name('pengguna.template-siswa');
     Route::get('/manajemen-pengguna/template-guru', [ManajemenPenggunaController::class, 'unduhTemplateGuru'])->name('pengguna.template-guru');
-    Route::get('/import-pengguna', [ImportPenggunaController::class, 'indeks'])->name('import-pengguna.indeks');
 
     Route::get('/pengaturan-sistem', [PengaturanSistemController::class, 'indeks'])->name('pengaturan.indeks');
     Route::post('/pengaturan-sistem', [PengaturanSistemController::class, 'perbarui'])->name('pengaturan.perbarui');

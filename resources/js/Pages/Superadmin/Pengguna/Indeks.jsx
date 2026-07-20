@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Head, useForm, router, usePage } from '@inertiajs/react';
 import TataLetakUtama from '@/Layouts/TataLetakUtama';
 import InputError from '@/Components/InputError';
 import Swal from 'sweetalert2';
+import * as XLSX from 'xlsx';
+import axios from 'axios';
 
 export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPeran = [], filters, adaTahunPelajaranAktif = true }) {
     const { auth } = usePage().props;
@@ -600,88 +602,215 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                 </div>
             )}
 
-            {/* Modal Import Pengguna (CSV / Excel) */}
+            {/* Modal Import Pengguna (CSV / XLSX) */}
             {modalImportBuka && (
-                <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white dark:bg-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 dark:border-slate-700/50 relative text-left">
-                        <div className="flex items-center justify-between mb-5">
-                            <h3 className="text-lg font-bold text-slate-800 dark:text-white">Import Massal Pengguna</h3>
+                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 dark:border-slate-800 relative text-left max-h-[90vh] overflow-y-auto">
+                        <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+                            <div>
+                                <h3 className="text-lg font-black text-slate-800 dark:text-white flex items-center gap-2">
+                                    <span className="material-symbols-rounded text-emerald-500">upload_file</span>
+                                    Import Massal Pengguna
+                                </h3>
+                                <p className="text-xs text-slate-400">Import data siswa dan guru dari berkas Excel (.xlsx) atau CSV.</p>
+                            </div>
                             <button 
                                 onClick={() => setModalImportBuka(false)}
-                                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                                className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center justify-center transition-colors"
                             >
-                                <span className="material-symbols-rounded">close</span>
+                                <span className="material-symbols-rounded text-lg">close</span>
                             </button>
                         </div>
 
-                        <form onSubmit={tanganiImport} className="space-y-5">
-                            {/* File Upload */}
-                            <div>
-                                <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Pilih File (CSV / XLSX) *</label>
-                                <input 
-                                    type="file"
-                                    accept=".csv, .xlsx"
-                                    onChange={e => setImportData('file_import', e.target.files[0])}
-                                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-[#0F91FC] dark:text-white"
-                                    required
-                                />
-                                <InputError message={importErrors.file_import} className="mt-1" />
-                            </div>
+                        {/* Tab Switcher */}
+                        <div className="flex gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl my-4">
+                            <button
+                                type="button"
+                                onClick={() => setTabImportAktif('siswa')}
+                                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold text-xs transition-all ${
+                                    tabImportAktif === 'siswa'
+                                        ? 'bg-[#000066] text-white shadow-md'
+                                        : 'text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                                }`}
+                            >
+                                <span className="material-symbols-rounded text-sm">school</span>
+                                Import Siswa
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setTabImportAktif('guru')}
+                                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold text-xs transition-all ${
+                                    tabImportAktif === 'guru'
+                                        ? 'bg-[#000066] text-white shadow-md'
+                                        : 'text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                                }`}
+                            >
+                                <span className="material-symbols-rounded text-sm">person</span>
+                                Import Guru
+                            </button>
+                        </div>
 
-                            {/* Download Template & Instructions */}
-                            <div className="bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-700/50 space-y-3">
-                                <h4 className="text-xs font-bold text-slate-600 dark:text-slate-350 flex items-center gap-1.5">
-                                    <span className="material-symbols-rounded text-sm text-[#0F91FC]">info</span>
-                                    Petunjuk Import & Pemetaan Peran
-                                </h4>
-                                <div className="text-[11px] text-slate-500 dark:text-slate-400 space-y-2 leading-relaxed">
-                                    <p>
-                                        1. Gunakan file template resmi (CSV atau Excel) agar format kolom sesuai sistem.
-                                    </p>
-                                    <p>
-                                        2. Kolom <code className="bg-slate-200 dark:bg-slate-700 px-1 rounded font-bold font-mono">nama_peran</code> diisi dengan nama peran yang terdaftar (contoh: <code className="font-semibold text-emerald-600 dark:text-emerald-400">Siswa</code> atau <code className="font-semibold text-emerald-600 dark:text-emerald-400">Guru</code>).
-                                    </p>
-                                    <p>
-                                        3. Anda dapat mengisi lebih dari satu peran untuk satu user dengan memisahkan peran menggunakan tanda koma (contoh: <code className="font-semibold text-emerald-600 dark:text-emerald-400">Guru,Tendik</code>).
-                                    </p>
-                                </div>
-                                <div className="flex flex-col gap-2 pt-2 border-t border-slate-200/50 dark:border-slate-700/50">
-                                    <a 
-                                        href={route('superadmin.pengguna.template-csv')}
-                                        className="inline-flex items-center gap-1.5 text-xs text-[#0F91FC] hover:underline font-bold"
+                        {/* Content Tab Siswa */}
+                        {tabImportAktif === 'siswa' && (
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between bg-emerald-50 dark:bg-emerald-950/30 p-3 rounded-2xl border border-emerald-200/50 dark:border-emerald-800/50">
+                                    <div className="text-xs text-emerald-800 dark:text-emerald-300 font-bold">
+                                        Format Siswa: nama_lengkap, nik, nip_nis, tgl_lahir, jk, no_telp, alamat, jenjang, kelas, jurusan
+                                    </div>
+                                    <a
+                                        href={route(`${window.location.pathname.startsWith('/superadmin') ? 'superadmin' : 'admin'}.pengguna.template-siswa`)}
+                                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-[11px] shrink-0 shadow-sm transition-all"
                                     >
-                                        <span className="material-symbols-rounded text-sm">download</span>
-                                        Unduh Template CSV
-                                    </a>
-                                    <a 
-                                        href={route('superadmin.pengguna.template-excel')}
-                                        className="inline-flex items-center gap-1.5 text-xs text-emerald-500 hover:underline font-bold"
-                                    >
-                                        <span className="material-symbols-rounded text-sm">download</span>
-                                        Unduh Template Excel (.xls)
+                                        <span className="material-symbols-rounded text-xs">download</span>
+                                        Template Siswa
                                     </a>
                                 </div>
-                            </div>
 
-                            {/* Action Buttons */}
-                            <div className="flex justify-end gap-2 pt-4 border-t border-slate-100 dark:border-slate-700/50">
-                                <button 
-                                    type="button"
-                                    onClick={() => setModalImportBuka(false)}
-                                    className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                                <div 
+                                    onClick={() => inputFileSiswaRef.current?.click()}
+                                    className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-6 text-center cursor-pointer hover:border-[#000066] hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all"
                                 >
-                                    Batal
-                                </button>
-                                <button 
-                                    type="submit"
-                                    disabled={importProcessing}
-                                    className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-lg shadow-emerald-500/20 disabled:opacity-50 flex items-center gap-1.5"
-                                >
-                                    <span className="material-symbols-rounded text-sm">upload</span>
-                                    {importProcessing ? 'Mengimpor...' : 'Mulai Import'}
-                                </button>
+                                    <span className="material-symbols-rounded text-3xl text-slate-300 dark:text-slate-600 block mb-1">cloud_upload</span>
+                                    {fileImportSiswa ? (
+                                        <p className="font-bold text-xs text-slate-700 dark:text-slate-200">{fileImportSiswa.name} ({dataPratinjauSiswa.length} data)</p>
+                                    ) : (
+                                        <p className="text-xs text-slate-400 font-bold">Klik untuk memilih file Excel / CSV Siswa</p>
+                                    )}
+                                    <input
+                                        ref={inputFileSiswaRef}
+                                        type="file"
+                                        accept=".xlsx,.xls,.csv"
+                                        onChange={tanganiPilihFileSiswa}
+                                        className="hidden"
+                                    />
+                                </div>
+
+                                {dataPratinjauSiswa.length > 0 && (
+                                    <div className="border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden text-xs max-h-40 overflow-y-auto">
+                                        <table className="w-full text-left border-collapse">
+                                            <thead className="bg-slate-100 dark:bg-slate-800 text-[10px] font-black uppercase text-slate-500">
+                                                <tr>
+                                                    <th className="px-3 py-2">NO</th>
+                                                    <th className="px-3 py-2">Nama</th>
+                                                    <th className="px-3 py-2">NIK</th>
+                                                    <th className="px-3 py-2">NISN</th>
+                                                    <th className="px-3 py-2">Kelas</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                                {dataPratinjauSiswa.slice(0, 5).map((row, i) => (
+                                                    <tr key={i}>
+                                                        <td className="px-3 py-1.5 font-bold text-slate-400">{i + 1}</td>
+                                                        <td className="px-3 py-1.5 font-semibold text-slate-700 dark:text-slate-200">{row.nama_lengkap}</td>
+                                                        <td className="px-3 py-1.5 text-slate-500">{row.nik}</td>
+                                                        <td className="px-3 py-1.5 text-slate-500">{row.nip_nis}</td>
+                                                        <td className="px-3 py-1.5 text-slate-500">{row.kelas || '-'}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
                             </div>
-                        </form>
+                        )}
+
+                        {/* Content Tab Guru */}
+                        {tabImportAktif === 'guru' && (
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between bg-amber-50 dark:bg-amber-950/30 p-3 rounded-2xl border border-amber-200/50 dark:border-amber-800/50">
+                                    <div className="text-xs text-amber-800 dark:text-amber-300 font-bold">
+                                        Format Guru: nama_lengkap, nik, nip_nis, tgl_lahir, jk, no_telp, alamat, peran
+                                    </div>
+                                    <a
+                                        href={route(`${window.location.pathname.startsWith('/superadmin') ? 'superadmin' : 'admin'}.pengguna.template-guru`)}
+                                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold text-[11px] shrink-0 shadow-sm transition-all"
+                                    >
+                                        <span className="material-symbols-rounded text-xs">download</span>
+                                        Template Guru
+                                    </a>
+                                </div>
+
+                                <div 
+                                    onClick={() => inputFileGuruRef.current?.click()}
+                                    className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-6 text-center cursor-pointer hover:border-[#000066] hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all"
+                                >
+                                    <span className="material-symbols-rounded text-3xl text-slate-300 dark:text-slate-600 block mb-1">cloud_upload</span>
+                                    {fileImportGuru ? (
+                                        <p className="font-bold text-xs text-slate-700 dark:text-slate-200">{fileImportGuru.name} ({dataPratinjauGuru.length} data)</p>
+                                    ) : (
+                                        <p className="text-xs text-slate-400 font-bold">Klik untuk memilih file Excel / CSV Guru</p>
+                                    )}
+                                    <input
+                                        ref={inputFileGuruRef}
+                                        type="file"
+                                        accept=".xlsx,.xls,.csv"
+                                        onChange={tanganiPilihFileGuru}
+                                        className="hidden"
+                                    />
+                                </div>
+
+                                {dataPratinjauGuru.length > 0 && (
+                                    <div className="border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden text-xs max-h-40 overflow-y-auto">
+                                        <table className="w-full text-left border-collapse">
+                                            <thead className="bg-slate-100 dark:bg-slate-800 text-[10px] font-black uppercase text-slate-500">
+                                                <tr>
+                                                    <th className="px-3 py-2">NO</th>
+                                                    <th className="px-3 py-2">Nama</th>
+                                                    <th className="px-3 py-2">NIK</th>
+                                                    <th className="px-3 py-2">NIP</th>
+                                                    <th className="px-3 py-2">Peran</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                                {dataPratinjauGuru.slice(0, 5).map((row, i) => (
+                                                    <tr key={i}>
+                                                        <td className="px-3 py-1.5 font-bold text-slate-400">{i + 1}</td>
+                                                        <td className="px-3 py-1.5 font-semibold text-slate-700 dark:text-slate-200">{row.nama_lengkap}</td>
+                                                        <td className="px-3 py-1.5 text-slate-500">{row.nik}</td>
+                                                        <td className="px-3 py-1.5 text-slate-500">{row.nip_nis}</td>
+                                                        <td className="px-3 py-1.5 text-slate-500">{row.peran || 'Guru'}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Action Buttons */}
+                        <div className="flex justify-end gap-2 pt-4 border-t border-slate-100 dark:border-slate-800 mt-4">
+                            <button 
+                                type="button"
+                                onClick={() => setModalImportBuka(false)}
+                                className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                            >
+                                Batal
+                            </button>
+                            <button 
+                                type="button"
+                                onClick={() => {
+                                    if (tabImportAktif === 'siswa') {
+                                        if (dataPratinjauSiswa.length === 0) {
+                                            Swal.fire({ title: 'Tidak Ada Data!', text: 'Silakan pilih file Siswa terlebih dahulu.', icon: 'warning', confirmButtonColor: '#000066' });
+                                            return;
+                                        }
+                                        prosesImportBatchModal(dataPratinjauSiswa, 'siswa');
+                                    } else {
+                                        if (dataPratinjauGuru.length === 0) {
+                                            Swal.fire({ title: 'Tidak Ada Data!', text: 'Silakan pilih file Guru terlebih dahulu.', icon: 'warning', confirmButtonColor: '#000066' });
+                                            return;
+                                        }
+                                        prosesImportBatchModal(dataPratinjauGuru, 'guru');
+                                    }
+                                }}
+                                disabled={sedangMemprosesImport}
+                                className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-lg shadow-emerald-600/20 disabled:opacity-50 flex items-center gap-1.5"
+                            >
+                                <span className="material-symbols-rounded text-sm">rocket_launch</span>
+                                {sedangMemprosesImport ? 'Mengimpor...' : 'Mulai Import'}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
