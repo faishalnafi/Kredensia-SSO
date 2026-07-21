@@ -4,7 +4,6 @@
 /bootstrap/sse.php
 /vendor
 /node_modules
-/public/build
 /public/storage
 
 ###############################################################################

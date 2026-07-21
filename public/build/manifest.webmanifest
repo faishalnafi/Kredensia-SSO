@@ -1,0 +1,1 @@
+{"name":"SSO Sekolah","short_name":"SSOSekolah","description":"Portal Otentikasi Terpusat SSO Sekolah","start_url":"/build/","display":"standalone","background_color":"#ffffff","theme_color":"#0F91FC","lang":"en","scope":"/build/","icons":[{"src":"/favicon.ico","sizes":"64x64 32x32 24x24 16x16","type":"image/x-icon"}]}
