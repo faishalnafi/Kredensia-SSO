@@ -87,3 +87,6 @@ composer.phar
 **/caddy
 frankenphp
 frankenphp-worker.php
+/sso.zip
+*.zip
+

@@ -462,7 +462,7 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                             className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-2"
                         >
                             <span className="material-symbols-rounded text-lg">upload_file</span>
-                            Import CSV
+                            Import Excel
                         </button>
 
                         <button 
@@ -860,7 +860,7 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                                     <span className="material-symbols-rounded text-emerald-500">upload_file</span>
                                     Import Massal Pengguna
                                 </h3>
-                                <p className="text-xs text-slate-400">Import data siswa dan guru dari berkas Excel (.xlsx) atau CSV.</p>
+                                <p className="text-xs text-slate-400">Import data siswa dan guru dari berkas Excel (.xlsx / .xls).</p>
                             </div>
                             <button 
                                 onClick={() => setModalImportBuka(false)}
@@ -922,12 +922,12 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                                     {fileImportSiswa ? (
                                         <p className="font-bold text-xs text-slate-700 dark:text-slate-200">{fileImportSiswa.name} ({dataPratinjauSiswa.length} data)</p>
                                     ) : (
-                                        <p className="text-xs text-slate-400 font-bold">Klik untuk memilih file Excel / CSV Siswa</p>
+                                        <p className="text-xs text-slate-400 font-bold">Klik untuk memilih file Excel Siswa</p>
                                     )}
                                     <input
                                         ref={inputFileSiswaRef}
                                         type="file"
-                                        accept=".xlsx,.xls,.csv"
+                                        accept=".xlsx,.xls"
                                         onChange={tanganiPilihFileSiswa}
                                         className="hidden"
                                     />
@@ -986,12 +986,12 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                                     {fileImportGuru ? (
                                         <p className="font-bold text-xs text-slate-700 dark:text-slate-200">{fileImportGuru.name} ({dataPratinjauGuru.length} data)</p>
                                     ) : (
-                                        <p className="text-xs text-slate-400 font-bold">Klik untuk memilih file Excel / CSV Guru</p>
+                                        <p className="text-xs text-slate-400 font-bold">Klik untuk memilih file Excel Guru</p>
                                     )}
                                     <input
                                         ref={inputFileGuruRef}
                                         type="file"
-                                        accept=".xlsx,.xls,.csv"
+                                        accept=".xlsx,.xls"
                                         onChange={tanganiPilihFileGuru}
                                         className="hidden"
                                     />

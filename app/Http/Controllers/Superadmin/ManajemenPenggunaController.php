@@ -548,93 +548,108 @@ class ManajemenPenggunaController extends Controller
     /**
      * Unduh template CSV khusus import siswa.
      */
+    /**
+     * Unduh template Excel khusus import siswa.
+     */
     public function unduhTemplateSiswa()
     {
-        $headers = [
-            'Content-type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename=template_import_siswa.csv',
-            'Pragma' => 'no-cache',
-            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-            'Expires' => '0'
-        ];
+        $filename = 'template_import_siswa.xls';
+        
+        $output = '<?xml version="1.0"?>' . "\n";
+        $output .= '<?mso-application progid="Excel.Sheet"?>' . "\n";
+        $output .= '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"' . "\n";
+        $output .= ' xmlns:o="urn:schemas-microsoft-com:office:office"' . "\n";
+        $output .= ' xmlns:x="urn:schemas-microsoft-com:office:excel"' . "\n";
+        $output .= ' xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"' . "\n";
+        $output .= ' xmlns:html="http://www.w3.org/TR/REC-html40">' . "\n";
+        $output .= ' <Worksheet ss:Name="Import Siswa">' . "\n";
+        $output .= '  <Table>' . "\n";
+        
+        // Header
+        $output .= '   <Row>' . "\n";
+        $kolomSiswa = ['nama_lengkap', 'nik', 'nip_nis', 'tgl_lahir', 'jk', 'no_telp', 'alamat', 'jenjang', 'kelas', 'jurusan'];
+        foreach ($kolomSiswa as $col) {
+            $output .= '    <Cell><Data ss:Type="String">' . htmlspecialchars($col) . '</Data></Cell>' . "\n";
+        }
+        $output .= '   </Row>' . "\n";
+        
+        // Baris 1 (Contoh)
+        $output .= '   <Row>' . "\n";
+        $barisSiswa1 = ['Budi Santoso', '3515012345670002', '0078901234', '2008-04-15', 'L', '081234567891', 'Sidoarjo, Jawa Timur', 'XII', 'XII IPA 1', 'IPA'];
+        foreach ($barisSiswa1 as $val) {
+            $output .= '    <Cell><Data ss:Type="String">' . htmlspecialchars((string)$val) . '</Data></Cell>' . "\n";
+        }
+        $output .= '   </Row>' . "\n";
+        
+        // Baris 2 (Contoh)
+        $output .= '   <Row>' . "\n";
+        $barisSiswa2 = ['Rina Wulandari', '3515012345670005', '0078901237', '2008-11-22', 'P', '', '', 'XII', 'XII IPS 2', 'IPS'];
+        foreach ($barisSiswa2 as $val) {
+            $output .= '    <Cell><Data ss:Type="String">' . htmlspecialchars((string)$val) . '</Data></Cell>' . "\n";
+        }
+        $output .= '   </Row>' . "\n";
+        
+        $output .= '  </Table>' . "\n";
+        $output .= ' </Worksheet>' . "\n";
+        $output .= '</Workbook>';
 
-        $columns = ['nama_lengkap', 'nik', 'nip_nis', 'tgl_lahir', 'jk', 'no_telp', 'alamat', 'jenjang', 'kelas', 'jurusan'];
-
-        $callback = function() use ($columns) {
-            $file = fopen('php://output', 'w');
-            fputcsv($file, $columns);
-            fputcsv($file, [
-                'Budi Santoso',
-                '3515012345670002',
-                '0078901234',
-                '2008-04-15',
-                'L',
-                '081234567891',
-                'Sidoarjo, Jawa Timur',
-                'XII',
-                'XII IPA 1',
-                'IPA'
-            ]);
-            fputcsv($file, [
-                'Rina Wulandari',
-                '3515012345670005',
-                '0078901237',
-                '2008-11-22',
-                'P',
-                '',
-                '',
-                'XII',
-                'XII IPS 2',
-                'IPS'
-            ]);
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return response($output, 200)
+            ->header('Content-Type', 'application/vnd.ms-excel')
+            ->header('Content-Disposition', 'attachment; filename=' . $filename)
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 
     /**
-     * Unduh template CSV khusus import guru.
+     * Unduh template Excel khusus import guru.
      */
     public function unduhTemplateGuru()
     {
-        $headers = [
-            'Content-type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename=template_import_guru.csv',
-            'Pragma' => 'no-cache',
-            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-            'Expires' => '0'
-        ];
+        $filename = 'template_import_guru.xls';
+        
+        $output = '<?xml version="1.0"?>' . "\n";
+        $output .= '<?mso-application progid="Excel.Sheet"?>' . "\n";
+        $output .= '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"' . "\n";
+        $output .= ' xmlns:o="urn:schemas-microsoft-com:office:office"' . "\n";
+        $output .= ' xmlns:x="urn:schemas-microsoft-com:office:excel"' . "\n";
+        $output .= ' xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"' . "\n";
+        $output .= ' xmlns:html="http://www.w3.org/TR/REC-html40">' . "\n";
+        $output .= ' <Worksheet ss:Name="Import Guru">' . "\n";
+        $output .= '  <Table>' . "\n";
+        
+        // Header
+        $output .= '   <Row>' . "\n";
+        $kolomGuru = ['nama_lengkap', 'nik', 'nip_nis', 'tgl_lahir', 'jk', 'no_telp', 'alamat', 'peran'];
+        foreach ($kolomGuru as $col) {
+            $output .= '    <Cell><Data ss:Type="String">' . htmlspecialchars($col) . '</Data></Cell>' . "\n";
+        }
+        $output .= '   </Row>' . "\n";
+        
+        // Baris 1 (Contoh)
+        $output .= '   <Row>' . "\n";
+        $barisGuru1 = ['Ahmad Fauzi', '3515012345670003', '198508202010122001', '1985-08-20', 'L', '085712345678', 'Surabaya, Jawa Timur', 'Guru, Wali Kelas'];
+        foreach ($barisGuru1 as $val) {
+            $output .= '    <Cell><Data ss:Type="String">' . htmlspecialchars((string)$val) . '</Data></Cell>' . "\n";
+        }
+        $output .= '   </Row>' . "\n";
+        
+        // Baris 2 (Contoh)
+        $output .= '   <Row>' . "\n";
+        $barisGuru2 = ['Siti Aminah', '3515012345670004', '199001152015042002', '1990-01-15', 'P', '087654321098', 'Malang, Jawa Timur', 'Guru, Staf Kurikulum'];
+        foreach ($barisGuru2 as $val) {
+            $output .= '    <Cell><Data ss:Type="String">' . htmlspecialchars((string)$val) . '</Data></Cell>' . "\n";
+        }
+        $output .= '   </Row>' . "\n";
+        
+        $output .= '  </Table>' . "\n";
+        $output .= ' </Worksheet>' . "\n";
+        $output .= '</Workbook>';
 
-        $columns = ['nama_lengkap', 'nik', 'nip_nis', 'tgl_lahir', 'jk', 'no_telp', 'alamat', 'peran'];
-
-        $callback = function() use ($columns) {
-            $file = fopen('php://output', 'w');
-            fputcsv($file, $columns);
-            fputcsv($file, [
-                'Ahmad Fauzi',
-                '3515012345670003',
-                '198508202010122001',
-                '1985-08-20',
-                'L',
-                '085712345678',
-                'Surabaya, Jawa Timur',
-                'Guru, Wali Kelas'
-            ]);
-            fputcsv($file, [
-                'Siti Aminah',
-                '3515012345670004',
-                '199001152015042002',
-                '1990-01-15',
-                'P',
-                '087654321098',
-                'Malang, Jawa Timur',
-                'Guru, Staf Kurikulum'
-            ]);
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return response($output, 200)
+            ->header('Content-Type', 'application/vnd.ms-excel')
+            ->header('Content-Disposition', 'attachment; filename=' . $filename)
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 
     /**
