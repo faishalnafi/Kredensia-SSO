@@ -15,6 +15,17 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
     const [modalImportBuka, setModalImportBuka] = useState(false);
     const [tampilkanSandi, setTampilkanSandi] = useState(false);
 
+    const [tabImportAktif, setTabImportAktif] = useState('siswa');
+    const [fileImportSiswa, setFileImportSiswa] = useState(null);
+    const [dataPratinjauSiswa, setDataPratinjauSiswa] = useState([]);
+    const [fileImportGuru, setFileImportGuru] = useState(null);
+    const [dataPratinjauGuru, setDataPratinjauGuru] = useState([]);
+    const [sedangMemprosesImport, setSedangMemprosesImport] = useState(false);
+
+    const inputFileSiswaRef = useRef(null);
+    const inputFileGuruRef = useRef(null);
+
+
     const {
         data: importData,
         setData: setImportData,
@@ -244,6 +255,169 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
             currentSelection.push(roleId);
         }
         setData('selected_roles', currentSelection);
+    };
+
+    const tanganiPilihFileSiswa = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        setFileImportSiswa(file);
+        
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+            try {
+                const bstr = evt.target.result;
+                const wb = XLSX.read(bstr, { type: 'binary' });
+                const wsname = wb.SheetNames.find(n => n.toLowerCase().includes('siswa')) || wb.SheetNames[0];
+                const ws = wb.Sheets[wsname];
+                const dataRaw = XLSX.utils.sheet_to_json(ws, { raw: false, defval: "" });
+                
+                // Map keys
+                const mapped = dataRaw.map((row, idx) => {
+                    const mappedRow = {};
+                    Object.keys(row).forEach(k => {
+                        const norm = k.trim().toLowerCase().replace(/\s+/g, '_');
+                        mappedRow[norm] = row[k];
+                    });
+                    mappedRow['_nomor_baris'] = idx + 2;
+                    return mappedRow;
+                });
+                
+                setDataPratinjauSiswa(mapped);
+            } catch (err) {
+                Swal.fire({
+                    title: 'Gagal Membaca File',
+                    text: 'Terjadi kesalahan saat membaca file Excel/CSV: ' + err.message,
+                    icon: 'error',
+                    confirmButtonColor: '#ef4444'
+                });
+            }
+        };
+        reader.readAsBinaryString(file);
+    };
+
+    const tanganiPilihFileGuru = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        setFileImportGuru(file);
+        
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+            try {
+                const bstr = evt.target.result;
+                const wb = XLSX.read(bstr, { type: 'binary' });
+                const wsname = wb.SheetNames.find(n => n.toLowerCase().includes('guru')) || wb.SheetNames[0];
+                const ws = wb.Sheets[wsname];
+                const dataRaw = XLSX.utils.sheet_to_json(ws, { raw: false, defval: "" });
+                
+                // Map keys
+                const mapped = dataRaw.map((row, idx) => {
+                    const mappedRow = {};
+                    Object.keys(row).forEach(k => {
+                        const norm = k.trim().toLowerCase().replace(/\s+/g, '_');
+                        mappedRow[norm] = row[k];
+                    });
+                    mappedRow['_nomor_baris'] = idx + 2;
+                    return mappedRow;
+                });
+                
+                setDataPratinjauGuru(mapped);
+            } catch (err) {
+                Swal.fire({
+                    title: 'Gagal Membaca File',
+                    text: 'Terjadi kesalahan saat membaca file Excel/CSV: ' + err.message,
+                    icon: 'error',
+                    confirmButtonColor: '#ef4444'
+                });
+            }
+        };
+        reader.readAsBinaryString(file);
+    };
+
+    const prosesImportBatchModal = async (dataList, tipe) => {
+        setSedangMemprosesImport(true);
+        const batchSize = 50;
+        const totalRows = dataList.length;
+        let suksesTotal = 0;
+        let gagalTotal = 0;
+        let semuaErrors = [];
+
+        // Tampilkan modal progress Swal
+        Swal.fire({
+            title: 'Memproses Import Data',
+            html: `Mengimpor data ${tipe}... <br/><b>0%</b> (0/${totalRows})`,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        const routeName = tipe === 'siswa' ? 'pengguna.import-batch-siswa' : 'pengguna.import-batch-guru';
+
+        for (let i = 0; i < totalRows; i += batchSize) {
+            const chunk = dataList.slice(i, i + batchSize);
+            
+            try {
+                const response = await axios.post(route(`${pathPrefix}.${routeName}`), {
+                    batch: chunk
+                });
+
+                suksesTotal += response.data.berhasil || 0;
+                gagalTotal += response.data.gagal || 0;
+                if (response.data.errors && response.data.errors.length > 0) {
+                    semuaErrors = [...semuaErrors, ...response.data.errors];
+                }
+
+                // Update progress modal
+                const persen = Math.round((Math.min(i + batchSize, totalRows) / totalRows) * 100);
+                Swal.update({
+                    html: `Mengimpor data ${tipe}... <br/><b>${persen}%</b> (${Math.min(i + batchSize, totalRows)}/${totalRows})`
+                });
+            } catch (err) {
+                gagalTotal += chunk.length;
+                const errMsg = err.response?.data?.message || err.message || 'Kesalahan tidak diketahui';
+                semuaErrors.push(`Batch ${Math.floor(i/batchSize) + 1}: ${errMsg}`);
+            }
+        }
+
+        setSedangMemprosesImport(false);
+        
+        // Reset state import
+        if (tipe === 'siswa') {
+            setFileImportSiswa(null);
+            setDataPratinjauSiswa([]);
+            if (inputFileSiswaRef.current) inputFileSiswaRef.current.value = '';
+        } else {
+            setFileImportGuru(null);
+            setDataPratinjauGuru([]);
+            if (inputFileGuruRef.current) inputFileGuruRef.current.value = '';
+        }
+        setModalImportBuka(false);
+
+        // Tampilkan hasil akhir dengan Swal
+        if (semuaErrors.length > 0) {
+            Swal.fire({
+                title: 'Import Selesai dengan Catatan',
+                html: `Berhasil: <b>${suksesTotal}</b><br/>Gagal/Error: <b>${gagalTotal}</b><br/><br/>
+                       <div style="text-align:left; max-height: 150px; overflow-y: auto; font-size: 11px; color: #ef4444; border: 1px solid #e2e8f0; padding: 8px; border-radius: 8px;">
+                           ${semuaErrors.map(e => `• ${e}`).join('<br/>')}
+                       </div>`,
+                icon: 'warning',
+                confirmButtonColor: '#000066'
+            }).then(() => {
+                router.reload();
+            });
+        } else {
+            Swal.fire({
+                title: 'Import Sukses!',
+                text: `Semua data (${suksesTotal} baris) berhasil diimpor.`,
+                icon: 'success',
+                confirmButtonColor: '#10b981'
+            }).then(() => {
+                router.reload();
+            });
+        }
     };
 
     return (
