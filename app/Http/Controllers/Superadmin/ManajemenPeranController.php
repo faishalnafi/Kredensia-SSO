@@ -125,7 +125,6 @@ class ManajemenPeranController extends Controller
 
                 foreach ($usersToDelete as $user) {
                     $user->roles()->detach();
-                    $user->apps()->detach();
                     $user->delete();
                 }
             }
