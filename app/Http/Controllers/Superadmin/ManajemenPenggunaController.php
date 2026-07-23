@@ -24,7 +24,7 @@ class ManajemenPenggunaController extends Controller
      */
     public function indeks(Request $request): Response
     {
-        $query = User::with('roles')->orderBy('created_at', 'desc');
+        $query = User::with(['roles', 'kelas.tahunPelajaran'])->orderBy('created_at', 'desc');
 
         // Filter pencarian
         if ($request->filled('cari')) {
@@ -43,12 +43,19 @@ class ManajemenPenggunaController extends Controller
         // Ambil peran aktif untuk dropdown pilihan peran
         $daftarPeran = Role::where('is_active', true)->get();
 
+        // Ambil daftar kelas untuk dropdown pilihan kelas
+        $daftarKelas = \App\Models\Kelas::with('tahunPelajaran')
+            ->orderBy('tingkat', 'asc')
+            ->orderBy('nama_kelas', 'asc')
+            ->get();
+
         // Ambil tahun pelajaran aktif
         $tpAktif = \App\Models\TahunPelajaran::where('is_aktif', true)->first();
 
         return Inertia::render('Superadmin/Pengguna/Indeks', [
             'daftarPengguna' => $daftarPengguna,
             'daftarPeran' => $daftarPeran,
+            'daftarKelas' => $daftarKelas,
             'filters' => $request->only(['cari']),
             'adaTahunPelajaranAktif' => (bool)$tpAktif,
             'tahunPelajaranAktif' => $tpAktif ? "{$tpAktif->tahun_mulai}/{$tpAktif->tahun_selesai}" : null,
@@ -75,6 +82,7 @@ class ManajemenPenggunaController extends Controller
             'nip_nis' => ['nullable', 'string', 'max:30', 'unique:users,nip_nis'],
             'no_telp' => ['nullable', 'string', 'max:20'],
             'alamat' => ['nullable', 'string'],
+            'kelas_id' => ['nullable', 'exists:kelas,id'],
             'is_active' => ['required', 'boolean'],
             'selected_roles' => ['nullable', 'array'],
             'selected_roles.*' => ['exists:roles,id'],
@@ -96,6 +104,7 @@ class ManajemenPenggunaController extends Controller
                 'nip_nis' => $request->nip_nis,
                 'no_telp' => $request->no_telp,
                 'alamat' => $request->alamat,
+                'kelas_id' => $request->kelas_id ?: null,
                 'is_active' => $request->is_active,
                 'claimed_at' => now(), // Otomatis aktif
             ]);
@@ -134,6 +143,7 @@ class ManajemenPenggunaController extends Controller
             'nip_nis' => ['nullable', 'string', 'max:30', Rule::unique('users', 'nip_nis')->ignore($id)],
             'no_telp' => ['nullable', 'string', 'max:20'],
             'alamat' => ['nullable', 'string'],
+            'kelas_id' => ['nullable', 'exists:kelas,id'],
             'is_active' => ['required', 'boolean'],
             'selected_roles' => ['nullable', 'array'],
             'selected_roles.*' => ['exists:roles,id'],
@@ -159,6 +169,7 @@ class ManajemenPenggunaController extends Controller
                 'nip_nis' => $request->nip_nis,
                 'no_telp' => $request->no_telp,
                 'alamat' => $request->alamat,
+                'kelas_id' => $request->kelas_id ?: null,
                 'is_active' => $request->is_active,
             ];
 

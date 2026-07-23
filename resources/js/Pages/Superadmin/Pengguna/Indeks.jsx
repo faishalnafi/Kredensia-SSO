@@ -6,7 +6,7 @@ import Swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
 import axios from 'axios';
 
-export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPeran = [], filters, adaTahunPelajaranAktif = true }) {
+export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPeran = [], daftarKelas = [], filters, adaTahunPelajaranAktif = true }) {
     const { auth } = usePage().props;
     const [modalBuka, setModalBuka] = useState(false);
     const [editMode, setEditMode] = useState(false);
@@ -106,6 +106,7 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
         nip_nis: '',
         no_telp: '',
         alamat: '',
+        kelas_id: '',
         is_active: true,
         selected_roles: []
     });
@@ -160,6 +161,7 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
             nip_nis: user.nip_nis || '',
             no_telp: user.no_telp || '',
             alamat: user.alamat || '',
+            kelas_id: user.kelas_id || '',
             is_active: user.is_active,
             selected_roles: user.roles ? user.roles.map(r => r.id) : []
         });
@@ -511,11 +513,18 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                                                         <span className="font-bold text-slate-700 dark:text-slate-200 truncate">
                                                             {user.nama_lengkap}
                                                         </span>
-                                                        {user.nip_nis && (
-                                                            <span className="text-[10px] text-slate-400 font-mono mt-0.5">
-                                                                NIP/NISN: {user.nip_nis}
-                                                            </span>
-                                                        )}
+                                                        <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
+                                                            {user.nip_nis && (
+                                                                <span className="text-[10px] text-slate-400 font-mono">
+                                                                    NIP/NISN: {user.nip_nis}
+                                                                </span>
+                                                            )}
+                                                            {user.kelas && (
+                                                                <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 border border-blue-200/50 dark:border-blue-800/50 px-1.5 py-0.2 rounded">
+                                                                    {user.kelas.nama_kelas}
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </td>
@@ -766,6 +775,25 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                                         className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#0F91FC] dark:text-white"
                                     />
                                     <InputError message={errors.nip_nis} className="mt-1" />
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">
+                                        {editMode ? 'Ganti Kelas (Opsional)' : 'Pilih Kelas (Opsional)'}
+                                    </label>
+                                    <select 
+                                        value={data.kelas_id}
+                                        onChange={e => setData('kelas_id', e.target.value)}
+                                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#0F91FC] dark:text-white"
+                                    >
+                                        <option value="">-- Tanpa Kelas --</option>
+                                        {daftarKelas && daftarKelas.map((k) => (
+                                            <option key={k.id} value={k.id}>
+                                                {k.nama_kelas} {k.tahun_pelajaran ? `(${k.tahun_pelajaran.tahun_mulai}/${k.tahun_pelajaran.tahun_selesai})` : ''}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <InputError message={errors.kelas_id} className="mt-1" />
                                 </div>
                             </div>
 
