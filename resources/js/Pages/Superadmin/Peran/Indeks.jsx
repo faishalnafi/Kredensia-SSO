@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, router } from '@inertiajs/react';
 import TataLetakUtama from '@/Layouts/TataLetakUtama';
 import InputError from '@/Components/InputError';
 import Swal from 'sweetalert2';
@@ -81,22 +81,95 @@ export default function IndeksPeran({ daftarPeran = [] }) {
             return;
         }
 
-        const res = await Swal.fire({
-            title: 'Hapus Peran?',
-            html: `Apakah Anda yakin ingin menghapus peran <strong>"${role.nama_role}"</strong>?<br/><span style="font-size:0.85rem;color:#ef4444;margin-top:6px;display:block;">Seluruh akses pengguna dan aplikasi yang terhubung ke peran ini akan dilepas.</span>`,
-            icon: 'warning',
+        const jumlahPengguna = role.users_count || 0;
+
+        // --- POPUP TAHAP 1: Pilihan Metode Penghapusan ---
+        const opsiRes = await Swal.fire({
+            title: 'Pilih Metode Penghapusan',
+            html: `
+                <div style="font-size:0.9rem;line-height:1.6;" class="text-slate-600 dark:text-slate-300">
+                    Peran <strong>"${role.nama_role}"</strong> saat ini terhubung dengan <strong>${jumlahPengguna} pengguna</strong>.
+                    <br/><br/>
+                    Silakan pilih opsi penghapusan yang Anda inginkan:
+                </div>
+            `,
+            icon: 'question',
             showCancelButton: true,
-            confirmButtonText: '🗑️ Ya, Hapus',
+            showDenyButton: true,
+            confirmButtonText: '🗑️ Hapus Peran Saja',
+            denyButtonText: '🔥 Hapus Peran & Semua Pengguna',
             cancelButtonText: 'Batal',
-            confirmButtonColor: '#ef4444',
+            confirmButtonColor: '#f59e0b',
+            denyButtonColor: '#dc2626',
             cancelButtonColor: '#6b7280',
-            customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl font-bold px-5 py-2.5', cancelButton: 'rounded-xl font-bold px-5 py-2.5' }
+            customClass: {
+                popup: 'rounded-3xl',
+                confirmButton: 'rounded-xl font-bold px-4 py-2.5 text-xs',
+                denyButton: 'rounded-xl font-bold px-4 py-2.5 text-xs',
+                cancelButton: 'rounded-xl font-bold px-4 py-2.5 text-xs',
+            }
         });
 
-        if (res.isConfirmed) {
-            destroy(route('superadmin.peran.hapus', role.id), {
-                preserveScroll: true
+        // Jika menekan tombol "Batal" / keluar dari popup
+        if (opsiRes.isDismissed) return;
+
+        // --- TAHAP 2A: Opsi "Hapus Peran Saja" ---
+        if (opsiRes.isConfirmed) {
+            const konfirmA = await Swal.fire({
+                title: '⚠️ Konfirmasi Hapus Peran Saja',
+                html: `
+                    Apakah Anda <strong>benar-benar yakin</strong> ingin menghapus peran <strong>"${role.nama_role}"</strong>?<br/>
+                    <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:12px;padding:10px 14px;margin-top:12px;font-size:0.8rem;color:#b45309;text-align:left;">
+                        <strong>Informasi:</strong> Peran akan dihapus dari sistem, namun <strong>${jumlahPengguna} data pengguna</strong> yang memiliki peran ini akan <strong>TETAP ADA</strong> di sistem (hanya tautan perannya yang dilepas).
+                    </div>
+                `,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Hapus Peran Saja',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#f59e0b',
+                cancelButtonColor: '#6b7280',
+                customClass: {
+                    popup: 'rounded-3xl',
+                    confirmButton: 'rounded-xl font-bold px-5 py-2.5',
+                    cancelButton: 'rounded-xl font-bold px-5 py-2.5',
+                }
             });
+
+            if (konfirmA.isConfirmed) {
+                router.delete(route('superadmin.peran.hapus', { id: role.id, hapus_pengguna: 0 }), {
+                    preserveScroll: true
+                });
+            }
+        } 
+        // --- TAHAP 2B: Opsi "Hapus Peran & Semua Pengguna" ---
+        else if (opsiRes.isDenied) {
+            const konfirmB = await Swal.fire({
+                title: '🛑 KONFIRMASI BAHAYA!',
+                html: `
+                    <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:12px 14px;margin-top:8px;font-size:0.8rem;color:#dc2626;text-align:left;line-height:1.5;">
+                        <strong>PERINGATAN KERAS:</strong> Tindakan ini akan menghapus peran <strong>"${role.nama_role}"</strong> SEKALIGUS <strong>MENGHAPUS PERMANEN ${jumlahPengguna} AKUN PENGGUNA</strong> yang memilikinya dari database!
+                    </div>
+                    <p style="font-size:0.85rem;margin-top:12px;" class="text-slate-600 dark:text-slate-300">Apakah Anda benar-benar yakin ingin melanjutkan tindakan berisiko tinggi ini?</p>
+                `,
+                icon: 'error',
+                showCancelButton: true,
+                confirmButtonText: '🔥 YA, HAPUS PERAN & SEMUA PENGGUNA',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#6b7280',
+                customClass: {
+                    popup: 'rounded-3xl',
+                    confirmButton: 'rounded-xl font-bold px-5 py-2.5 text-xs',
+                    cancelButton: 'rounded-xl font-bold px-5 py-2.5 text-xs',
+                }
+            });
+
+            if (konfirmB.isConfirmed) {
+                router.delete(route('superadmin.peran.hapus', { id: role.id, hapus_pengguna: 1 }), {
+                    preserveScroll: true
+                });
+            }
         }
     };
 
@@ -147,9 +220,10 @@ export default function IndeksPeran({ daftarPeran = [] }) {
                         <table className="w-full text-left text-sm whitespace-nowrap table-fixed">
                             <thead className="text-xs text-slate-400 dark:text-slate-500 uppercase tracking-wider bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700/50">
                                 <tr>
-                                    <th className="px-6 py-4 font-bold w-1/2">Nama Peran</th>
-                                    <th className="px-6 py-4 font-bold w-1/4">Status</th>
-                                    <th className="px-6 py-4 font-bold w-1/4 text-right">Aksi</th>
+                                    <th className="px-6 py-4 font-bold w-2/5">Nama Peran</th>
+                                    <th className="px-6 py-4 font-bold w-1/5">Pengguna Terkait</th>
+                                    <th className="px-6 py-4 font-bold w-1/5">Status</th>
+                                    <th className="px-6 py-4 font-bold w-1/5 text-right">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
@@ -158,6 +232,11 @@ export default function IndeksPeran({ daftarPeran = [] }) {
                                         <tr key={peran.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-850/50 transition-colors">
                                             <td className="px-6 py-4 truncate font-bold text-slate-700 dark:text-slate-200">
                                                 {peran.nama_role}
+                                            </td>
+                                            <td className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300">
+                                                <span className="bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 px-2.5 py-1 rounded-full text-xs font-extrabold">
+                                                    {peran.users_count || 0} Pengguna
+                                                </span>
                                             </td>
                                             <td className="px-6 py-4">
                                                 {peran.is_active ? (
@@ -192,7 +271,7 @@ export default function IndeksPeran({ daftarPeran = [] }) {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="3" className="text-center py-12 text-slate-400">
+                                        <td colSpan="4" className="text-center py-12 text-slate-400">
                                             <div className="flex flex-col items-center gap-2">
                                                 <span className="material-symbols-rounded text-3xl">admin_panel_settings</span>
                                                 <span>Tidak ada data peran yang ditemukan.</span>

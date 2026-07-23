@@ -18,9 +18,12 @@ class ManajemenPeranController extends Controller
     /**
      * Tampilkan halaman indeks manajemen peran.
      */
+    /**
+     * Tampilkan halaman indeks manajemen peran.
+     */
     public function indeks(): Response
     {
-        $daftarPeran = Role::orderBy('created_at', 'desc')->get();
+        $daftarPeran = Role::withCount('users')->orderBy('created_at', 'desc')->get();
 
         return Inertia::render('Superadmin/Peran/Indeks', [
             'daftarPeran' => $daftarPeran
@@ -96,9 +99,9 @@ class ManajemenPeranController extends Controller
     }
 
     /**
-     * Hapus peran dari database.
+     * Hapus peran dari database (beserta opsi menghapus pengguna terhubung).
      */
-    public function hapus(string $id): RedirectResponse
+    public function hapus(Request $request, string $id): RedirectResponse
     {
         $role = Role::findOrFail($id);
         $roleLower = strtolower($role->nama_role);
@@ -107,15 +110,38 @@ class ManajemenPeranController extends Controller
             return redirect()->back()->with('error', 'Peran sistem (Super Admin / Admin) tidak boleh dihapus.');
         }
 
-        DB::transaction(function () use ($role) {
-            // Lepas semua relasi peran ke pengguna dan aplikasi terlebih dahulu (ACID)
+        $hapusPengguna = $request->boolean('hapus_pengguna', false);
+
+        DB::transaction(function () use ($role, $hapusPengguna) {
+            if ($hapusPengguna) {
+                // Ambil semua ID pengguna yang memiliki peran ini
+                $userIds = $role->users()->pluck('users.id');
+
+                // Filter pengguna agar akun yang memiliki peran sistem (Superadmin / Admin) tidak terhapus
+                $usersToDelete = \App\Models\User::whereIn('id', $userIds)
+                    ->whereDoesntHave('roles', function ($query) {
+                        $query->whereIn(DB::raw('LOWER(nama_role)'), ['super admin', 'superadmin', 'admin']);
+                    })->get();
+
+                foreach ($usersToDelete as $user) {
+                    $user->roles()->detach();
+                    $user->apps()->detach();
+                    $user->delete();
+                }
+            }
+
+            // Lepas relasi tersisa dan hapus peran
             $role->users()->detach();
             $role->apps()->detach();
             $role->delete();
         });
 
-        \App\Services\LayananLogAktivitas::catat('Menghapus peran: ' . $role->nama_role);
+        $pesan = $hapusPengguna 
+            ? 'Peran dan seluruh pengguna yang terhubung berhasil dihapus.' 
+            : 'Peran berhasil dihapus.';
 
-        return redirect()->back()->with('success', 'Peran berhasil dihapus.');
+        \App\Services\LayananLogAktivitas::catat('Menghapus peran: ' . $role->nama_role . ($hapusPengguna ? ' (beserta pengguna)' : ''));
+
+        return redirect()->back()->with('success', $pesan);
     }
 }
