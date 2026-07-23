@@ -143,6 +143,7 @@ Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmi
     Route::post('/manajemen-aplikasi/{id}/generate-secret', [AplikasiTerdaftarController::class, 'regenerateSecret'])->name('aplikasi.regenerate');
     
     Route::get('/manajemen-peran', [ManajemenPeranController::class, 'indeks'])->name('peran.indeks');
+    Route::get('/manajemen peran', fn() => redirect()->route('superadmin.peran.indeks'));
     Route::post('/manajemen-peran', [ManajemenPeranController::class, 'simpan'])->name('peran.simpan');
     Route::put('/manajemen-peran/{id}', [ManajemenPeranController::class, 'perbarui'])->name('peran.perbarui');
     Route::delete('/manajemen-peran/{id}', [ManajemenPeranController::class, 'hapus'])->name('peran.hapus');
