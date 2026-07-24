@@ -24,17 +24,23 @@ class LayananLogAktivitas
             $ipAddress = request()->ip();
             $userAgent = request()->userAgent();
 
-            // Jalankan Job secara asinkron dalam antrean queue worker
-            CatatLogAktivitas::dispatch($aktivitas, $emailTarget, $idTarget, $ipAddress, $userAgent);
+            // Gunakan dispatchAfterResponse agar pencatatan log dieksekusi secara instan
+            // setelah respon dikirim tanpa memblokir HTTP dan TANPA membutuhkan queue worker.
+            CatatLogAktivitas::dispatchAfterResponse($aktivitas, $emailTarget, $idTarget, $ipAddress, $userAgent);
 
         } catch (\Throwable $e) {
-            // Log ke file jika penulisan ke database gagal
-            Log::error('Gagal mengirim antrean log aktivitas ke queue: ' . $e->getMessage(), [
-                'aktivitas' => $aktivitas,
-                'email'     => $email,
-                'userId'    => $userId,
-                'trace'     => $e->getTraceAsString(),
-            ]);
+            // Fallback penulisan langsung ke database jika dispatch gagal
+            try {
+                \App\Models\LogAktivitas::create([
+                    'user_id'    => $idTarget ?? null,
+                    'email'      => $emailTarget ?? null,
+                    'aktivitas'  => $aktivitas,
+                    'ip_address' => $ipAddress ?? request()->ip(),
+                    'user_agent' => $userAgent ?? request()->userAgent(),
+                ]);
+            } catch (\Throwable $err) {
+                Log::error('Gagal mencatat log aktivitas: ' . $err->getMessage());
+            }
         }
     }
 }
