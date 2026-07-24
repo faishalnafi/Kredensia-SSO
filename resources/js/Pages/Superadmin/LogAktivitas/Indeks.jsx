@@ -91,14 +91,14 @@ export default function LogAktivitas({ daftarLog = { data: [], links: [] }, daft
             <div className="w-full max-w-6xl mx-auto space-y-6">
                 
                 {/* Header Section */}
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                     <div>
                         <h2 className="text-2xl font-extrabold text-slate-800 dark:text-white">Audit Trail</h2>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm">Pencatatan real-time. Otomatis diarsipkan ke berkas JSON & dibersihkan setiap tanggal 1 bulan baru.</p>
+                        <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Pencatatan real-time. Otomatis diarsipkan ke berkas JSON & dibersihkan setiap tanggal 1 bulan baru.</p>
                     </div>
                     
-                    {/* Action & Search Buttons */}
-                    <div className="flex items-center gap-2 flex-wrap">
+                    {/* Management Action Buttons */}
+                    <div className="flex items-center gap-2.5 shrink-0">
                         {/* Tombol Buka Modal Arsip JSON */}
                         <button
                             onClick={() => setModalArsipBuka(true)}
@@ -117,6 +117,22 @@ export default function LogAktivitas({ daftarLog = { data: [], links: [] }, daft
                             <span className="material-symbols-rounded text-lg">archive</span>
                             Arsipkan Sekarang
                         </button>
+                    </div>
+                </div>
+
+                {/* Table Area */}
+                <div className="bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-3xl p-6 border border-slate-100 dark:border-slate-700/50 shadow-sm space-y-4">
+                    
+                    {/* Internal Table Header Bar (Filter & Search) */}
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
+                                Daftar Aktivitas Real-time
+                            </span>
+                            <span className="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold px-2.5 py-0.5 rounded-full">
+                                {daftarLog.total || 0} Log
+                            </span>
+                        </div>
 
                         {/* Form Pencarian */}
                         <form onSubmit={tanganiCari} className="flex gap-2">
@@ -129,21 +145,18 @@ export default function LogAktivitas({ daftarLog = { data: [], links: [] }, daft
                                     placeholder="Cari log atau pengguna..."
                                     value={cari}
                                     onChange={e => setCari(e.target.value)}
-                                    className="pl-10 pr-4 py-2.5 w-48 sm:w-64 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-[#0F91FC] dark:text-white transition-all shadow-sm"
+                                    className="pl-10 pr-4 py-2 w-64 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-[#0F91FC] dark:text-white transition-all"
                                 />
                             </div>
                             <button 
                                 type="submit"
-                                className="bg-[#0F91FC] hover:bg-[#0a78d6] text-white px-4 py-2.5 rounded-xl text-sm font-bold transition-all shadow-md shadow-[#0F91FC]/10"
+                                className="bg-[#0F91FC] hover:bg-[#0a78d6] text-white px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-md shadow-[#0F91FC]/10"
                             >
                                 Cari
                             </button>
                         </form>
                     </div>
-                </div>
 
-                {/* Table Area */}
-                <div className="bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-3xl p-6 border border-slate-100 dark:border-slate-700/50 shadow-sm overflow-hidden">
                     <div className="overflow-x-auto rounded-2xl border border-slate-100 dark:border-slate-700/50">
                         <table className="w-full text-left text-sm whitespace-nowrap table-fixed">
                             <thead className="text-xs text-slate-400 dark:text-slate-500 uppercase tracking-wider bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700/50">
@@ -199,7 +212,7 @@ export default function LogAktivitas({ daftarLog = { data: [], links: [] }, daft
                     </div>
 
                     {/* Footer Info & Pagination Section */}
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
                         <div className="text-xs text-slate-400 dark:text-slate-500 font-medium">
                             {daftarLog.total > 0 ? (
                                 <>Menampilkan <span className="font-bold text-slate-700 dark:text-slate-300">{daftarLog.from || 0}</span> - <span className="font-bold text-slate-700 dark:text-slate-300">{daftarLog.to || 0}</span> dari <span className="font-bold text-slate-700 dark:text-slate-300">{daftarLog.total}</span> entri log aktif</>
