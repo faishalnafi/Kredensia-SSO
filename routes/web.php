@@ -169,6 +169,8 @@ Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmi
     Route::post('/persetujuan-data/{id}/tolak', [PersetujuanDataController::class, 'tolak'])->name('persetujuan.tolak');
 
     Route::get('/log-aktivitas', [LogAktivitasController::class, 'indeks'])->name('log.indeks');
+    Route::post('/log-aktivitas/arsip', [LogAktivitasController::class, 'arsipSekarang'])->name('log.arsip');
+    Route::get('/log-aktivitas/unduh/{namaFile}', [LogAktivitasController::class, 'unduhArsip'])->name('log.unduh');
 
     Route::get('/kunci-api', [KunciApiController::class, 'indeks'])->name('kunci-api.indeks');
     Route::post('/kunci-api', [KunciApiController::class, 'simpan'])->name('kunci-api.simpan');
