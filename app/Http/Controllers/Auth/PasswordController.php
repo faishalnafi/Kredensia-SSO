@@ -24,6 +24,8 @@ class PasswordController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
+        \App\Services\LayananLogAktivitas::catat('Memperbarui kata sandi akun');
+
         return back();
     }
 }

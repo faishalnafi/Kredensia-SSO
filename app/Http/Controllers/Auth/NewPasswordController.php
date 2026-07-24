@@ -59,6 +59,7 @@ class NewPasswordController extends Controller
         // the application's home authenticated view. If there is an error we can
         // redirect them back to where they came from with their error message.
         if ($status == Password::PASSWORD_RESET) {
+            \App\Services\LayananLogAktivitas::catat('Berhasil melakukan reset kata sandi melalui tautan email', $request->email);
             return redirect()->route('login')->with('status', __($status));
         }
 

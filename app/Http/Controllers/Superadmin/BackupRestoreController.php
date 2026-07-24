@@ -41,6 +41,8 @@ class BackupRestoreController extends Controller
         $data = $this->kumpulkanData();
         $namaFile = 'kredensia-backup-' . now()->format('Y-m-d_H-i-s') . '.json';
 
+        \App\Services\LayananLogAktivitas::catat('Mengunduh backup snapshot data sistem (JSON)');
+
         return response(json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), 200, [
             'Content-Type'        => 'application/json',
             'Content-Disposition' => "attachment; filename=\"{$namaFile}\"",
@@ -106,6 +108,8 @@ class BackupRestoreController extends Controller
                     }
                 }
             });
+
+            \App\Services\LayananLogAktivitas::catat('Melakukan restore data sistem dari berkas backup JSON');
 
             return back()->with('sukses', 'Data berhasil di-restore dari backup JSON.');
         } catch (\Throwable $e) {

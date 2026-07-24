@@ -109,6 +109,8 @@ class ClaimAccountController extends Controller
             'claimed_at' => now(),
         ]);
 
+        \App\Services\LayananLogAktivitas::catat('Berhasil melakukan klaim/verifikasi akun mandiri: ' . $user->nama_lengkap, $user->email, $user->id);
+
         // Hapus cache terkait agar data terbaru langsung muncul di dashboard
         Cache::forget('superadmin:daftar-pengguna');
         Cache::forget('superadmin:statistik');

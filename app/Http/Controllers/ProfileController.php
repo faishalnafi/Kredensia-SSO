@@ -37,6 +37,8 @@ class ProfileController extends Controller
 
         $request->user()->save();
 
+        \App\Services\LayananLogAktivitas::catat('Memperbarui informasi profil mandiri');
+
         return Redirect::route('profile.edit');
     }
 
@@ -51,6 +53,8 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
+
+        \App\Services\LayananLogAktivitas::catat('Menghapus akun pribadi secara mandiri', $user->email, $user->id);
 
         Auth::logout();
 

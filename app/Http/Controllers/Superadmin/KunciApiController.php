@@ -73,6 +73,8 @@ class KunciApiController extends Controller
             'dibuat_oleh' => auth()->id(),
         ]);
 
+        \App\Services\LayananLogAktivitas::catat('Menambahkan Kunci API baru: ' . $request->nama_aplikasi);
+
         return redirect()->route('superadmin.kunci-api.indeks')
             ->with('kunci_baru', $kunciAsli);
     }
@@ -108,6 +110,8 @@ class KunciApiController extends Controller
             'is_active' => $request->is_active,
         ]);
 
+        \App\Services\LayananLogAktivitas::catat('Memperbarui Kunci API: ' . $request->nama_aplikasi);
+
         return redirect()->route('superadmin.kunci-api.indeks');
     }
 
@@ -117,7 +121,10 @@ class KunciApiController extends Controller
     public function hapus(string $id): RedirectResponse
     {
         $kunci = KunciApi::findOrFail($id);
+        $namaApp = $kunci->nama_aplikasi;
         $kunci->delete();
+
+        \App\Services\LayananLogAktivitas::catat('Menghapus Kunci API: ' . $namaApp);
 
         return redirect()->route('superadmin.kunci-api.indeks');
     }
@@ -135,6 +142,8 @@ class KunciApiController extends Controller
         $kunci->update([
             'kunci_api' => $kunciAsli,
         ]);
+
+        \App\Services\LayananLogAktivitas::catat('Meregenerasi Kunci API: ' . $kunci->nama_aplikasi);
 
         return redirect()->route('superadmin.kunci-api.indeks')
             ->with('kunci_baru', $kunciAsli);

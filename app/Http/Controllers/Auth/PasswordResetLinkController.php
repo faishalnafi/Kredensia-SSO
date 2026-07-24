@@ -41,6 +41,7 @@ class PasswordResetLinkController extends Controller
         );
 
         if ($status == Password::RESET_LINK_SENT) {
+            \App\Services\LayananLogAktivitas::catat('Meminta tautan reset kata sandi melalui email', $request->email);
             return back()->with('status', __($status));
         }
 

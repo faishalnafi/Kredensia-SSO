@@ -36,6 +36,8 @@ class ConfirmablePasswordController extends Controller
 
         $request->session()->put('auth.password_confirmed_at', time());
 
+        \App\Services\LayananLogAktivitas::catat('Konfirmasi kata sandi berhasil');
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 }

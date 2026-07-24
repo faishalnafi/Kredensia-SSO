@@ -45,9 +45,10 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
+        \App\Services\LayananLogAktivitas::catat('Pendaftaran akun mandiri baru: ' . $user->nama_lengkap, $user->email, $user->id);
+
         Auth::login($user);
 
         return redirect(route('biodata.wajib'));
     }
 }
-
