@@ -83,10 +83,11 @@ export default function Katalog({ daftarAplikasi }) {
                                         <div className="flex items-center gap-4 mb-4">
                                             {/* Container Logo / Ikon Fallback */}
                                             <div 
-                                                className="w-14 h-14 rounded-2xl border flex items-center justify-center shadow-inner overflow-hidden shrink-0"
+                                                className="w-14 h-14 rounded-2xl border flex items-center justify-center shadow-inner overflow-hidden shrink-0 transition-all duration-300"
                                                 style={{
-                                                    backgroundColor: hexKeRgba(aplikasi.warna_icon, 0.1),
-                                                    borderColor: hexKeRgba(aplikasi.warna_icon, 0.25),
+                                                    backgroundColor: hexKeRgba(aplikasi.warna_icon, 0.16),
+                                                    borderColor: hexKeRgba(aplikasi.warna_icon, 0.35),
+                                                    boxShadow: `0 4px 14px -2px ${hexKeRgba(aplikasi.warna_icon, 0.22)}`,
                                                 }}
                                             >
                                                 {aplikasi.logo_url ? (

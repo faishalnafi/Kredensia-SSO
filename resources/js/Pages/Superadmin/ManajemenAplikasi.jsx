@@ -366,10 +366,11 @@ export default function ManajemenAplikasi({ daftarAplikasi, daftarPeran, apiKeyB
                                                 <tr key={index} className="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                                                     <td className="px-4 py-4 font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-3">
                                                          <div 
-                                                             className="w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm overflow-hidden shrink-0"
+                                                             className="w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm overflow-hidden shrink-0 transition-all duration-300"
                                                              style={{
-                                                                 backgroundColor: hexKeRgba(aplikasi.warna_icon, 0.1),
-                                                                 borderColor: hexKeRgba(aplikasi.warna_icon, 0.25),
+                                                                 backgroundColor: hexKeRgba(aplikasi.warna_icon, 0.16),
+                                                                 borderColor: hexKeRgba(aplikasi.warna_icon, 0.35),
+                                                                 boxShadow: `0 3px 10px -1px ${hexKeRgba(aplikasi.warna_icon, 0.22)}`,
                                                              }}
                                                          >
                                                              {aplikasi.logo_url ? (
@@ -503,10 +504,11 @@ export default function ManajemenAplikasi({ daftarAplikasi, daftarPeran, apiKeyB
                                 <div key={index} className={`bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-3xl p-6 border border-slate-100 dark:border-slate-700/50 shadow-sm flex flex-col justify-between hover:-translate-y-1 transition-transform duration-300 group ${!aplikasi.is_active ? 'opacity-50' : ''}`}>
                                     <div className="flex items-center gap-4 mb-6">
                                         <div 
-                                             className="w-14 h-14 rounded-2xl border flex items-center justify-center shadow-inner overflow-hidden shrink-0"
+                                             className="w-14 h-14 rounded-2xl border flex items-center justify-center shadow-inner overflow-hidden shrink-0 transition-all duration-300"
                                              style={{
-                                                 backgroundColor: hexKeRgba(aplikasi.warna_icon, 0.1),
-                                                 borderColor: hexKeRgba(aplikasi.warna_icon, 0.25),
+                                                 backgroundColor: hexKeRgba(aplikasi.warna_icon, 0.16),
+                                                 borderColor: hexKeRgba(aplikasi.warna_icon, 0.35),
+                                                 boxShadow: `0 4px 14px -2px ${hexKeRgba(aplikasi.warna_icon, 0.22)}`,
                                              }}
                                          >
                                              {aplikasi.logo_url ? (
@@ -719,7 +721,7 @@ export default function ManajemenAplikasi({ daftarAplikasi, daftarPeran, apiKeyB
                                     <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">
                                         Warna Icon (Tidak Terbatas)
                                     </label>
-                                    <div className="flex gap-2">
+                                    <div className="flex gap-2 items-center">
                                         <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 shrink-0">
                                             <input 
                                                 type="color"
@@ -736,6 +738,19 @@ export default function ManajemenAplikasi({ daftarAplikasi, daftarPeran, apiKeyB
                                             value={data.warna_icon}
                                             onChange={e => setData('warna_icon', e.target.value)}
                                         />
+                                        <div 
+                                            className="w-12 h-12 rounded-xl flex items-center justify-center border shrink-0 transition-all duration-300"
+                                            style={{
+                                                backgroundColor: hexKeRgba(data.warna_icon, 0.16),
+                                                borderColor: hexKeRgba(data.warna_icon, 0.35),
+                                                boxShadow: `0 4px 12px -1px ${hexKeRgba(data.warna_icon, 0.22)}`,
+                                            }}
+                                            title="Pratinjau langsung warna ikon"
+                                        >
+                                            <span className="material-symbols-rounded text-2xl" style={{ color: data.warna_icon || '#3b82f6' }}>
+                                                {data.icon_material || 'apps'}
+                                            </span>
+                                        </div>
                                     </div>
                                     <InputError message={errors.warna_icon} className="mt-1" />
                                 </div>

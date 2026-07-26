@@ -3,6 +3,18 @@ import { Head } from '@inertiajs/react';
 import TataLetakUtama from '@/Layouts/TataLetakUtama';
 
 export default function KatalogAplikasi({ daftarAplikasi }) {
+    const hexKeRgba = (hex, alpha) => {
+        if (!hex) return `rgba(59, 130, 246, ${alpha})`;
+        let c = hex.replace('#', '');
+        if (c.length === 3) {
+            c = c[0] + c[0] + c[1] + c[1] + c[2] + c[2];
+        }
+        const r = parseInt(c.substring(0, 2), 16) || 0;
+        const g = parseInt(c.substring(2, 4), 16) || 0;
+        const b = parseInt(c.substring(4, 6), 16) || 0;
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    };
+
     return (
         <>
             <Head title="Katalog Aplikasi - Superadmin SSO" />
@@ -20,7 +32,14 @@ export default function KatalogAplikasi({ daftarAplikasi }) {
                         daftarAplikasi.map((aplikasi, index) => (
                             <div key={index} className="bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-3xl p-6 border border-slate-100 dark:border-slate-700/50 shadow-sm flex flex-col justify-between hover:-translate-y-1 transition-transform duration-300 group">
                                 <div className="flex items-center gap-4 mb-6">
-                                    <div className="w-14 h-14 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700/50 flex items-center justify-center shadow-inner overflow-hidden shrink-0">
+                                    <div 
+                                        className="w-14 h-14 rounded-2xl border flex items-center justify-center shadow-inner overflow-hidden shrink-0 transition-all duration-300"
+                                        style={{
+                                            backgroundColor: hexKeRgba(aplikasi.warna_icon, 0.16),
+                                            borderColor: hexKeRgba(aplikasi.warna_icon, 0.35),
+                                            boxShadow: `0 4px 14px -2px ${hexKeRgba(aplikasi.warna_icon, 0.22)}`,
+                                        }}
+                                    >
                                         {aplikasi.logo_url ? (
                                             <img src={aplikasi.logo_url} alt={aplikasi.nama_aplikasi} className="w-10 h-10 object-contain" />
                                         ) : (

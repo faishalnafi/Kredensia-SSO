@@ -318,10 +318,11 @@ export default function IndeksAplikasi({ daftarAplikasi, daftarPeran }) {
                                                 <tr key={index} className="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                                                     <td className="px-4 py-4 font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-3">
                                                         <div 
-                                                            className="w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm overflow-hidden shrink-0"
+                                                            className="w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm overflow-hidden shrink-0 transition-all duration-300"
                                                             style={{
-                                                                backgroundColor: hexKeRgba(aplikasi.warna_icon, 0.1),
-                                                                borderColor: hexKeRgba(aplikasi.warna_icon, 0.25),
+                                                                backgroundColor: hexKeRgba(aplikasi.warna_icon, 0.16),
+                                                                borderColor: hexKeRgba(aplikasi.warna_icon, 0.35),
+                                                                boxShadow: `0 3px 10px -1px ${hexKeRgba(aplikasi.warna_icon, 0.22)}`,
                                                             }}
                                                         >
                                                             {aplikasi.logo_url ? (
@@ -405,10 +406,11 @@ export default function IndeksAplikasi({ daftarAplikasi, daftarPeran }) {
                                 <div key={index} className={`bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-3xl p-6 border border-slate-100 dark:border-slate-700/50 shadow-sm flex flex-col justify-between hover:-translate-y-1 transition-transform duration-300 group ${!aplikasi.is_active ? 'opacity-50' : ''}`}>
                                     <div className="flex items-center gap-4 mb-6">
                                         <div 
-                                             className="w-14 h-14 rounded-2xl border flex items-center justify-center shadow-inner overflow-hidden shrink-0"
+                                             className="w-14 h-14 rounded-2xl border flex items-center justify-center shadow-inner overflow-hidden shrink-0 transition-all duration-300"
                                              style={{
-                                                 backgroundColor: hexKeRgba(aplikasi.warna_icon, 0.1),
-                                                 borderColor: hexKeRgba(aplikasi.warna_icon, 0.25),
+                                                 backgroundColor: hexKeRgba(aplikasi.warna_icon, 0.16),
+                                                 borderColor: hexKeRgba(aplikasi.warna_icon, 0.35),
+                                                 boxShadow: `0 4px 14px -2px ${hexKeRgba(aplikasi.warna_icon, 0.22)}`,
                                              }}
                                          >
                                             {aplikasi.logo_url ? (
