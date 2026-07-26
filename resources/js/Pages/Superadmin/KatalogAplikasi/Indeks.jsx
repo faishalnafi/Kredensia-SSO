@@ -156,7 +156,7 @@ export default function KatalogAplikasi({ daftarAplikasi }) {
                                         </p>
                                     </div>
 
-                                    {/* Action Link: Ikon panah miring (tab baru) vs panah lurus kanan (tab sama) (Gambar 2) */}
+                                    {/* Action Link: Panah miring (tab baru) vs login arrow (tab sama) (Gambar 2) */}
                                     <div className="pt-4 border-t border-slate-100 dark:border-slate-700/40">
                                         <a 
                                             href={aplikasi.login_callback_url ? route('login', { client_id: aplikasi.id }) : aplikasi.portal_url}
@@ -167,7 +167,7 @@ export default function KatalogAplikasi({ daftarAplikasi }) {
                                             {aplikasi.open_in_new_tab ? (
                                                 <span className="material-symbols-rounded text-base text-[#0F91FC]">open_in_new</span>
                                             ) : (
-                                                <span className="material-symbols-rounded text-base text-[#0F91FC]">east</span>
+                                                <span className="material-symbols-rounded text-base text-[#0F91FC]">login</span>
                                             )}
                                             <span>Buka Aplikasi</span>
                                         </a>

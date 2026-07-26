@@ -669,7 +669,7 @@ export default function ManajemenAplikasi({ daftarAplikasi, daftarPeran, apiKeyB
                                                 {aplikasi.open_in_new_tab ? (
                                                     <span className="material-symbols-rounded text-base text-[#0F91FC]">open_in_new</span>
                                                 ) : (
-                                                    <span className="material-symbols-rounded text-base text-[#0F91FC]">east</span>
+                                                    <span className="material-symbols-rounded text-base text-[#0F91FC]">login</span>
                                                 )}
                                                 <span>Buka Aplikasi</span>
                                             </a>
