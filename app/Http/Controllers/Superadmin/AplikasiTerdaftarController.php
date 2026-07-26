@@ -110,8 +110,8 @@ class AplikasiTerdaftarController extends Controller
         $app = DB::transaction(function () use ($appData, $request) {
             $app = RegisteredApp::create($appData);
 
-            if (!$request->is_global_visibility && $request->has('selected_roles')) {
-                $app->roles()->sync($request->selected_roles);
+            if (!$request->is_global_visibility) {
+                $app->roles()->sync($request->input('selected_roles', []));
             }
 
             return $app;
@@ -182,19 +182,30 @@ class AplikasiTerdaftarController extends Controller
             'is_active' => $request->is_active,
         ];
 
+        // Logika penanganan relasi Peran (RBAC Visibility)
+        $simpanPeran = function ($aplikasiInstance) use ($request) {
+            if ($request->is_global_visibility) {
+                $aplikasiInstance->roles()->detach();
+            } else {
+                $peranDipilih = $request->input('selected_roles', []);
+                $aplikasiInstance->roles()->sync($peranDipilih);
+            }
+        };
+
         // LOGIKA PERUBAHAN CALLBACK & GENERATE CLIENT ID / SECRET:
         if (empty($newCallback)) {
             // Jika dikosongkan, hapus api_key (client secret)
             $updateData['api_key'] = null;
 
-            // Transaksi ACID: update data aplikasi dan hapus semua relasi peran secara atomik
-            DB::transaction(function () use ($app, $updateData) {
+            DB::transaction(function () use ($app, $updateData, $simpanPeran) {
                 $app->update($updateData);
-                // Hapus semua relasi peran karena api_key dikosongkan
-                $app->roles()->detach();
+                $simpanPeran($app);
             });
 
-            \App\Services\LayananLogAktivitas::catat('Memperbarui data aplikasi: ' . $app->nama_aplikasi . ' (dikosongkan URL Callback & Secret)');
+            Cache::forget('superadmin:statistik');
+            \App\Services\LayananLogAktivitas::catat('Memperbarui data aplikasi: ' . $app->nama_aplikasi . ' (Aplikasi Katalog / Non-SSO)');
+
+            return redirect()->route($this->dapatkanRuteIndeks())->with('success', 'Data aplikasi berhasil diperbarui.');
         } else {
             // Jika callback diisi:
             // Cek apakah callback lama kosong, atau berbeda dengan callback baru
@@ -203,12 +214,8 @@ class AplikasiTerdaftarController extends Controller
                 $newUuid = (string) Str::uuid();
                 $newSecret = Str::random(64);
 
-                // Transaksi ACID: Detach roles, ganti primary key, dan re-attach roles dalam satu unit atomik.
-                // Jika salah satu langkah gagal, seluruh operasi akan di-rollback.
-                $roles = $app->roles->pluck('id')->toArray();
-
-                DB::transaction(function () use ($id, $newUuid, $newSecret, $updateData, $roles, $app) {
-                    // Detach terlebih dahulu untuk menghindari FK constraint violation
+                DB::transaction(function () use ($id, $newUuid, $newSecret, $updateData, $simpanPeran) {
+                    $app = RegisteredApp::findOrFail($id);
                     $app->roles()->detach();
 
                     DB::table('registered_apps')
@@ -218,11 +225,9 @@ class AplikasiTerdaftarController extends Controller
                             'api_key' => $newSecret,
                         ]));
 
-                    // Re-attach roles ke ID baru
+                    // Re-attach / sync roles ke ID baru
                     $newApp = RegisteredApp::findOrFail($newUuid);
-                    if (!empty($roles)) {
-                        $newApp->roles()->sync($roles);
-                    }
+                    $simpanPeran($newApp);
                 });
 
                 Cache::forget('superadmin:statistik');
@@ -234,14 +239,9 @@ class AplikasiTerdaftarController extends Controller
 
             } else {
                 // Callback tidak berubah: cukup update data tanpa mengganti primary key
-                DB::transaction(function () use ($app, $updateData, $request) {
+                DB::transaction(function () use ($app, $updateData, $simpanPeran) {
                     $app->update($updateData);
-
-                    if ($request->is_global_visibility) {
-                        $app->roles()->detach();
-                    } elseif ($request->has('selected_roles')) {
-                        $app->roles()->sync($request->selected_roles);
-                    }
+                    $simpanPeran($app);
                 });
             }
         }

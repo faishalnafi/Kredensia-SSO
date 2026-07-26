@@ -136,8 +136,8 @@ class ManajemenAplikasiController extends Controller
 
         if ($request->is_global_visibility) {
             $app->roles()->detach();
-        } else if ($request->has('selected_roles')) {
-            $app->roles()->sync($request->selected_roles);
+        } else {
+            $app->roles()->sync($request->input('selected_roles', []));
         }
 
         return redirect()->back()->with('success', 'Data aplikasi berhasil diperbarui.');
