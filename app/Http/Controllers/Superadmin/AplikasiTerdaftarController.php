@@ -192,59 +192,21 @@ class AplikasiTerdaftarController extends Controller
             }
         };
 
-        // LOGIKA PERUBAHAN CALLBACK & GENERATE CLIENT ID / SECRET:
-        if (empty($newCallback)) {
-            // Jika dikosongkan, hapus api_key (client secret)
-            $updateData['api_key'] = null;
-
-            DB::transaction(function () use ($app, $updateData, $simpanPeran) {
-                $app->update($updateData);
-                $simpanPeran($app);
-            });
-
-            Cache::forget('superadmin:statistik');
-            \App\Services\LayananLogAktivitas::catat('Memperbarui data aplikasi: ' . $app->nama_aplikasi . ' (Aplikasi Katalog / Non-SSO)');
-
-            return redirect()->route($this->dapatkanRuteIndeks())->with('success', 'Data aplikasi berhasil diperbarui.');
-        } else {
-            // Jika callback diisi:
-            // Cek apakah callback lama kosong, atau berbeda dengan callback baru
-            if (empty($oldCallback) || $oldCallback !== $newCallback) {
-                // Generate client id baru (UUID) dan secret key baru (64 char)
-                $newUuid = (string) Str::uuid();
-                $newSecret = Str::random(64);
-
-                DB::transaction(function () use ($id, $newUuid, $newSecret, $updateData, $simpanPeran) {
-                    $app = RegisteredApp::findOrFail($id);
-                    $app->roles()->detach();
-
-                    DB::table('registered_apps')
-                        ->where('id', $id)
-                        ->update(array_merge($updateData, [
-                            'id'      => $newUuid,
-                            'api_key' => $newSecret,
-                        ]));
-
-                    // Re-attach / sync roles ke ID baru
-                    $newApp = RegisteredApp::findOrFail($newUuid);
-                    $simpanPeran($newApp);
-                });
-
-                Cache::forget('superadmin:statistik');
-                \App\Services\LayananLogAktivitas::catat('Memperbarui data aplikasi: ' . $updateData['nama_aplikasi'] . ' (URL Callback berubah, Client ID & Secret baru dibuat)');
-                
-                return redirect()->route($this->dapatkanRuteIndeks())
-                    ->with('success', 'Data aplikasi diperbarui, Client ID & Secret baru berhasil dibuat.')
-                    ->with('api_key_baru', $newSecret);
-
-            } else {
-                // Callback tidak berubah: cukup update data tanpa mengganti primary key
-                DB::transaction(function () use ($app, $updateData, $simpanPeran) {
-                    $app->update($updateData);
-                    $simpanPeran($app);
-                });
+        // LOGIKA PERUBAHAN CALLBACK & CLIENT SECRET:
+        if (!empty($newCallback)) {
+            // Jika callback diisi tetapi api_key sebelumnya kosong, buat api_key baru
+            if (empty($app->api_key)) {
+                $updateData['api_key'] = Str::random(64);
             }
+        } else {
+            // Jika callback dikosongkan, hapus api_key
+            $updateData['api_key'] = null;
         }
+
+        DB::transaction(function () use ($app, $updateData, $simpanPeran) {
+            $app->update($updateData);
+            $simpanPeran($app);
+        });
 
         Cache::forget('superadmin:statistik');
         \App\Services\LayananLogAktivitas::catat('Memperbarui data aplikasi: ' . $app->nama_aplikasi);

@@ -30,7 +30,7 @@ class AuthenticatedSessionController extends Controller
             $app = \App\Models\RegisteredApp::find($appId);
 
             if (!$app || !$app->is_active) {
-                abort(403, 'Akses Ditolak: Aplikasi tidak terdaftar atau nonaktif.');
+                return redirect()->route('login')->with('error', 'Akses Ditolak: Aplikasi tidak terdaftar atau nonaktif.');
             }
 
             // Jika aplikasi ini bukan aplikasi SSO (tidak memiliki login_callback_url / Hanya Katalog), langsung alihkan ke portal_url
@@ -42,11 +42,9 @@ class AuthenticatedSessionController extends Controller
                 $requestedRedirectUri = $request->query('redirect_uri');
                 $registeredHost = parse_url($app->login_callback_url, PHP_URL_HOST);
                 $requestedHost = parse_url($requestedRedirectUri, PHP_URL_HOST);
-                $registeredPort = parse_url($app->login_callback_url, PHP_URL_PORT);
-                $requestedPort = parse_url($requestedRedirectUri, PHP_URL_PORT);
 
-                if ($registeredHost !== $requestedHost || $registeredPort !== $requestedPort) {
-                    abort(403, 'Akses Ditolak: URL Callback (redirect_uri) tidak cocok dengan domain aplikasi terdaftar.');
+                if ($registeredHost && $requestedHost && strtolower($registeredHost) !== strtolower($requestedHost)) {
+                    return redirect()->route('login')->with('error', 'Akses Ditolak: URL Callback (redirect_uri) tidak cocok dengan domain aplikasi terdaftar.');
                 }
             }
         }
