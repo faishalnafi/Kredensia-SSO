@@ -151,17 +151,17 @@ export default function ManajemenAplikasi({ daftarAplikasi, daftarPeran, apiKeyB
         }
 
         if (editMode) {
-            // Gunakan method put() bawaan useForm agar array selected_roles ter-serialize dengan benar
-            // saat dikirim sebagai multipart/form-data bersama logo_file
-            put(route(`${pathPrefix}.aplikasi.perbarui`, selectedAppId), {
+            router.post(route(`${pathPrefix}.aplikasi.perbarui`, selectedAppId), {
+                _method: 'PUT',
+                ...data,
+                logo_file: data.logo_file
+            }, {
                 onSuccess: () => {
                     setModalBuka(false);
                     reset();
-                },
-                forceFormData: true,
+                }
             });
         } else {
-            // Gunakan method post() bawaan useForm agar array selected_roles ter-serialize dengan benar
             post(route(`${pathPrefix}.aplikasi.simpan`), {
                 onSuccess: () => {
                     setModalBuka(false);

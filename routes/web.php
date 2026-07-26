@@ -90,7 +90,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Manajemen Aplikasi untuk Admin
     Route::get('/manajemen-aplikasi', [AplikasiTerdaftarController::class, 'indeks'])->name('aplikasi.indeks');
     Route::post('/manajemen-aplikasi', [AplikasiTerdaftarController::class, 'simpan'])->name('aplikasi.simpan');
-    Route::put('/manajemen-aplikasi/{id}', [AplikasiTerdaftarController::class, 'perbarui'])->name('aplikasi.perbarui');
+    Route::match(['put', 'post'], '/manajemen-aplikasi/{id}', [AplikasiTerdaftarController::class, 'perbarui'])->name('aplikasi.perbarui');
     Route::delete('/manajemen-aplikasi/{id}', [AplikasiTerdaftarController::class, 'hapus'])->name('aplikasi.hapus');
     Route::post('/manajemen-aplikasi/{id}/generate-secret', [AplikasiTerdaftarController::class, 'regenerateSecret'])->name('aplikasi.regenerate');
 
@@ -138,7 +138,7 @@ Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmi
     Route::get('/beranda', [BerandaController::class, 'indeks'])->name('beranda');
     Route::get('/manajemen-aplikasi', [AplikasiTerdaftarController::class, 'indeks'])->name('aplikasi.indeks');
     Route::post('/manajemen-aplikasi', [AplikasiTerdaftarController::class, 'simpan'])->name('aplikasi.simpan');
-    Route::put('/manajemen-aplikasi/{id}', [AplikasiTerdaftarController::class, 'perbarui'])->name('aplikasi.perbarui');
+    Route::match(['put', 'post'], '/manajemen-aplikasi/{id}', [AplikasiTerdaftarController::class, 'perbarui'])->name('aplikasi.perbarui');
     Route::delete('/manajemen-aplikasi/{id}', [AplikasiTerdaftarController::class, 'hapus'])->name('aplikasi.hapus');
     Route::post('/manajemen-aplikasi/{id}/generate-secret', [AplikasiTerdaftarController::class, 'regenerateSecret'])->name('aplikasi.regenerate');
     
