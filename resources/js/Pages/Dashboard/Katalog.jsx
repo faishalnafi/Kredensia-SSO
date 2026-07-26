@@ -4,6 +4,15 @@ import TataLetakUtama from '@/Layouts/TataLetakUtama';
 
 export default function Katalog({ daftarAplikasi }) {
     const [sedangMemuat, setSedangMemuat] = useState(true);
+    const [kataKunci, setKataKunci] = useState('');
+    const [sematanIds, setSematanIds] = useState(() => {
+        try {
+            const tersimpan = localStorage.getItem('sso_pinned_apps');
+            return tersimpan ? JSON.parse(tersimpan) : [];
+        } catch (e) {
+            return [];
+        }
+    });
 
     // Helper untuk mengubah warna hex ke rgba
     const hexKeRgba = (hex, alpha) => {
@@ -19,32 +28,68 @@ export default function Katalog({ daftarAplikasi }) {
     };
 
     // Efek simulasi pemuatan data awal untuk memperlihatkan animasi skeleton loader
-    // dan memastikan pencegahan Cumulative Layout Shift (CLS)
     useEffect(() => {
         const penunda = setTimeout(() => {
             setSedangMemuat(false);
-        }, 800);
+        }, 600);
         return () => clearTimeout(penunda);
     }, []);
 
-    // Komponen lokal Skeleton Loader untuk meredam Cumulative Layout Shift (CLS).
-    // Struktur pembungkus (Grid, margin, padding) wajib dipertahankan sama persis
-    // demi mencegah pergeseran tata letak layout saat transisi data selesai dimuat.
+    // Fungsi sematkan / lepas sematan aplikasi
+    const tanganiSemat = (id) => {
+        let baru;
+        if (sematanIds.includes(id)) {
+            baru = sematanIds.filter((x) => x !== id);
+        } else {
+            baru = [id, ...sematanIds.filter((x) => x !== id)];
+        }
+        setSematanIds(baru);
+        try {
+            localStorage.setItem('sso_pinned_apps', JSON.stringify(baru));
+        } catch (e) {
+            console.error('Gagal menyimpan sematan:', e);
+        }
+    };
+
+    // 1. Saring aplikasi berdasarkan kata kunci (judul & deskripsi)
+    const aplikasiTersaring = (daftarAplikasi || []).filter((app) => {
+        if (!kataKunci.trim()) return true;
+        const q = kataKunci.toLowerCase();
+        return (
+            (app.nama_aplikasi && app.nama_aplikasi.toLowerCase().includes(q)) ||
+            (app.deskripsi && app.deskripsi.toLowerCase().includes(q))
+        );
+    });
+
+    // 2. Urutkan: tersemat paling baru -> tersemat pendahulu -> urutan sistem (sort_order)
+    const aplikasiTerurut = [...aplikasiTersaring].sort((a, b) => {
+        const idxA = sematanIds.indexOf(a.id);
+        const idxB = sematanIds.indexOf(b.id);
+        const isPinnedA = idxA !== -1;
+        const isPinnedB = idxB !== -1;
+
+        if (isPinnedA && isPinnedB) {
+            return idxA - idxB; // Indeks terkecil (terbaru disematkan) muncul paling pertama
+        }
+        if (isPinnedA) return -1;
+        if (isPinnedB) return 1;
+
+        return (a.sort_order ?? 0) - (b.sort_order ?? 0);
+    });
+
+    // Komponen lokal Skeleton Loader untuk meredam Cumulative Layout Shift (CLS)
     const SkeletonKartu = () => (
-        <div className="bg-white/20 dark:bg-slate-800/40 backdrop-blur-lg border border-white/30 dark:border-slate-700/30 rounded-3xl p-6 flex flex-col justify-between h-[200px] animate-pulse">
-            <div className="flex items-center gap-4">
-                {/* Aspek ratio dan dimensi logo dipertahankan agar layout tidak bergeser */}
+        <div className="bg-white/20 dark:bg-slate-800/40 backdrop-blur-lg border border-white/30 dark:border-slate-700/30 rounded-3xl p-6 flex flex-col justify-between h-[260px] animate-pulse">
+            <div className="flex items-center justify-between">
                 <div className="w-14 h-14 rounded-2xl bg-white/20 dark:bg-slate-700/50 shrink-0" />
-                <div className="space-y-2 flex-1">
-                    <div className="h-5 bg-white/20 dark:bg-slate-700/50 rounded-md w-3/4" />
-                    <div className="h-3 bg-white/10 dark:bg-slate-700/30 rounded-md w-1/2" />
-                </div>
+                <div className="w-8 h-8 rounded-xl bg-white/20 dark:bg-slate-700/40" />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-3 my-4">
+                <div className="h-5 bg-white/20 dark:bg-slate-700/50 rounded-md w-3/4" />
                 <div className="h-3 bg-white/10 dark:bg-slate-700/30 rounded-md w-full" />
                 <div className="h-3 bg-white/10 dark:bg-slate-700/30 rounded-md w-5/6" />
             </div>
-            <div className="h-12 bg-white/20 dark:bg-slate-700/50 rounded-2xl w-full mt-4" />
+            <div className="h-6 bg-white/20 dark:bg-slate-700/50 rounded-xl w-1/3 pt-3" />
         </div>
     );
 
@@ -54,17 +99,40 @@ export default function Katalog({ daftarAplikasi }) {
 
             <div className="w-full max-w-6xl mx-auto space-y-6">
                 
-                {/* Informasi Pengantar */}
-                <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-3xl p-6 lg:p-8 border border-slate-100 dark:border-slate-700/50 shadow-sm">
-                    <h2 className="text-2xl font-extrabold text-slate-800 dark:text-white leading-tight">Katalog Aplikasi Sekolah</h2>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                        Selamat datang di portal SSO! Berikut adalah seluruh aplikasi akademis dan operasional yang diizinkan untuk peran Anda saat ini.
-                    </p>
+                {/* Informasi Pengantar & Kolom Pencarian (Gambar 3) */}
+                <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-3xl p-6 lg:p-8 border border-slate-100 dark:border-slate-700/50 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 className="text-2xl font-extrabold text-slate-800 dark:text-white leading-tight">Katalog Aplikasi Sekolah</h2>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                            Selamat datang di portal SSO! Berikut adalah seluruh aplikasi akademis dan operasional yang diizinkan untuk peran Anda saat ini.
+                        </p>
+                    </div>
+
+                    {/* Kolom Pencarian (Gambar 3) */}
+                    <div className="relative w-full sm:w-72 shrink-0">
+                        <span className="material-symbols-rounded absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg pointer-events-none">
+                            search
+                        </span>
+                        <input 
+                            type="text"
+                            value={kataKunci}
+                            onChange={(e) => setKataKunci(e.target.value)}
+                            placeholder="Cari aplikasi..."
+                            className="w-full bg-slate-50 dark:bg-slate-900/90 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-2xl pl-10 pr-9 py-2.5 text-xs font-semibold focus:ring-2 focus:ring-[#0F91FC] focus:border-transparent transition-all placeholder:text-slate-400 shadow-inner"
+                        />
+                        {kataKunci && (
+                            <button 
+                                onClick={() => setKataKunci('')}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1"
+                            >
+                                <span className="material-symbols-rounded text-sm">close</span>
+                            </button>
+                        )}
+                    </div>
                 </div>
 
                 {/* Struktur Grid Aplikasi */}
                 {sedangMemuat ? (
-                    // Render Skeleton State dengan dimensi dan gap yang sama dengan data asli
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         <SkeletonKartu />
                         <SkeletonKartu />
@@ -72,74 +140,100 @@ export default function Katalog({ daftarAplikasi }) {
                     </div>
                 ) : (
                     <>
-                        {daftarAplikasi && daftarAplikasi.length > 0 ? (
-                            // Render Data Asli dalam layout Bento Grid dengan Glassmorphism
+                        {aplikasiTerurut && aplikasiTerurut.length > 0 ? (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {daftarAplikasi.map((aplikasi) => (
-                                    <div 
-                                        key={aplikasi.id} 
-                                        className="bg-white/20 dark:bg-slate-800/40 backdrop-blur-lg border border-white/30 dark:border-slate-700/30 rounded-3xl p-6 flex flex-col justify-between h-[200px] shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group"
-                                    >
-                                        <div className="flex items-center gap-4 mb-4">
-                                            {/* Container Logo / Ikon Fallback */}
-                                            <div 
-                                                className="w-14 h-14 rounded-2xl border flex items-center justify-center shadow-inner overflow-hidden shrink-0 transition-all duration-300"
-                                                style={{
-                                                    backgroundColor: hexKeRgba(aplikasi.warna_icon, 0.16),
-                                                    borderColor: hexKeRgba(aplikasi.warna_icon, 0.35),
-                                                    boxShadow: `0 4px 14px -2px ${hexKeRgba(aplikasi.warna_icon, 0.22)}`,
-                                                }}
-                                            >
-                                                {aplikasi.logo_url ? (
-                                                    <img src={aplikasi.logo_url} alt={aplikasi.nama_aplikasi} className="w-10 h-10 object-contain" />
-                                                ) : (
-                                                    <span 
-                                                        className="material-symbols-rounded text-3xl"
-                                                        style={{ color: aplikasi.warna_icon || '#3b82f6' }}
-                                                    >
-                                                        {aplikasi.icon_material || 'apps'}
-                                                    </span>
-                                                )}
-                                            </div>
+                                {aplikasiTerurut.map((aplikasi) => {
+                                    const tersemat = sematanIds.includes(aplikasi.id);
+                                    return (
+                                        <div 
+                                            key={aplikasi.id} 
+                                            className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-3xl p-6 flex flex-col justify-between border border-slate-100 dark:border-slate-700/50 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 group"
+                                        >
                                             <div>
-                                                <h3 className="font-extrabold text-slate-800 dark:text-white text-base leading-tight">
+                                                {/* Baris Atas: Ikon Aplikasi (Kiri) & Tombol Pin (Kanan) */}
+                                                <div className="flex items-start justify-between gap-4 mb-4">
+                                                    <div 
+                                                        className="w-14 h-14 rounded-2xl border flex items-center justify-center shadow-inner overflow-hidden shrink-0 transition-all duration-300"
+                                                        style={{
+                                                            backgroundColor: hexKeRgba(aplikasi.warna_icon, 0.16),
+                                                            borderColor: hexKeRgba(aplikasi.warna_icon, 0.35),
+                                                            boxShadow: `0 4px 14px -2px ${hexKeRgba(aplikasi.warna_icon, 0.22)}`,
+                                                        }}
+                                                    >
+                                                        {aplikasi.logo_url ? (
+                                                            <img src={aplikasi.logo_url} alt={aplikasi.nama_aplikasi} className="w-10 h-10 object-contain" />
+                                                        ) : (
+                                                            <span 
+                                                                className="material-symbols-rounded text-3xl"
+                                                                style={{ color: aplikasi.warna_icon || '#3b82f6' }}
+                                                            >
+                                                                {aplikasi.icon_material || 'apps'}
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Tombol Pin / Sematan Favorit */}
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => tanganiSemat(aplikasi.id)}
+                                                        className={`p-2 rounded-xl transition-all duration-300 ${
+                                                            tersemat 
+                                                                ? 'bg-amber-50 dark:bg-amber-950/50 text-amber-500 border border-amber-200 dark:border-amber-800/60 shadow-sm scale-105' 
+                                                                : 'text-slate-300 dark:text-slate-600 hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-slate-700/50 opacity-60 hover:opacity-100'
+                                                        }`}
+                                                        title={tersemat ? "Lepas sematan favorit" : "Sematkan ke favorit"}
+                                                    >
+                                                        <span className={`material-symbols-rounded text-xl ${tersemat ? 'fill-current' : ''}`}>
+                                                            push_pin
+                                                        </span>
+                                                    </button>
+                                                </div>
+
+                                                {/* Judul Aplikasi (Gambar 2) */}
+                                                <h3 className="font-extrabold text-slate-800 dark:text-white text-lg leading-tight mb-2">
                                                     {aplikasi.nama_aplikasi}
                                                 </h3>
-                                                <span className="inline-block bg-emerald-100/70 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400 text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider mt-1.5">
-                                                    Aktif
-                                                </span>
+
+                                                {/* Deskripsi Lengkap Tanpa Terpotong (Gambar 2) */}
+                                                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-6">
+                                                    {aplikasi.deskripsi || 'Aplikasi resmi sekolah yang terintegrasi dengan Single Sign-On.'}
+                                                </p>
+                                            </div>
+
+                                            {/* Action Link: Ikon panah miring (tab baru) vs panah lurus kanan (tab sama) (Gambar 2) */}
+                                            <div className="pt-4 border-t border-slate-100 dark:border-slate-700/40">
+                                                <a 
+                                                    href={aplikasi.login_callback_url ? route('login', { client_id: aplikasi.id }) : aplikasi.portal_url}
+                                                    target={aplikasi.open_in_new_tab ? "_blank" : "_self"}
+                                                    rel="noopener noreferrer"
+                                                    className="inline-flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-200 group-hover:text-[#0F91FC] transition-colors"
+                                                >
+                                                    {aplikasi.open_in_new_tab ? (
+                                                        <span className="material-symbols-rounded text-base text-[#0F91FC]">open_in_new</span>
+                                                    ) : (
+                                                        <span className="material-symbols-rounded text-base text-[#0F91FC]">east</span>
+                                                    )}
+                                                    <span>Buka Aplikasi</span>
+                                                </a>
                                             </div>
                                         </div>
-
-                                        {/* Deskripsi Aplikasi */}
-                                        <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
-                                            {aplikasi.deskripsi || 'Aplikasi resmi sekolah yang terintegrasi dengan Single Sign-On.'}
-                                        </p>
-
-                                        {/* Aksi Klik: Menggunakan rute SSO login untuk otomatisasi pertukaran JWT token ke pihak ketiga */}
-                                        <a 
-                                            href={aplikasi.login_callback_url ? route('login', { client_id: aplikasi.id }) : aplikasi.portal_url}
-                                            target={aplikasi.open_in_new_tab ? "_blank" : "_self"}
-                                            rel="noopener noreferrer"
-                                            className="w-full bg-white/80 dark:bg-slate-900/60 group-hover:bg-[#0F91FC] text-slate-700 dark:text-slate-200 group-hover:text-white font-bold py-3 px-4 rounded-2xl transition-all duration-300 text-center text-xs uppercase tracking-wider flex items-center justify-center gap-2 border border-slate-200/50 dark:border-slate-800 mt-4 shadow-sm"
-                                        >
-                                            Buka Aplikasi
-                                            {aplikasi.open_in_new_tab && (
-                                                <span className="material-symbols-rounded text-sm">open_in_new</span>
-                                            )}
-                                        </a>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         ) : (
-                            // Tampilan State Kosong (Empty State) yang Elegan jika tidak ada akses aplikasi
-                            <div className="w-full bg-white/20 dark:bg-slate-800/40 backdrop-blur-lg border border-white/30 dark:border-slate-700/30 rounded-3xl p-12 text-center shadow-sm">
+                            <div className="w-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-3xl p-12 text-center border border-slate-100 dark:border-slate-700/50 shadow-sm">
                                 <div className="w-16 h-16 rounded-full bg-amber-100/50 dark:bg-amber-950/30 flex items-center justify-center mx-auto mb-4">
-                                    <span className="material-symbols-rounded text-3xl text-amber-600 dark:text-amber-500">apps_outage</span>
+                                    <span className="material-symbols-rounded text-3xl text-amber-600 dark:text-amber-500">
+                                        {kataKunci ? 'search_off' : 'apps_outage'}
+                                    </span>
                                 </div>
-                                <h3 className="font-extrabold text-slate-800 dark:text-white text-lg">Akses Aplikasi Kosong</h3>
+                                <h3 className="font-extrabold text-slate-800 dark:text-white text-lg">
+                                    {kataKunci ? 'Aplikasi Tidak Ditemukan' : 'Akses Aplikasi Kosong'}
+                                </h3>
                                 <p className="text-slate-500 dark:text-slate-400 text-sm max-w-md mx-auto mt-2 leading-relaxed">
-                                    Mohon maaf, Anda belum memiliki akses ke aplikasi manapun. Silakan hubungi Administrator untuk mendaftarkan peran Anda pada visibilitas aplikasi.
+                                    {kataKunci 
+                                        ? `Tidak ditemukan aplikasi yang cocok dengan kata kunci "${kataKunci}".`
+                                        : 'Mohon maaf, Anda belum memiliki akses ke aplikasi manapun. Silakan hubungi Administrator untuk mendaftarkan peran Anda.'}
                                 </p>
                             </div>
                         )}

@@ -14,6 +14,15 @@ export default function ManajemenAplikasi({ daftarAplikasi, daftarPeran, apiKeyB
     const [sortError, setSortError] = useState('');
     const [showOnceBuka, setShowOnceBuka] = useState(false);
     const [copyState, setCopyState] = useState({});
+    const [kataKunci, setKataKunci] = useState('');
+    const [sematanIds, setSematanIds] = useState(() => {
+        try {
+            const tersimpan = localStorage.getItem('sso_pinned_apps');
+            return tersimpan ? JSON.parse(tersimpan) : [];
+        } catch (e) {
+            return [];
+        }
+    });
 
     // Helper untuk mengubah warna hex ke rgba
     const hexKeRgba = (hex, alpha) => {
@@ -27,6 +36,45 @@ export default function ManajemenAplikasi({ daftarAplikasi, daftarPeran, apiKeyB
         const b = parseInt(c.substring(4, 6), 16) || 0;
         return `rgba(${r}, ${g}, ${b}, ${alpha})`;
     };
+
+    const tanganiSemat = (id) => {
+        let baru;
+        if (sematanIds.includes(id)) {
+            baru = sematanIds.filter((x) => x !== id);
+        } else {
+            baru = [id, ...sematanIds.filter((x) => x !== id)];
+        }
+        setSematanIds(baru);
+        try {
+            localStorage.setItem('sso_pinned_apps', JSON.stringify(baru));
+        } catch (e) {
+            console.error('Gagal menyimpan sematan:', e);
+        }
+    };
+
+    const aplikasiTersaring = (daftarAplikasi || []).filter((app) => {
+        if (!kataKunci.trim()) return true;
+        const q = kataKunci.toLowerCase();
+        return (
+            (app.nama_aplikasi && app.nama_aplikasi.toLowerCase().includes(q)) ||
+            (app.deskripsi && app.deskripsi.toLowerCase().includes(q))
+        );
+    });
+
+    const aplikasiTerurut = [...aplikasiTersaring].sort((a, b) => {
+        const idxA = sematanIds.indexOf(a.id);
+        const idxB = sematanIds.indexOf(b.id);
+        const isPinnedA = idxA !== -1;
+        const isPinnedB = idxB !== -1;
+
+        if (isPinnedA && isPinnedB) {
+            return idxA - idxB;
+        }
+        if (isPinnedA) return -1;
+        if (isPinnedB) return 1;
+
+        return (a.sort_order ?? 0) - (b.sort_order ?? 0);
+    });
 
     const {
         data,
@@ -308,37 +356,61 @@ export default function ManajemenAplikasi({ daftarAplikasi, daftarPeran, apiKeyB
                     </div>
                 </div>
 
-                {/* Tab Switcher / Navigation Buttons */}
-                <div className="flex items-center gap-3 bg-slate-100/50 dark:bg-slate-900/50 p-1.5 rounded-2xl w-fit border border-slate-200/40 dark:border-slate-800/40">
-                    <button
-                        onClick={() => setAktifTab('kelola')}
-                        className={`px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all duration-300 ${
-                            aktifTab === 'kelola'
-                                ? 'bg-[#081242] dark:bg-[#0F91FC] text-white shadow-md'
-                                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                        }`}
-                    >
-                        <span className="material-symbols-rounded text-lg">apps</span>
-                        Kelola Aplikasi
-                    </button>
-                    <button
-                        onClick={() => setAktifTab('pratinjau')}
-                        className={`px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all duration-300 ${
-                            aktifTab === 'pratinjau'
-                                ? 'bg-[#081242] dark:bg-[#0F91FC] text-white shadow-md'
-                                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                        }`}
-                    >
-                        <span className="material-symbols-rounded text-lg">visibility</span>
-                        Pratinjau Portal
-                    </button>
+                {/* Tab Switcher & Kolom Pencarian (Gambar 3) */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3 bg-slate-100/50 dark:bg-slate-900/50 p-1.5 rounded-2xl w-fit border border-slate-200/40 dark:border-slate-800/40">
+                        <button
+                            onClick={() => setAktifTab('kelola')}
+                            className={`px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all duration-300 ${
+                                aktifTab === 'kelola'
+                                    ? 'bg-[#081242] dark:bg-[#0F91FC] text-white shadow-md'
+                                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                            }`}
+                        >
+                            <span className="material-symbols-rounded text-lg">apps</span>
+                            Kelola Aplikasi
+                        </button>
+                        <button
+                            onClick={() => setAktifTab('pratinjau')}
+                            className={`px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all duration-300 ${
+                                aktifTab === 'pratinjau'
+                                    ? 'bg-[#081242] dark:bg-[#0F91FC] text-white shadow-md'
+                                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                            }`}
+                        >
+                            <span className="material-symbols-rounded text-lg">visibility</span>
+                            Pratinjau Portal
+                        </button>
+                    </div>
+
+                    {/* Kolom Pencarian (Gambar 3) */}
+                    <div className="relative w-full sm:w-72 shrink-0">
+                        <span className="material-symbols-rounded absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg pointer-events-none">
+                            search
+                        </span>
+                        <input 
+                            type="text"
+                            value={kataKunci}
+                            onChange={(e) => setKataKunci(e.target.value)}
+                            placeholder="Cari aplikasi..."
+                            className="w-full bg-white dark:bg-slate-800/90 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-2xl pl-10 pr-9 py-2.5 text-xs font-semibold focus:ring-2 focus:ring-[#0F91FC] focus:border-transparent transition-all placeholder:text-slate-400 shadow-sm"
+                        />
+                        {kataKunci && (
+                            <button 
+                                onClick={() => setKataKunci('')}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1"
+                            >
+                                <span className="material-symbols-rounded text-sm">close</span>
+                            </button>
+                        )}
+                    </div>
                 </div>
 
                 {/* ================= VIEW 1: KELOLA APLIKASI ================= */}
                 {aktifTab === 'kelola' && (
                     <div className="space-y-6">
                         <div className="flex justify-end">
-                            <button 
+                            <button
                                 onClick={bukaModalTambah}
                                 className="bg-[#0F91FC] hover:bg-[#0a78d6] text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-[#0F91FC]/20 transition-all flex items-center gap-2"
                             >
@@ -347,6 +419,7 @@ export default function ManajemenAplikasi({ daftarAplikasi, daftarPeran, apiKeyB
                             </button>
                         </div>
 
+                        {/* Tabel Aplikasi */}
                         <div className="bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-3xl p-6 border border-slate-100 dark:border-slate-700/50 shadow-sm">
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left text-sm whitespace-nowrap">
@@ -361,8 +434,8 @@ export default function ManajemenAplikasi({ daftarAplikasi, daftarPeran, apiKeyB
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {daftarAplikasi && daftarAplikasi.length > 0 ? (
-                                            daftarAplikasi.map((aplikasi, index) => (
+                                        {aplikasiTerurut && aplikasiTerurut.length > 0 ? (
+                                            aplikasiTerurut.map((aplikasi, index) => (
                                                 <tr key={index} className="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                                                     <td className="px-4 py-4 font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-3">
                                                          <div 
@@ -385,80 +458,84 @@ export default function ManajemenAplikasi({ daftarAplikasi, daftarPeran, apiKeyB
                                                              )}
                                                          </div>
                                                         <div>
-                                                            <span className="block font-bold text-slate-800 dark:text-slate-100">{aplikasi.nama_aplikasi}</span>
+                                                            <span className="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
+                                                                {aplikasi.nama_aplikasi}
+                                                                {sematanIds.includes(aplikasi.id) && (
+                                                                    <span className="material-symbols-rounded text-sm text-amber-500 fill-current" title="Tersemat Favorit">push_pin</span>
+                                                                )}
+                                                            </span>
                                                             <span className="block text-[10px] text-slate-400 dark:text-slate-500">Urutan: {aplikasi.sort_order}</span>
                                                         </div>
                                                     </td>
-                                                    <td className="px-4 py-4 space-y-1.5">
+
+                                                    {/* Kredensial Integrasi */}
+                                                    <td className="px-4 py-4 text-xs font-mono">
                                                         {aplikasi.login_callback_url ? (
-                                                            <>
-                                                                {/* Client ID (app_id) */}
-                                                                <div className="flex items-center gap-2">
-                                                                    <span className="text-[10px] font-bold text-slate-400 uppercase w-16">Client ID:</span>
-                                                                    <span className="font-mono text-xs text-slate-500 dark:text-slate-400 select-all">{aplikasi.id}</span>
-                                                                    <button 
-                                                                        onClick={() => salinTeks(aplikasi.id, 'id_' + aplikasi.id)}
-                                                                        className="text-slate-400 hover:text-[#0F91FC] p-0.5 rounded transition-colors shrink-0"
-                                                                        title="Salin Client ID"
-                                                                    >
-                                                                        <span className="material-symbols-rounded text-sm">
-                                                                            {copyState['id_' + aplikasi.id] ? 'check' : 'content_copy'}
-                                                                        </span>
+                                                            <div className="space-y-1 max-w-[220px]">
+                                                                <div className="flex items-center justify-between gap-1 bg-slate-50 dark:bg-slate-900/60 p-1.5 rounded-lg border border-slate-200/60 dark:border-slate-700/60">
+                                                                    <span className="text-[10px] text-slate-400 font-bold uppercase">ID:</span>
+                                                                    <span className="truncate text-[11px] font-semibold text-slate-700 dark:text-slate-300">{aplikasi.id}</span>
+                                                                    <button onClick={() => salinTeks(aplikasi.id, `id_${aplikasi.id}`)} className="text-slate-400 hover:text-[#0F91FC] transition-colors p-0.5 shrink-0" title="Salin Client ID">
+                                                                        <span className="material-symbols-rounded text-xs">{copyState[`id_${aplikasi.id}`] ? 'check' : 'content_copy'}</span>
                                                                     </button>
                                                                 </div>
-                                                                {/* Client Secret (api_key) - Masked (Show Once) */}
-                                                                <div className="flex items-center gap-2">
-                                                                    <span className="text-[10px] font-bold text-slate-400 uppercase w-16">Secret:</span>
-                                                                    <span className="font-mono text-xs text-slate-400 dark:text-slate-600 select-none tracking-widest">{aplikasi.api_key}</span>
-                                                                    <button 
-                                                                        onClick={() => tanganiRegenerateSecret(aplikasi.id, aplikasi.nama_aplikasi)}
-                                                                        className="bg-amber-50 hover:bg-amber-100 text-amber-700 dark:bg-amber-950/20 dark:hover:bg-amber-950/40 px-2 py-0.5 rounded text-[9px] font-bold transition-all border border-amber-200/50 dark:border-amber-800/30 flex items-center gap-1"
-                                                                        title="Generate ulang kunci rahasia"
-                                                                    >
-                                                                        <span className="material-symbols-rounded text-[10px]">refresh</span>
-                                                                        Generate Ulang
+                                                                <div className="flex items-center justify-between gap-1 bg-slate-50 dark:bg-slate-900/60 p-1.5 rounded-lg border border-slate-200/60 dark:border-slate-700/60">
+                                                                    <span className="text-[10px] text-slate-400 font-bold uppercase">Secret:</span>
+                                                                    <span className="truncate text-[11px] font-semibold text-slate-700 dark:text-slate-300">{aplikasi.api_key}</span>
+                                                                    <button onClick={() => salinTeks(aplikasi.api_key, `sec_${aplikasi.id}`)} className="text-slate-400 hover:text-[#0F91FC] transition-colors p-0.5 shrink-0" title="Salin Client Secret">
+                                                                        <span className="material-symbols-rounded text-xs">{copyState[`sec_${aplikasi.id}`] ? 'check' : 'content_copy'}</span>
                                                                     </button>
                                                                 </div>
-                                                            </>
-                                                        ) : (
-                                                            <div className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 font-semibold italic">
-                                                                <span className="material-symbols-rounded text-sm">link_off</span>
-                                                                <span>Bukan Aplikasi SSO (Hanya Katalog)</span>
                                                             </div>
+                                                        ) : (
+                                                            <span className="italic text-slate-400 text-[11px]">Bukan Aplikasi SSO (-)</span>
                                                         )}
                                                     </td>
-                                                    <td className="px-4 py-4 space-y-1">
-                                                        <div className="flex items-center gap-1.5 text-xs">
-                                                            <span className="text-[9px] font-bold text-slate-400 uppercase w-12">Portal:</span>
-                                                            <a href={aplikasi.portal_url} target="_blank" rel="noopener noreferrer" className="text-[#0F91FC] hover:underline flex items-center gap-0.5 font-semibold">
-                                                                {aplikasi.portal_url}
-                                                            </a>
+
+                                                    {/* Tautan URL */}
+                                                    <td className="px-4 py-4 text-xs">
+                                                        <div className="space-y-1 max-w-[200px]">
+                                                            <div>
+                                                                <span className="text-[10px] text-slate-400 font-bold uppercase block">Portal:</span>
+                                                                <a href={aplikasi.portal_url} target="_blank" rel="noopener noreferrer" className="text-[#0F91FC] hover:underline font-semibold flex items-center gap-1 truncate text-[11px]">
+                                                                    <span className="truncate">{aplikasi.portal_url}</span>
+                                                                    <span className="material-symbols-rounded text-xs shrink-0">open_in_new</span>
+                                                                </a>
+                                                            </div>
+                                                            <div>
+                                                                <span className="text-[10px] text-slate-400 font-bold uppercase block">Callback:</span>
+                                                                {aplikasi.login_callback_url ? (
+                                                                    <a href={aplikasi.login_callback_url} target="_blank" rel="noopener noreferrer" className="text-slate-600 dark:text-slate-300 hover:underline font-medium flex items-center gap-1 truncate text-[11px]">
+                                                                        <span className="truncate">{aplikasi.login_callback_url}</span>
+                                                                        <span className="material-symbols-rounded text-xs shrink-0">open_in_new</span>
+                                                                    </a>
+                                                                ) : (
+                                                                    <span className="italic text-slate-400 text-[11px]">Bukan SSO (-)</span>
+                                                                )}
+                                                            </div>
                                                         </div>
-                                                        {aplikasi.login_callback_url ? (
-                                                            <div className="flex items-center gap-1.5 text-xs">
-                                                                <span className="text-[9px] font-bold text-slate-400 uppercase w-12">Callback:</span>
-                                                                <span className="text-slate-500 dark:text-slate-400 font-medium truncate max-w-[200px]" title={aplikasi.login_callback_url}>
-                                                                    {aplikasi.login_callback_url}
-                                                                </span>
-                                                            </div>
-                                                        ) : (
-                                                            <div className="flex items-center gap-1.5 text-xs">
-                                                                <span className="text-[9px] font-bold text-slate-400 uppercase w-12">Callback:</span>
-                                                                <span className="text-slate-400 dark:text-slate-500 italic">Bukan SSO (-)</span>
-                                                            </div>
-                                                        )}
                                                     </td>
+
+                                                    {/* Visibilitas */}
                                                     <td className="px-4 py-4 text-xs text-slate-600 dark:text-slate-400">
                                                         {aplikasi.is_global_visibility ? (
                                                             <span className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider text-[9px]">Global</span>
                                                         ) : (
-                                                            <div className="flex flex-wrap gap-1 max-w-[150px]">
-                                                                {aplikasi.roles && aplikasi.roles.map((r, i) => (
-                                                                    <span key={i} className="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 px-2 py-0.5 rounded-md text-[9px] font-semibold">{r.nama_role}</span>
-                                                                ))}
+                                                            <div className="flex flex-wrap gap-1 max-w-[200px]">
+                                                                {aplikasi.roles && aplikasi.roles.length > 0 ? (
+                                                                    aplikasi.roles.map((role, idx) => (
+                                                                        <span key={idx} className="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 px-2 py-0.5 rounded-md text-[9px] font-semibold">
+                                                                            {role.nama_role}
+                                                                        </span>
+                                                                    ))
+                                                                ) : (
+                                                                    <span className="text-slate-400 italic text-[11px]">Tidak ada peran</span>
+                                                                )}
                                                             </div>
                                                         )}
                                                     </td>
+
+                                                    {/* Status */}
                                                     <td className="px-4 py-4">
                                                         {aplikasi.is_active ? (
                                                             <span className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider">Aktif</span>
@@ -466,15 +543,33 @@ export default function ManajemenAplikasi({ daftarAplikasi, daftarPeran, apiKeyB
                                                             <span className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider">Nonaktif</span>
                                                         )}
                                                     </td>
+
+                                                    {/* Aksi */}
                                                     <td className="px-4 py-4 text-right">
-                                                        <button 
+                                                        <button
+                                                            onClick={() => tanganiSemat(aplikasi.id)}
+                                                            className={`p-2 rounded-xl transition-colors mx-0.5 ${sematanIds.includes(aplikasi.id) ? 'text-amber-500 bg-amber-50 dark:bg-amber-950/30' : 'text-slate-400 hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                                                            title={sematanIds.includes(aplikasi.id) ? "Lepas Sematan" : "Sematkan Aplikasi"}
+                                                        >
+                                                            <span className={`material-symbols-rounded text-lg ${sematanIds.includes(aplikasi.id) ? 'fill-current' : ''}`}>push_pin</span>
+                                                        </button>
+                                                        {aplikasi.login_callback_url && (
+                                                            <button
+                                                                onClick={() => tanganiRegenerateSecret(aplikasi.id, aplikasi.nama_aplikasi)}
+                                                                className="text-amber-500 hover:text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30 p-2 rounded-xl transition-colors mx-0.5"
+                                                                title="Generate Ulang Secret Key (Client Secret)"
+                                                            >
+                                                                <span className="material-symbols-rounded text-lg">key_visualizer</span>
+                                                            </button>
+                                                        )}
+                                                        <button
                                                             onClick={() => bukaModalEdit(aplikasi)}
                                                             className="text-blue-500 hover:text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30 p-2 rounded-xl transition-colors mx-0.5"
                                                             title="Edit Aplikasi"
                                                         >
                                                             <span className="material-symbols-rounded text-lg">edit</span>
                                                         </button>
-                                                        <button 
+                                                        <button
                                                             onClick={() => tanganiHapus(aplikasi.id, aplikasi.nama_aplikasi)}
                                                             className="text-red-500 hover:text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 p-2 rounded-xl transition-colors mx-0.5"
                                                             title="Hapus Aplikasi"
@@ -486,7 +581,9 @@ export default function ManajemenAplikasi({ daftarAplikasi, daftarPeran, apiKeyB
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan="6" className="text-center py-8 text-slate-400">Belum ada aplikasi terdaftar.</td>
+                                                <td colSpan="6" className="text-center py-8 text-slate-400">
+                                                    {kataKunci ? `Tidak ditemukan aplikasi cocok dengan "${kataKunci}".` : 'Belum ada aplikasi terdaftar.'}
+                                                </td>
                                             </tr>
                                         )}
                                     </tbody>
@@ -499,56 +596,102 @@ export default function ManajemenAplikasi({ daftarAplikasi, daftarPeran, apiKeyB
                 {/* ================= VIEW 2: PRATINJAU PORTAL ================= */}
                 {aktifTab === 'pratinjau' && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {daftarAplikasi && daftarAplikasi.length > 0 ? (
-                            daftarAplikasi.map((aplikasi, index) => (
-                                <div key={index} className={`bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-3xl p-6 border border-slate-100 dark:border-slate-700/50 shadow-sm flex flex-col justify-between hover:-translate-y-1 transition-transform duration-300 group ${!aplikasi.is_active ? 'opacity-50' : ''}`}>
-                                    <div className="flex items-center gap-4 mb-6">
-                                        <div 
-                                             className="w-14 h-14 rounded-2xl border flex items-center justify-center shadow-inner overflow-hidden shrink-0 transition-all duration-300"
-                                             style={{
-                                                 backgroundColor: hexKeRgba(aplikasi.warna_icon, 0.16),
-                                                 borderColor: hexKeRgba(aplikasi.warna_icon, 0.35),
-                                                 boxShadow: `0 4px 14px -2px ${hexKeRgba(aplikasi.warna_icon, 0.22)}`,
-                                             }}
-                                         >
-                                             {aplikasi.logo_url ? (
-                                                 <img src={aplikasi.logo_url} alt={aplikasi.nama_aplikasi} className="w-10 h-10 object-contain" />
-                                             ) : (
-                                                 <span 
-                                                     className="material-symbols-rounded text-3xl"
-                                                     style={{ color: aplikasi.warna_icon || '#3b82f6' }}
-                                                 >
-                                                     {aplikasi.icon_material || 'apps'}
-                                                 </span>
-                                             )}
-                                         </div>
+                        {aplikasiTerurut && aplikasiTerurut.length > 0 ? (
+                            aplikasiTerurut.map((aplikasi, index) => {
+                                const tersemat = sematanIds.includes(aplikasi.id);
+                                return (
+                                    <div 
+                                        key={index} 
+                                        className={`bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-3xl p-6 border border-slate-100 dark:border-slate-700/50 shadow-sm flex flex-col justify-between hover:-translate-y-1.5 hover:shadow-xl transition-all duration-300 group ${!aplikasi.is_active ? 'opacity-50' : ''}`}
+                                    >
                                         <div>
-                                            <h3 className="font-extrabold text-slate-800 dark:text-white text-lg leading-tight flex items-center gap-2">
+                                            {/* Baris Atas: Ikon Aplikasi (Kiri) & Tombol Pin (Kanan) */}
+                                            <div className="flex items-start justify-between gap-4 mb-4">
+                                                <div 
+                                                    className="w-14 h-14 rounded-2xl border flex items-center justify-center shadow-inner overflow-hidden shrink-0 transition-all duration-300"
+                                                    style={{
+                                                        backgroundColor: hexKeRgba(aplikasi.warna_icon, 0.16),
+                                                        borderColor: hexKeRgba(aplikasi.warna_icon, 0.35),
+                                                        boxShadow: `0 4px 14px -2px ${hexKeRgba(aplikasi.warna_icon, 0.22)}`,
+                                                    }}
+                                                >
+                                                    {aplikasi.logo_url ? (
+                                                        <img src={aplikasi.logo_url} alt={aplikasi.nama_aplikasi} className="w-10 h-10 object-contain" />
+                                                    ) : (
+                                                        <span 
+                                                            className="material-symbols-rounded text-3xl"
+                                                            style={{ color: aplikasi.warna_icon || '#3b82f6' }}
+                                                        >
+                                                            {aplikasi.icon_material || 'apps'}
+                                                        </span>
+                                                    )}
+                                                </div>
+
+                                                {/* Tombol Pin / Sematan Favorit */}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => tanganiSemat(aplikasi.id)}
+                                                    className={`p-2 rounded-xl transition-all duration-300 ${
+                                                        tersemat 
+                                                            ? 'bg-amber-50 dark:bg-amber-950/50 text-amber-500 border border-amber-200 dark:border-amber-800/60 shadow-sm scale-105' 
+                                                            : 'text-slate-300 dark:text-slate-600 hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-slate-700/50 opacity-60 hover:opacity-100'
+                                                    }`}
+                                                    title={tersemat ? "Lepas sematan favorit" : "Sematkan ke favorit"}
+                                                >
+                                                    <span className={`material-symbols-rounded text-xl ${tersemat ? 'fill-current' : ''}`}>
+                                                        push_pin
+                                                    </span>
+                                                </button>
+                                            </div>
+
+                                            {/* Judul Aplikasi (Gambar 2) */}
+                                            <h3 className="font-extrabold text-slate-800 dark:text-white text-lg leading-tight mb-2 flex items-center gap-2">
                                                 {aplikasi.nama_aplikasi}
                                                 {!aplikasi.is_active && (
                                                     <span className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 px-2 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider">Nonaktif</span>
                                                 )}
                                             </h3>
-                                            <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1 line-clamp-1">{aplikasi.deskripsi || 'Aplikasi terhubung ke portal SSO'}</p>
+
+                                            {/* Deskripsi Lengkap Tanpa Terpotong (Gambar 2) */}
+                                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-6">
+                                                {aplikasi.deskripsi || 'Aplikasi resmi sekolah yang terintegrasi dengan Single Sign-On.'}
+                                            </p>
+                                        </div>
+
+                                        {/* Action Link: Panah miring (tab baru) vs panah lurus kanan (tab sama) (Gambar 2) */}
+                                        <div className="pt-4 border-t border-slate-100 dark:border-slate-700/40">
+                                            <a 
+                                                href={aplikasi.login_callback_url ? route('login', { client_id: aplikasi.id }) : aplikasi.portal_url}
+                                                target={aplikasi.open_in_new_tab ? "_blank" : "_self"}
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-200 group-hover:text-[#0F91FC] transition-colors"
+                                            >
+                                                {aplikasi.open_in_new_tab ? (
+                                                    <span className="material-symbols-rounded text-base text-[#0F91FC]">open_in_new</span>
+                                                ) : (
+                                                    <span className="material-symbols-rounded text-base text-[#0F91FC]">east</span>
+                                                )}
+                                                <span>Buka Aplikasi</span>
+                                            </a>
                                         </div>
                                     </div>
-                                    <a 
-                                        href={aplikasi.login_callback_url ? route('login', { client_id: aplikasi.id }) : aplikasi.portal_url}
-                                        target={aplikasi.open_in_new_tab ? "_blank" : "_self"}
-                                        rel="noopener noreferrer"
-                                        className="w-full bg-slate-50 dark:bg-slate-900 group-hover:bg-[#0F91FC] text-slate-700 dark:text-slate-200 group-hover:text-white font-bold py-3.5 px-4 rounded-2xl transition-all duration-300 text-center text-xs uppercase tracking-wider flex items-center justify-center gap-2"
-                                    >
-                                        Buka Aplikasi
-                                        {aplikasi.open_in_new_tab && (
-                                            <span className="material-symbols-rounded text-base">open_in_new</span>
-                                        )}
-                                    </a>
-                                </div>
-                            ))
+                                );
+                            })
                         ) : (
-                            <div className="col-span-full bg-white dark:bg-slate-800/80 rounded-3xl p-12 text-center border border-slate-100 dark:border-slate-700/50 shadow-sm">
-                                <span className="material-symbols-rounded text-5xl text-slate-400 mb-4">apps_outage</span>
-                                <p className="text-slate-500 dark:text-slate-400 font-semibold">Belum ada aplikasi terdaftar.</p>
+                            <div className="col-span-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-3xl p-12 text-center border border-slate-100 dark:border-slate-700/50 shadow-sm">
+                                <div className="w-16 h-16 rounded-full bg-amber-100/50 dark:bg-amber-950/30 flex items-center justify-center mx-auto mb-4">
+                                    <span className="material-symbols-rounded text-3xl text-amber-600 dark:text-amber-500">
+                                        {kataKunci ? 'search_off' : 'apps_outage'}
+                                    </span>
+                                </div>
+                                <h3 className="font-extrabold text-slate-800 dark:text-white text-lg">
+                                    {kataKunci ? 'Aplikasi Tidak Ditemukan' : 'Belum Ada Aplikasi Terdaftar'}
+                                </h3>
+                                <p className="text-slate-500 dark:text-slate-400 text-sm max-w-md mx-auto mt-2 leading-relaxed">
+                                    {kataKunci 
+                                        ? `Tidak ditemukan aplikasi yang cocok dengan kata kunci "${kataKunci}".`
+                                        : 'Belum ada aplikasi terdaftar di dalam sistem.'}
+                                </p>
                             </div>
                         )}
                     </div>
