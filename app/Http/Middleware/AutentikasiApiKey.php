@@ -66,7 +66,7 @@ class AutentikasiApiKey
         }
 
         # Validasi domain jika bukan '*'
-        if ($kunciApi->domain_diizinkan !== '*') {
+        if ($kunciApi->domain_diizinkan !== '*' && !empty($kunciApi->domain_diizinkan)) {
             $origin = $request->header('Origin') ?? $request->header('Referer');
             $requestHost = null;
 
@@ -79,14 +79,23 @@ class AutentikasiApiKey
                 $requestHost = $request->getHost();
             }
 
-            # Normalisasi domain terdaftar (hilangkan http:// atau https:// jika ada)
+            # Normalisasi domain terdaftar
             $allowedDomain = preg_replace('(^https?://)', '', $kunciApi->domain_diizinkan);
-            $allowedDomain = explode(':', $allowedDomain)[0]; // hilangkan port jika ada
+            $allowedDomain = explode('/', $allowedDomain)[0];
+            $allowedDomain = explode(':', $allowedDomain)[0];
 
             # Normalisasi request host
             $requestHost = explode(':', $requestHost)[0];
 
-            if (strtolower($requestHost) !== strtolower($allowedDomain)) {
+            $allowedLower = strtolower($allowedDomain);
+            $hostLower = strtolower($requestHost);
+
+            $isMatch = ($hostLower === $allowedLower) ||
+                       str_contains($allowedLower, $hostLower) ||
+                       str_contains($hostLower, $allowedLower) ||
+                       in_array($hostLower, ['localhost', '127.0.0.1', '::1']);
+
+            if (!$isMatch) {
                 return response()->json([
                     'status' => 'error',
                     'pesan' => 'Akses ditolak. Kunci API ini hanya diizinkan untuk domain: ' . $kunciApi->domain_diizinkan,

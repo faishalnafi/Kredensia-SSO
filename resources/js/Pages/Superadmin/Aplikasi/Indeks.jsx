@@ -433,7 +433,7 @@ export default function IndeksAplikasi({ daftarAplikasi, daftarPeran }) {
                                         </div>
                                     </div>
                                     <a 
-                                        href={aplikasi.portal_url}
+                                        href={aplikasi.login_callback_url ? route('login', { client_id: aplikasi.id }) : aplikasi.portal_url}
                                         target={aplikasi.open_in_new_tab ? "_blank" : "_self"}
                                         rel="noopener noreferrer"
                                         className="w-full bg-slate-50 dark:bg-slate-900 group-hover:bg-[#0F91FC] text-slate-700 dark:text-slate-200 group-hover:text-white font-bold py-3.5 px-4 rounded-2xl transition-all duration-300 text-center text-xs uppercase tracking-wider flex items-center justify-center gap-2"
@@ -662,7 +662,7 @@ export default function IndeksAplikasi({ daftarAplikasi, daftarPeran }) {
                                 </div>
                                 <div>
                                     <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">
-                                        URL Callback (Redirect URI) <span className="text-red-500">*</span>
+                                        URL Callback (Redirect URI) <span className="text-xs text-slate-400 font-medium">(opsional)</span>
                                     </label>
                                     <input 
                                         type="url"
@@ -670,9 +670,8 @@ export default function IndeksAplikasi({ daftarAplikasi, daftarPeran }) {
                                         placeholder="https://app.example.com/sso/callback"
                                         value={data.login_callback_url}
                                         onChange={e => setData('login_callback_url', e.target.value)}
-                                        required
                                     />
-                                    <span className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 block">Tujuan pengalihan SSO untuk mengirimkan token JWT.</span>
+                                    <span className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 block">Tujuan pengalihan SSO untuk mengirimkan token JWT. Kosongkan jika bukan aplikasi SSO.</span>
                                     <InputError message={errors.login_callback_url} className="mt-1" />
                                 </div>
                             </div>

@@ -531,7 +531,7 @@ export default function ManajemenAplikasi({ daftarAplikasi, daftarPeran, apiKeyB
                                         </div>
                                     </div>
                                     <a 
-                                        href={route('login', { client_id: aplikasi.id })}
+                                        href={aplikasi.login_callback_url ? route('login', { client_id: aplikasi.id }) : aplikasi.portal_url}
                                         target={aplikasi.open_in_new_tab ? "_blank" : "_self"}
                                         rel="noopener noreferrer"
                                         className="w-full bg-slate-50 dark:bg-slate-900 group-hover:bg-[#0F91FC] text-slate-700 dark:text-slate-200 group-hover:text-white font-bold py-3.5 px-4 rounded-2xl transition-all duration-300 text-center text-xs uppercase tracking-wider flex items-center justify-center gap-2"

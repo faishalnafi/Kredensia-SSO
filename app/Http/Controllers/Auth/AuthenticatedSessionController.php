@@ -29,8 +29,13 @@ class AuthenticatedSessionController extends Controller
         if ($appId) {
             $app = \App\Models\RegisteredApp::find($appId);
 
-            if (!$app || !$app->is_active || empty($app->login_callback_url)) {
-                abort(403, 'Akses Ditolak: Aplikasi tidak terdaftar, nonaktif, atau tidak mendukung otentikasi SSO.');
+            if (!$app || !$app->is_active) {
+                abort(403, 'Akses Ditolak: Aplikasi tidak terdaftar atau nonaktif.');
+            }
+
+            // Jika aplikasi ini bukan aplikasi SSO (tidak memiliki login_callback_url / Hanya Katalog), langsung alihkan ke portal_url
+            if (empty($app->login_callback_url)) {
+                return redirect()->away($app->portal_url);
             }
 
             if ($request->has('redirect_uri')) {
@@ -138,6 +143,13 @@ class AuthenticatedSessionController extends Controller
             $app = \App\Models\RegisteredApp::find($appId);
 
             if ($app && $app->is_active) {
+                // Periksa jika aplikasi bukan SSO (tanpa callback URL / hanya katalog), langsung alihkan ke portal_url
+                if (empty($app->login_callback_url)) {
+                    $request->session()->forget(['sso_app_id', 'sso_redirect_uri']);
+                    \App\Services\LayananLogAktivitas::catat('Pengalihan ke aplikasi katalog (non-SSO): ' . $app->nama_aplikasi, $user->email, $user->id);
+                    return redirect()->away($app->portal_url);
+                }
+
                 // Periksa hak akses peran jika aplikasi dibatasi visibilitasnya
                 if (!$app->is_global_visibility) {
                     $userRoleIds = $user->roles->pluck('id')->toArray();

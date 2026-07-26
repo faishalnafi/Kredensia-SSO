@@ -106,6 +106,13 @@ class GoogleAuthController extends Controller
             $app = RegisteredApp::find($appId);
 
             if ($app && $app->is_active) {
+                // Periksa jika aplikasi bukan SSO (tanpa callback URL / hanya katalog), langsung alihkan ke portal_url
+                if (empty($app->login_callback_url)) {
+                    $request->session()->forget(['sso_app_id', 'sso_redirect_uri']);
+                    \App\Services\LayananLogAktivitas::catat('Pengalihan ke aplikasi katalog (non-SSO) via Google: ' . $app->nama_aplikasi, $user->email, $user->id);
+                    return redirect()->away($app->portal_url);
+                }
+
                 // Periksa hak akses peran jika aplikasi dibatasi visibilitasnya
                 if (!$app->is_global_visibility) {
                     $userRoleIds = $user->roles->pluck('id')->toArray();
