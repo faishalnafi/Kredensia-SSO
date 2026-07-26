@@ -97,6 +97,25 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
         }
     }, [modeProp]);
 
+    // Menampilkan pesan notifikasi flash (sukses / error) dari backend
+    useEffect(() => {
+        if (props.flash?.error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Akses Ditolak',
+                text: props.flash.error,
+                confirmButtonColor: '#0F91FC'
+            });
+        } else if (props.flash?.sukses) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil',
+                text: props.flash.sukses,
+                confirmButtonColor: '#0F91FC'
+            });
+        }
+    }, [props.flash]);
+
     // Fungsi perpindahan mode dengan transisi
     const gantiMode = (modeBaru) => {
         if (modeBaru === modeAktif || sedangTransisi) return;
