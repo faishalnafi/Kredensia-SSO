@@ -27,14 +27,7 @@ class AplikasiTerdaftarController extends Controller
     {
         $daftarAplikasi = RegisteredApp::with('roles')
             ->orderBy('sort_order', 'asc')
-            ->get()
-            ->map(function ($app) {
-                // Sembunyikan api_key asli dari pengiriman data umum demi keamanan jika terisi (Show Once)
-                if ($app->api_key) {
-                    $app->api_key = '••••••••••••••••••••••••••••••••••••••••';
-                }
-                return $app;
-            });
+            ->get();
 
         $daftarPeran = Role::all();
 

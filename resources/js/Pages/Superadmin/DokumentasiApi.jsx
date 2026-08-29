@@ -15,6 +15,7 @@ export default function DokumentasiApi() {
     const [simulasiLoading, setSimulasiLoading] = useState(false);
     const [simulasiResponse, setSimulasiResponse] = useState(null);
     const [baseUrl, setBaseUrl] = useState('');
+    const [sdkBahasa, setSdkBahasa] = useState('php');
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -67,7 +68,7 @@ export default function DokumentasiApi() {
         { id: 'ep-tahun-pelajaran',  label: '6. Tahun Pelajaran',       ikon: 'calendar_month' },
         { id: 'ep-peran-statistik',  label: '7. Peran & Statistik',     ikon: 'bar_chart' },
         { id: 'error-handling',      label: '8. Error Handling',        ikon: 'info' },
-        { id: 'contoh-implementasi', label: '9. Contoh Implementasi',   ikon: 'terminal' },
+        { id: 'contoh-implementasi', label: '9. Official Client SDK (PHP, Node, Python, Go)', ikon: 'terminal' },
         { id: 'simulasi-api',        label: 'Simulasi API (Live)',       ikon: 'play_circle' },
     ];
 
@@ -295,7 +296,7 @@ export default function DokumentasiApi() {
                                 deskripsi="Mengambil daftar seluruh pengguna SSO beserta data kelas dan tahun pelajaran mereka. Mendukung filter dan paginasi."
                             />
                             <TabelParam params={[
-                                { name: 'search',    tipe: 'string',  default: '—',  ket: 'Cari berdasarkan nama, NIK, NISN/NIP, atau email.' },
+                                { name: 'search',    tipe: 'string',  default: '—',  ket: 'Cari berdasarkan nama, NIK, NISN (Siswa) / NIP (Guru), atau email.' },
                                 { name: 'email',     tipe: 'string',  default: '—',  ket: 'Filter tepat berdasarkan alamat email.' },
                                 { name: 'role',      tipe: 'string',  default: '—',  ket: 'Filter berdasarkan nama peran (contoh: siswa, guru, tendik, alumni).' },
                                 { name: 'kelas_id',  tipe: 'uuid',    default: '—',  ket: 'Filter pengguna berdasarkan UUID kelas tertentu.' },
@@ -639,55 +640,264 @@ export default function DokumentasiApi() {
                         />
                     </section>
 
-                    {/* ══════════════════ 9. CONTOH IMPLEMENTASI ══════════════════ */}
+                    {/* ══════════════════ 9. OFFICIAL CLIENT SDK ══════════════════ */}
                     <section id="contoh-implementasi" className="bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-3xl p-6 border border-slate-100 dark:border-slate-700/50 shadow-sm space-y-6">
-                        <JudulSeksi nomor="9" judul="Contoh Implementasi" />
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-700/60 pb-4">
+                            <JudulSeksi nomor="9" judul="Official Client SDK & Contoh Kode" />
+                            <span className="text-xs text-slate-400 font-mono">PHP &bull; Node.js &bull; Python &bull; Go</span>
+                        </div>
 
-                        <KodeBlok
-                            judul="PHP (cURL) — Ambil siswa kelas aktif"
-                            salinKey="impl-php"
-                            warna="text-emerald-400"
-                            kode={`<?php
+                        {/* Navigasi Tab Bahasa SDK */}
+                        <div className="flex flex-wrap gap-2 p-1.5 bg-slate-100 dark:bg-slate-900/80 rounded-2xl border border-slate-200/60 dark:border-slate-700/60">
+                            {[
+                                { id: 'php', label: 'PHP SDK', ikon: 'data_object', file: 'SsoSekolahClient.php', url: '/sdk/SsoSekolahClient.php' },
+                                { id: 'nodejs', label: 'Node.js / TS', ikon: 'javascript', file: 'SsoSekolahClient.js', url: '/sdk/SsoSekolahClient.js' },
+                                { id: 'python', label: 'Python 3', ikon: 'terminal', file: 'sso_sekolah_client.py', url: '/sdk/sso_sekolah_client.py' },
+                                { id: 'go', label: 'Go (Golang)', ikon: 'code', file: 'ssoclient.go', url: '/sdk/ssoclient.go' },
+                            ].map((lang) => (
+                                <button
+                                    key={lang.id}
+                                    type="button"
+                                    onClick={() => setSdkBahasa(lang.id)}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+                                        sdkBahasa === lang.id
+                                            ? 'bg-white dark:bg-slate-800 text-[#0F91FC] shadow-md border border-slate-200/80 dark:border-slate-700'
+                                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                                    }`}
+                                >
+                                    <span className="material-symbols-rounded text-base">{lang.ikon}</span>
+                                    <span>{lang.label}</span>
+                                </button>
+                            ))}
+                        </div>
 
-$apiKey  = 'YOUR_API_KEY_HERE';
-$baseUrl = '${baseUrl}/v1';
+                        {/* Konten Tab SDK Aktif */}
+                        {sdkBahasa === 'php' && (
+                            <div className="space-y-4">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-indigo-50 dark:bg-indigo-950/40 rounded-2xl border border-indigo-200 dark:border-indigo-900/50">
+                                    <div>
+                                        <h4 className="text-xs font-extrabold text-indigo-900 dark:text-indigo-200 flex items-center gap-2">
+                                            <span className="material-symbols-rounded text-base">download</span>
+                                            File SDK: SsoSekolahClient.php (PHP 7.4 / 8.x)
+                                        </h4>
+                                        <p className="text-[11px] text-indigo-700 dark:text-indigo-300 mt-0.5">
+                                            Strict OOP Client Class dengan cURL native, error handling otomatis, dan verifikator JWT Token.
+                                        </p>
+                                    </div>
+                                    <a
+                                        href="/sdk/SsoSekolahClient.php"
+                                        download
+                                        className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2 shrink-0"
+                                    >
+                                        <span className="material-symbols-rounded text-base">download</span>
+                                        Download SDK (.php)
+                                    </a>
+                                </div>
 
-// 1. Ambil tahun pelajaran aktif
-$tpRes  = json_decode(file_get_contents($baseUrl . '/tahun-pelajaran?is_aktif=true', false, stream_context_create([
-    'http' => ['header' => "X-API-Key: $apiKey\\r\\nAccept: application/json\\r\\n"]
-])), true);
-$tpId = $tpRes['data'][0]['id'] ?? null;
+                                <KodeBlok
+                                    judul="Cara Penggunaan (PHP SDK)"
+                                    salinKey="sdk-php"
+                                    warna="text-indigo-300"
+                                    kode={`<?php
 
-// 2. Ambil seluruh kelas pada tahun pelajaran aktif
-$kelasRes = json_decode(file_get_contents($baseUrl . '/kelas?aktif=true', false, stream_context_create([
-    'http' => ['header' => "X-API-Key: $apiKey\\r\\nAccept: application/json\\r\\n"]
-])), true);
+require_once __DIR__ . '/SsoSekolahClient.php';
+use SsoSekolah\\SsoSekolahClient;
 
-foreach ($kelasRes['data'] as $kelas) {
-    echo $kelas['nama_kelas'] . ' — ' . $kelas['jumlah_siswa'] . ' siswa\\n';
+$client = new SsoSekolahClient('${baseUrl}', 'KUNCI_API_ANDA');
+
+try {
+    // 1. Uji koneksi API Key
+    $tes = $client->testConnection();
+    echo "Status: " . $tes['pesan'] . "\\n";
+
+    // 2. Ambil daftar siswa aktif
+    $siswa = $client->getMembers(['role' => 'siswa', 'per_page' => 10]);
+    echo "Total Siswa: " . $siswa['meta']['total'] . "\\n";
+
+    // 3. Dekode & Verifikasi Token JWT SSO
+    $payload = SsoSekolahClient::verifyJwtToken($_GET['token'] ?? '');
+    if ($payload) {
+        echo "Login Sebagai: " . $payload['name'] . " (" . $payload['email'] . ")";
+    }
+} catch (Exception $e) {
+    echo "Error SSO: " . $e->getMessage();
 }`}
-                        />
+                                />
+                            </div>
+                        )}
 
-                        <KodeBlok
-                            judul="JavaScript (Fetch API) — Sinkronisasi pengguna SSO ke aplikasi lain"
-                            salinKey="impl-js"
-                            warna="text-sky-400"
-                            kode={`const API_KEY = 'YOUR_API_KEY_HERE';
-const BASE    = '${baseUrl}/v1';
+                        {sdkBahasa === 'nodejs' && (
+                            <div className="space-y-4">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-emerald-50 dark:bg-emerald-950/40 rounded-2xl border border-emerald-200 dark:border-emerald-900/50">
+                                    <div>
+                                        <h4 className="text-xs font-extrabold text-emerald-900 dark:text-emerald-200 flex items-center gap-2">
+                                            <span className="material-symbols-rounded text-base">download</span>
+                                            File SDK: SsoSekolahClient.js (Node.js / TypeScript)
+                                        </h4>
+                                        <p className="text-[11px] text-emerald-700 dark:text-emerald-300 mt-0.5">
+                                            Async/Await Promises SDK menggunakan modul bawaan HTTP/HTTPS tanpa modul eksternal.
+                                        </p>
+                                    </div>
+                                    <a
+                                        href="/sdk/SsoSekolahClient.js"
+                                        download
+                                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2 shrink-0"
+                                    >
+                                        <span className="material-symbols-rounded text-base">download</span>
+                                        Download SDK (.js)
+                                    </a>
+                                </div>
 
-async function ambilSiswaDariKelas(kelasId) {
-    const res = await fetch(\`\${BASE}/members?kelas_id=\${kelasId}&role=siswa\`, {
-        headers: { 'X-API-Key': API_KEY, 'Accept': 'application/json' }
-    });
-    if (!res.ok) throw new Error(\`HTTP \${res.status}\`);
-    const { data, meta } = await res.json();
-    console.log(\`Total siswa: \${meta.total}\`, data);
-    return data;
+                                <KodeBlok
+                                    judul="Cara Penggunaan (Node.js SDK)"
+                                    salinKey="sdk-js"
+                                    warna="text-emerald-300"
+                                    kode={`const SsoSekolahClient = require('./SsoSekolahClient');
+
+const client = new SsoSekolahClient('${baseUrl}', 'KUNCI_API_ANDA');
+
+async function jalankan() {
+    try {
+        // 1. Uji koneksi API Key
+        const status = await client.testConnection();
+        console.log('Status SSO:', status.pesan);
+
+        // 2. Ambil daftar kelas sekolah
+        const kelas = await client.getKelas({ aktif: 'true' });
+        console.log('Daftar Kelas:', kelas.data);
+
+        // 3. Verifikasi Token JWT
+        const tokenStr = 'EYJHBGCIOIJIUZI1...';
+        const user = SsoSekolahClient.verifyJwtToken(tokenStr);
+        console.log('Payload User:', user);
+    } catch (err) {
+        console.error('Error SSO:', err.message);
+    }
 }
 
-// Jalankan
-ambilSiswaDariKelas('UUID_KELAS_ANDA');`}
-                        />
+jalankan();`}
+                                />
+                            </div>
+                        )}
+
+                        {sdkBahasa === 'python' && (
+                            <div className="space-y-4">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-amber-50 dark:bg-amber-950/40 rounded-2xl border border-amber-200 dark:border-amber-900/50">
+                                    <div>
+                                        <h4 className="text-xs font-extrabold text-amber-900 dark:text-amber-200 flex items-center gap-2">
+                                            <span className="material-symbols-rounded text-base">download</span>
+                                            File SDK: sso_sekolah_client.py (Python 3.x)
+                                        </h4>
+                                        <p className="text-[11px] text-amber-700 dark:text-amber-300 mt-0.5">
+                                            Clean Pythonic Client Class berbasis urllib & json tanpa dependensi pip external.
+                                        </p>
+                                    </div>
+                                    <a
+                                        href="/sdk/sso_sekolah_client.py"
+                                        download
+                                        className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2 shrink-0"
+                                    >
+                                        <span className="material-symbols-rounded text-base">download</span>
+                                        Download SDK (.py)
+                                    </a>
+                                </div>
+
+                                <KodeBlok
+                                    judul="Cara Penggunaan (Python SDK)"
+                                    salinKey="sdk-py"
+                                    warna="text-amber-300"
+                                    kode={`from sso_sekolah_client import SsoSekolahClient
+
+client = SsoSekolahClient('${baseUrl}', 'KUNCI_API_ANDA')
+
+try:
+    # 1. Uji koneksi API Key
+    res = client.test_connection()
+    print("Status SSO:", res.get('pesan'))
+
+    # 2. Ambil data pengguna role Guru
+    gurus = client.get_members(role='guru', per_page=5)
+    print("Total Guru:", gurus['meta']['total'])
+    for g in gurus['data']:
+        print(f"- {g['nama_lengkap']} ({g['email']})")
+
+    # 3. Verifikasi Token JWT
+    payload = SsoSekolahClient.verify_jwt_token("TOKEN_JWT_HERE")
+    if payload:
+        print("Pengguna Terautentikasi:", payload['name'])
+
+except Exception as e:
+    print("Error SSO:", str(e))`}
+                                />
+                            </div>
+                        )}
+
+                        {sdkBahasa === 'go' && (
+                            <div className="space-y-4">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-sky-50 dark:bg-sky-950/40 rounded-2xl border border-sky-200 dark:border-sky-900/50">
+                                    <div>
+                                        <h4 className="text-xs font-extrabold text-sky-900 dark:text-sky-200 flex items-center gap-2">
+                                            <span className="material-symbols-rounded text-base">download</span>
+                                            File SDK: ssoclient.go (Go / Golang)
+                                        </h4>
+                                        <p className="text-[11px] text-sky-700 dark:text-sky-300 mt-0.5">
+                                            Idiomatic Go Package dengan Struct Client, net/http, dan JWT base64 decoder.
+                                        </p>
+                                    </div>
+                                    <a
+                                        href="/sdk/ssoclient.go"
+                                        download
+                                        className="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2 shrink-0"
+                                    >
+                                        <span className="material-symbols-rounded text-base">download</span>
+                                        Download SDK (.go)
+                                    </a>
+                                </div>
+
+                                <KodeBlok
+                                    judul="Cara Penggunaan (Go SDK)"
+                                    salinKey="sdk-go"
+                                    warna="text-sky-300"
+                                    kode={`package main
+
+import (
+	"fmt"
+	"net/url"
+	"proyek-anda/ssoclient"
+)
+
+func main() {
+	client := ssoclient.NewClient("${baseUrl}", "KUNCI_API_ANDA")
+
+	// 1. Uji koneksi API Key
+	tes, err := client.TestConnection()
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	fmt.Println("Respon SSO:", tes["pesan"])
+
+	// 2. Ambil Daftar Siswa
+	params := url.Values{}
+	params.Set("role", "siswa")
+	params.Set("per_page", "5")
+
+	members, err := client.GetMembers(params)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	fmt.Println("Data Siswa:", members["data"])
+
+	// 3. Verifikasi Token JWT
+	payload, err := ssoclient.VerifyJWTToken("TOKEN_JWT_HERE")
+	if err == nil {
+		fmt.Println("User Authenticated:", payload["name"])
+	}
+}`}
+                                />
+                            </div>
+                        )}
                     </section>
 
                     {/* ══════════════════ SIMULASI API (LIVE) ══════════════════ */}

@@ -79,6 +79,8 @@ class ManajemenAplikasiController extends Controller
 
         Cache::forget('superadmin:statistik');
 
+        \App\Services\LayananLogAktivitas::catat('Mendaftarkan aplikasi terdaftar baru: ' . $app->nama_aplikasi);
+
         return redirect()->back()->with('success', 'Aplikasi berhasil ditambahkan.');
     }
 
@@ -140,12 +142,15 @@ class ManajemenAplikasiController extends Controller
             $app->roles()->sync($request->input('selected_roles', []));
         }
 
+        \App\Services\LayananLogAktivitas::catat('Memperbarui data aplikasi terdaftar: ' . $app->nama_aplikasi);
+
         return redirect()->back()->with('success', 'Data aplikasi berhasil diperbarui.');
     }
 
     public function hapus(string $id)
     {
         $app = RegisteredApp::findOrFail($id);
+        $namaApp = $app->nama_aplikasi;
 
         if ($app->logo_url && str_contains($app->logo_url, '/storage/logos/')) {
             $oldPath = 'logos/' . basename($app->logo_url);
@@ -155,6 +160,8 @@ class ManajemenAplikasiController extends Controller
         $app->delete();
 
         Cache::forget('superadmin:statistik');
+
+        \App\Services\LayananLogAktivitas::catat('Menghapus aplikasi terdaftar: ' . $namaApp);
 
         return redirect()->back()->with('success', 'Aplikasi berhasil dihapus.');
     }

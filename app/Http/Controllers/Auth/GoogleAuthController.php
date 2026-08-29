@@ -20,8 +20,18 @@ class GoogleAuthController extends Controller
     /**
      * Redirect the user to the Google authentication page.
      */
-    public function redirectToGoogle(): RedirectResponse
+    public function redirectToGoogle(\Illuminate\Http\Request $request): RedirectResponse
     {
+        $appId = $request->query('client_id') ?: $request->query('app_id');
+        if ($appId) {
+            session(['sso_app_id' => $appId]);
+        }
+        if ($request->has('redirect_uri')) {
+            session(['sso_redirect_uri' => $request->query('redirect_uri')]);
+        }
+        if ($request->has('remember')) {
+            session(['sso_google_remember' => $request->boolean('remember')]);
+        }
         return Socialite::driver('google')->redirect();
     }
 
@@ -89,12 +99,21 @@ class GoogleAuthController extends Controller
             ]);
         }
 
-        // Login user
-        Auth::login($user, true);
+        // Tangkap status centang "Ingat Saya" sebelum tombol Google ditekan
+        $ingatSaya = session('sso_google_remember', false);
+        session()->forget('sso_google_remember');
 
-        // Atur masa hidup sesi default (24 jam karena Google login menggunakan remember secara default)
-        $lifetime = 1440;
-        session(['session_lifetime' => $lifetime]);
+        // Login user dengan status remember
+        Auth::login($user, $ingatSaya);
+
+        // Jika dicentang "Ingat Saya" = SEUMUR HIDUP / FOREVER (5 Tahun = 2.628.000 menit), jika tidak = 31 hari (44.640 menit)
+        if ($ingatSaya) {
+            $lifetime = 2628000; // 5 Tahun = Seumur Hidup
+            session(['is_remember_forever' => true, 'session_lifetime' => $lifetime]);
+        } else {
+            $lifetime = 44640; // 31 Hari (Sliding Expiration)
+            session(['is_remember_forever' => false, 'session_lifetime' => $lifetime]);
+        }
         config(['session.lifetime' => $lifetime]);
 
         $request = request();
@@ -153,7 +172,7 @@ class GoogleAuthController extends Controller
             }
         }
 
-        \App\Services\LayananLogAktivitas::catat('Login sukses via Google', $user->email, $user->id);
+        \App\Services\LayananLogAktivitas::catat('Login sukses via Google SSO', $user->email, $user->id);
 
         // Redirect ke beranda berdasarkan peran
         if ($user->hasRole('Super Admin') || $user->hasRole('superadmin')) {

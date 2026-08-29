@@ -117,8 +117,10 @@ class User extends Authenticatable
             return $this->google_avatar;
         }
 
-        $hash = md5(strtolower(trim($this->email ?? '')));
-        return "https://www.gravatar.com/avatar/{$hash}?d=identicon";
+        $email = strtolower(trim($this->email ?? ''));
+        $hash = !empty($email) ? md5($email) : md5($this->id ?? 'user');
+
+        return "https://www.gravatar.com/avatar/{$hash}?s=256&d=identicon";
     }
 
     /**

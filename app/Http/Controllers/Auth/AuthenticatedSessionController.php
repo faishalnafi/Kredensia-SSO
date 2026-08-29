@@ -40,11 +40,23 @@ class AuthenticatedSessionController extends Controller
                 $requestedRedirectUri = $request->query('redirect_uri');
                 $registeredHost = parse_url($app->login_callback_url, PHP_URL_HOST);
                 $requestedHost = parse_url($requestedRedirectUri, PHP_URL_HOST);
+                $portalHost = parse_url($app->portal_url, PHP_URL_HOST);
 
-                if ($registeredHost && $requestedHost && strtolower($registeredHost) !== strtolower($requestedHost)) {
+                $hostMatch = ($registeredHost && $requestedHost && strtolower($registeredHost) === strtolower($requestedHost)) ||
+                             ($portalHost && $requestedHost && strtolower($portalHost) === strtolower($requestedHost)) ||
+                             ($registeredHost === 'localhost' || $registeredHost === '127.0.0.1');
+
+                if (!$hostMatch) {
                     session()->flash('error', 'Akses Ditolak: URL Callback (redirect_uri) tidak cocok dengan domain aplikasi terdaftar.');
                     $appId = null;
                     $app = null;
+                } elseif ($requestedHost && strtolower($registeredHost) !== strtolower($requestedHost)) {
+                    // Otomatis perbarui login_callback_url di database jika domain cocok dengan portal_url
+                    try {
+                        $app->update(['login_callback_url' => $requestedRedirectUri]);
+                    } catch (\Throwable $e) {
+                        // Abaikan jika DB read-only
+                    }
                 }
             }
         }
@@ -80,6 +92,9 @@ class AuthenticatedSessionController extends Controller
 
                 // Gabungkan token ke callbackUrl dengan aman
                 $pemisah = str_contains($callbackUrl, '?') ? '&' : '?';
+
+                \App\Services\LayananLogAktivitas::catat('Otentikasi SSO otomatis (sesi aktif) ke aplikasi: ' . $app->nama_aplikasi, $user->email, $user->id);
+
                 return redirect()->away($callbackUrl . $pemisah . 'token=' . $token);
             }
 
@@ -103,10 +118,12 @@ class AuthenticatedSessionController extends Controller
             }
         }
 
+        $modeAwal = ($request->routeIs('claim.form') || $request->has('verifikasi') || str_contains($request->url(), 'verifikasi')) ? 'verifikasi' : 'masuk';
+
         return Inertia::render('Auth/Otentikasi', [
             'canResetPassword' => Route::has('password.request'),
             'status' => session('status'),
-            'mode' => 'masuk'
+            'mode' => $modeAwal
         ]);
     }
 
@@ -126,9 +143,30 @@ class AuthenticatedSessionController extends Controller
         // namun try-catch dipasang untuk menangkap kegagalan DB tak terduga.
         try {
             $request->authenticate();
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $pesanError = 'Salah Kata Sandi / Data Tidak Valid';
+            $errors = $e->errors();
+
+            if (isset($errors['password'])) {
+                $pesanError = 'Kata Sandi Salah';
+            } elseif (isset($errors['email'])) {
+                $pesanEmail = implode(', ', $errors['email']);
+                if (str_contains($pesanEmail, 'belum diklaim')) {
+                    $pesanError = 'Akun Belum Diklaim';
+                } elseif (str_contains($pesanEmail, 'dinonaktifkan')) {
+                    $pesanError = 'Akun Nonaktif';
+                } elseif (str_contains($pesanEmail, 'belum diverifikasi')) {
+                    $pesanError = 'Email Tidak Terdaftar';
+                } else {
+                    $pesanError = 'Email Tidak Valid';
+                }
+            }
+
+            \App\Services\LayananLogAktivitas::catat('Percobaan login gagal: ' . $pesanError . ' (email: ' . $request->email . ')', $request->email);
+            throw $e;
         } catch (\Throwable $e) {
             \App\Services\LayananLogAktivitas::catat('Percobaan login gagal (email: ' . $request->email . ')', $request->email);
-            throw $e; // re-throw ValidationException dari LoginRequest
+            throw $e;
         }
 
         $request->session()->regenerate();
@@ -189,7 +227,7 @@ class AuthenticatedSessionController extends Controller
             }
         }
 
-        \App\Services\LayananLogAktivitas::catat('Login sukses ke portal SSO', $user->email, $user->id);
+        \App\Services\LayananLogAktivitas::catat('Login sukses via Email & Kata Sandi', $user->email, $user->id);
 
         if ($user->hasRole('Super Admin') || $user->hasRole('superadmin')) {
             return redirect()->intended(route('superadmin.beranda', absolute: false));

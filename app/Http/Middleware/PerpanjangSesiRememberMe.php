@@ -13,38 +13,54 @@ use Symfony\Component\HttpFoundation\Response;
 class PerpanjangSesiRememberMe
 {
     /**
-     * Mengatur masa aktif cookie "Remember Me" menjadi maksimal 1 hari.
-     * Jika pengguna aktif beraktivitas, masa aktif akan diperpanjang (sliding expiration) 1 hari lagi.
-     * Jika tidak ada aktivitas hingga melewati batas 1 hari, pengguna akan otomatis terlogout.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * Mengatur masa aktif sesi & cookie secara dinamis (Sliding Expiration):
+     * 1. Dicentang "Ingat Saya": SEUMUR HIDUP / FOREVER (5 Tahun = 2.628.000 menit). Tidak pernah terlogout.
+     * 2. TANPA Centang "Ingat Saya": 31 HARI (44.640 menit) dengan perpanjangan otomatis (sliding expiration) setiap kali pengguna beraktivitas.
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $response = $next($request);
-
         $guard = Auth::guard('web');
+        $isRememberForever = false;
 
-        // Pastikan guard adalah SessionGuard yang memiliki recaller cookie
-        if (method_exists($guard, 'getRecallerName')) {
-            $recallerName = $guard->getRecallerName();
-
-            // 1. Jika pengguna login menggunakan "Remember Me" dan aktif beraktivitas,
-            // perpanjang umur cookie 1 hari lagi (1440 menit) sejak aktivitas terakhir.
-            if (Auth::check() && $request->hasCookie($recallerName)) {
-                $cookieValue = $request->cookie($recallerName);
-                if ($cookieValue) {
-                    Cookie::queue($recallerName, $cookieValue, 1440); // 1440 menit = 24 jam = 1 hari
+        if (Auth::check()) {
+            if (method_exists($guard, 'getRecallerName')) {
+                $recallerName = $guard->getRecallerName();
+                if ($request->hasCookie($recallerName) || $request->session()->get('is_remember_forever') === true) {
+                    $isRememberForever = true;
                 }
             }
 
-            // 2. Jika cookie remember me baru saja didefinisikan (di-queue oleh Laravel) saat login pertama kali,
-            // ubah durasi bawaan Laravel yang 'forever' (5 tahun) menjadi 1 hari saja.
-            $queuedCookies = Cookie::getQueuedCookies();
-            foreach ($queuedCookies as $cookie) {
-                if ($cookie->getName() === $recallerName) {
-                    Cookie::queue($recallerName, $cookie->getValue(), 1440); // Overwrite menjadi 1 hari
-                    break;
+            // Set lifetime sesi dinamis sebelum request diproses:
+            // 2.628.000 menit = 5 Tahun (Forever / Seumur Hidup)
+            // 44.640 menit = 31 Hari (Sliding Expiration per aktivitas)
+            $lifetime = $isRememberForever ? 2628000 : 44640;
+            
+            config([
+                'session.lifetime' => $lifetime,
+                'session.expire_on_close' => false,
+            ]);
+        }
+
+        $response = $next($request);
+
+        if (Auth::check() && method_exists($guard, 'getRecallerName')) {
+            $recallerName = $guard->getRecallerName();
+
+            // Jika "Ingat Saya" aktif, perpanjang cookie remember me ke 5 TAHUN (Forever = 2.628.000 menit)
+            if ($isRememberForever) {
+                if ($request->hasCookie($recallerName)) {
+                    $cookieValue = $request->cookie($recallerName);
+                    if ($cookieValue) {
+                        Cookie::queue($recallerName, $cookieValue, 2628000);
+                    }
+                }
+
+                $queuedCookies = Cookie::getQueuedCookies();
+                foreach ($queuedCookies as $cookie) {
+                    if ($cookie->getName() === $recallerName) {
+                        Cookie::queue($recallerName, $cookie->getValue(), 2628000);
+                        break;
+                    }
                 }
             }
         }

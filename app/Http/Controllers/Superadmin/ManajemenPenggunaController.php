@@ -12,6 +12,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use App\Events\PenggunaDiperbarui;
 use Inertia\Inertia;
@@ -121,7 +122,7 @@ class ManajemenPenggunaController extends Controller
 
         \App\Services\LayananLogAktivitas::catat('Mendaftarkan pengguna baru: ' . $request->nama_lengkap);
 
-        event(new PenggunaDiperbarui());
+        $this->kirimEventBroadcast();
 
         return redirect()->back()->with('success', 'Pengguna berhasil ditambahkan.');
     }
@@ -191,7 +192,7 @@ class ManajemenPenggunaController extends Controller
 
         \App\Services\LayananLogAktivitas::catat('Memperbarui data pengguna: ' . $user->nama_lengkap);
 
-        event(new PenggunaDiperbarui());
+        $this->kirimEventBroadcast();
 
         return redirect()->back()->with('success', 'Data pengguna berhasil diperbarui.');
     }
@@ -223,9 +224,21 @@ class ManajemenPenggunaController extends Controller
 
         \App\Services\LayananLogAktivitas::catat('Menghapus pengguna: ' . $user->nama_lengkap);
 
-        event(new PenggunaDiperbarui());
+        $this->kirimEventBroadcast();
 
         return redirect()->back()->with('success', 'Pengguna berhasil dihapus.');
+    }
+
+    /**
+     * Menyiarkan event PenggunaDiperbarui secara aman tanpa menggagalkan transaksi HTTP jika server WebSocket offline.
+     */
+    private function kirimEventBroadcast(): void
+    {
+        try {
+            event(new PenggunaDiperbarui());
+        } catch (\Throwable $e) {
+            Log::warning('Gagal menyiarkan event PenggunaDiperbarui: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -238,11 +251,12 @@ class ManajemenPenggunaController extends Controller
         }
 
         $targetUser = User::findOrFail($id);
+        $adminUser = auth()->user();
 
         \App\Services\LayananLogAktivitas::catat(
-            'Masuk sebagai pengguna lain: ' . $targetUser->nama_lengkap . ' (' . ($targetUser->email ?: $targetUser->nik) . ')',
-            auth()->user()->email ?? '',
-            auth()->id()
+            'Masuk sebagai pengguna lain: ' . $targetUser->nama_lengkap . ' (' . ($targetUser->email ?: $targetUser->nik ?: $targetUser->nip_nis ?: 'Tanpa Identitas') . ')',
+            $adminUser ? $adminUser->email : null,
+            $adminUser ? $adminUser->id : null
         );
 
         \Illuminate\Support\Facades\Auth::login($targetUser);

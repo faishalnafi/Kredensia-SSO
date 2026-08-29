@@ -31,6 +31,23 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $user = $request->user();
+
+        // Otomatis simpan GPS dari input, cookie, atau header ke dalam session jika ada
+        $lat = $request->input('latitude')
+            ?? ($_COOKIE['sso_user_lat'] ?? null)
+            ?? $request->cookie('sso_user_lat')
+            ?? $request->header('X-GPS-Latitude');
+        $lng = $request->input('longitude')
+            ?? ($_COOKIE['sso_user_lng'] ?? null)
+            ?? $request->cookie('sso_user_lng')
+            ?? $request->header('X-GPS-Longitude');
+
+        if ($lat !== null && $lng !== null && is_numeric($lat) && is_numeric($lng)) {
+            session([
+                'user_latitude' => (float) $lat,
+                'user_longitude' => (float) $lng,
+            ]);
+        }
         
         $recaptchaSiteKey = (env('RECAPTCHA_SITE_KEY') && env('RECAPTCHA_PROJECT_ID') && env('RECAPTCHA_API_KEY')) 
             ? env('RECAPTCHA_SITE_KEY') 

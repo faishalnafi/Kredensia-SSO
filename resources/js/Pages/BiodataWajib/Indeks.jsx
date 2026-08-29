@@ -21,7 +21,7 @@ export default function IndeksBiodataWajib({ user, peran = [] }) {
         post(route('biodata.simpan'));
     };
 
-    const labelNipNis = peran.includes('Guru') ? 'NIP' : 'NISN / NIP';
+    const labelNipNis = peran.includes('Guru') ? 'NIP' : 'NISN';
 
     return (
         <>

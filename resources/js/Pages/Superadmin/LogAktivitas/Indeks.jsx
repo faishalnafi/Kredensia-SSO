@@ -1,11 +1,60 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import TataLetakUtama from '@/Layouts/TataLetakUtama';
 import Swal from 'sweetalert2';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 export default function LogAktivitas({ daftarLog = { data: [], links: [] }, daftarArsip = [], filters }) {
     const [cari, setCari] = useState(filters.cari || '');
     const [modalArsipBuka, setModalArsipBuka] = useState(false);
+    const [logPeta, setLogPeta] = useState(null);
+
+    const mapContainerRef = useRef(null);
+    const mapInstanceRef = useRef(null);
+
+    // Inisialisasi peta Leaflet saat modal lokasi dibuka
+    useEffect(() => {
+        if (logPeta && mapContainerRef.current) {
+            if (mapInstanceRef.current) {
+                mapInstanceRef.current.remove();
+                mapInstanceRef.current = null;
+            }
+
+            const lat = parseFloat(logPeta.latitude);
+            const lng = parseFloat(logPeta.longitude);
+
+            if (!isNaN(lat) && !isNaN(lng)) {
+                const map = L.map(mapContainerRef.current).setView([lat, lng], 15);
+                mapInstanceRef.current = map;
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '© OpenStreetMap'
+                }).addTo(map);
+
+                const markerIcon = L.divIcon({
+                    className: 'custom-leaflet-marker',
+                    html: `<div style="background-color:#ef4444; width:30px; height:30px; border-radius:50%; border:3px solid white; box-shadow:0 4px 10px rgba(0,0,0,0.3); display:flex; align-items:center; justify-content:center; color:white;">
+                             <span class="material-symbols-rounded" style="font-size:16px;">location_on</span>
+                           </div>`,
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 30],
+                    popupAnchor: [0, -30]
+                });
+
+                const namaUser = logPeta.user ? logPeta.user.nama_lengkap : 'Tamu / Umum';
+                L.marker([lat, lng], { icon: markerIcon })
+                    .addTo(map)
+                    .bindPopup(`<b>${namaUser}</b><br/>${logPeta.aktivitas}<br/><span style="font-size:11px; color:#64748b;">${lat.toFixed(5)}, ${lng.toFixed(5)}</span>`)
+                    .openPopup();
+
+                setTimeout(() => {
+                    map.invalidateSize();
+                }, 250);
+            }
+        }
+    }, [logPeta]);
 
     const pathPrefix = window.location.pathname.startsWith('/superadmin') ? 'superadmin' : 'admin';
 
@@ -55,24 +104,35 @@ export default function LogAktivitas({ daftarLog = { data: [], links: [] }, daft
     const dapatkanWarnaBadge = (aktivitas) => {
         const text = aktivitas.toLowerCase();
         if (text.includes('gagal') || text.includes('ditolak')) {
-            return 'bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400 border border-red-200/50 dark:border-red-900/30';
+            return 'bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-400 border border-red-200/60 dark:border-red-800/40';
+        }
+        if (text.includes('google')) {
+            return 'bg-sky-50 text-sky-700 dark:bg-sky-950/40 dark:text-sky-400 border border-sky-200/60 dark:border-sky-800/40';
+        }
+        if (text.includes('membuka aplikasi') || text.includes('otentikasi sso') || text.includes('akses')) {
+            return 'bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-400 border border-purple-200/60 dark:border-purple-800/40';
         }
         if (text.includes('mendaftarkan') || text.includes('tambah') || text.includes('sukses')) {
-            return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-900/30';
+            return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/40';
         }
         if (text.includes('perbarui') || text.includes('ubah') || text.includes('regenerate') || text.includes('koreksi')) {
-            return 'bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 border border-amber-200/50 dark:border-amber-900/30';
+            return 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-200/60 dark:border-amber-800/40';
         }
-        if (text.includes('hapus') || text.includes('mengakhiri')) {
-            return 'bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-400 border border-rose-200/50 dark:border-rose-900/30';
+        if (text.includes('hapus') || text.includes('mengakhiri') || text.includes('logout')) {
+            return 'bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400 border border-rose-200/60 dark:border-rose-800/40';
         }
-        return 'bg-slate-50 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200/50 dark:border-slate-700/50';
+        return 'bg-slate-50 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60';
     };
 
     // Helper formatting waktu
     const formatWaktu = (dateString) => {
         if (!dateString) return '-';
-        const d = new Date(dateString);
+        let dateVal = dateString;
+        if (typeof dateString === 'string' && !dateString.includes('T') && !dateString.endsWith('Z')) {
+            dateVal = dateString.replace(' ', 'T');
+        }
+        const d = new Date(dateVal);
+        if (isNaN(d.getTime())) return String(dateString);
         return d.toLocaleString('id-ID', {
             year: 'numeric',
             month: '2-digit',
@@ -158,23 +218,24 @@ export default function LogAktivitas({ daftarLog = { data: [], links: [] }, daft
                     </div>
 
                     <div className="overflow-x-auto rounded-2xl border border-slate-100 dark:border-slate-700/50">
-                        <table className="w-full text-left text-sm whitespace-nowrap table-fixed">
+                        <table className="w-full text-left text-sm">
                             <thead className="text-xs text-slate-400 dark:text-slate-500 uppercase tracking-wider bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700/50">
                                 <tr>
-                                    <th className="px-6 py-4 font-bold w-1/5">Waktu</th>
-                                    <th className="px-6 py-4 font-bold w-1/4">Nama / Surel</th>
-                                    <th className="px-6 py-4 font-bold w-2/5">Aktivitas</th>
-                                    <th className="px-6 py-4 font-bold w-1/6">IP Address</th>
+                                    <th className="px-5 py-4 font-bold min-w-[140px]">Waktu</th>
+                                    <th className="px-5 py-4 font-bold min-w-[180px]">Nama / Surel</th>
+                                    <th className="px-5 py-4 font-bold min-w-[240px]">Aktivitas</th>
+                                    <th className="px-5 py-4 font-bold min-w-[130px]">IP Address</th>
+                                    <th className="px-5 py-4 font-bold min-w-[160px]">Koordinat GPS</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
                                 {daftarLog.data && daftarLog.data.length > 0 ? (
                                     daftarLog.data.map((log) => (
                                         <tr key={log.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-850/50 transition-colors">
-                                            <td className="px-6 py-4 text-slate-500 dark:text-slate-400 font-mono text-xs truncate">
+                                            <td className="px-5 py-4 text-slate-500 dark:text-slate-400 font-mono text-xs whitespace-nowrap">
                                                 {formatWaktu(log.created_at)}
                                             </td>
-                                            <td className="px-6 py-4 truncate">
+                                            <td className="px-5 py-4 min-w-[180px]">
                                                 <div className="flex flex-col">
                                                     <span className="font-bold text-slate-700 dark:text-slate-200">
                                                         {log.user ? log.user.nama_lengkap : 'Tamu / Umum'}
@@ -184,21 +245,49 @@ export default function LogAktivitas({ daftarLog = { data: [], links: [] }, daft
                                                     </span>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center gap-2 max-w-full">
-                                                    <span className={`inline-flex px-2.5 py-1 text-[10px] rounded-full font-bold uppercase tracking-wider ${dapatkanWarnaBadge(log.aktivitas)}`}>
-                                                        {log.aktivitas}
-                                                    </span>
-                                                </div>
+                                            <td className="px-5 py-4 min-w-[240px]">
+                                                <span className={`inline-block px-3 py-1.5 text-[11px] rounded-xl font-bold uppercase tracking-wider text-wrap break-words whitespace-normal leading-relaxed ${dapatkanWarnaBadge(log.aktivitas)}`}>
+                                                    {log.aktivitas}
+                                                </span>
                                             </td>
                                             <td className="px-6 py-4 text-slate-500 dark:text-slate-400 font-mono text-xs truncate" title={log.user_agent}>
                                                 {log.ip_address}
                                             </td>
+                                            <td className="px-5 py-4 min-w-[280px]">
+                                                 {log.latitude && log.longitude ? (
+                                                     <div className="flex items-center gap-1.5 flex-wrap">
+                                                         {/* 1. Latitude */}
+                                                         <span className="inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-md font-mono text-[11px] border border-slate-200 dark:border-slate-700">
+                                                             <span className="text-[9px] text-slate-400 font-bold uppercase">Lat:</span>
+                                                             <span>{Number(log.latitude).toFixed(5)}</span>
+                                                         </span>
+
+                                                         {/* 2. Longitude */}
+                                                         <span className="inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-md font-mono text-[11px] border border-slate-200 dark:border-slate-700">
+                                                             <span className="text-[9px] text-slate-400 font-bold uppercase">Lng:</span>
+                                                             <span>{Number(log.longitude).toFixed(5)}</span>
+                                                         </span>
+
+                                                         {/* 3. Tombol Koordinat Peta Leaflet */}
+                                                         <button
+                                                             type="button"
+                                                             onClick={() => setLogPeta(log)}
+                                                             className="inline-flex items-center gap-1 bg-[#0F91FC]/10 hover:bg-[#0F91FC]/20 text-[#0F91FC] border border-[#0F91FC]/30 px-2.5 py-0.5 rounded-md font-bold text-[11px] transition-all cursor-pointer"
+                                                             title="Tampilkan peta lokasi interaktif Leaflet"
+                                                         >
+                                                             <span className="material-symbols-rounded text-xs text-red-500">location_on</span>
+                                                             <span>Peta</span>
+                                                         </button>
+                                                     </div>
+                                                 ) : (
+                                                     <span className="text-slate-400 font-sans italic text-xs">Tanpa GPS</span>
+                                                 )}
+                                             </td>
                                         </tr>
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="4" className="text-center py-12 text-slate-400">
+                                        <td colSpan="5" className="text-center py-12 text-slate-400">
                                             <div className="flex flex-col items-center gap-2">
                                                 <span className="material-symbols-rounded text-3xl">history_toggle_off</span>
                                                 <span>Tidak ada riwayat log aktivitas yang ditemukan di database.</span>
@@ -318,6 +407,61 @@ export default function LogAktivitas({ daftarLog = { data: [], links: [] }, daft
                             >
                                 Tutup
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal Peta Interaktif Leaflet */}
+            {logPeta && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
+                    <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 w-full max-w-2xl shadow-2xl border border-slate-100 dark:border-slate-700/50 space-y-4">
+                        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-700/50 pb-3">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2.5 bg-red-50 dark:bg-red-950/40 text-red-500 rounded-2xl">
+                                    <span className="material-symbols-rounded text-2xl">location_on</span>
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-lg text-slate-800 dark:text-white">Lokasi Terdeteksi (Leaflet Map)</h3>
+                                    <p className="text-xs text-slate-400">
+                                        {logPeta.user ? logPeta.user.nama_lengkap : 'Tamu / Umum'} • {formatWaktu(logPeta.created_at)}
+                                    </p>
+                                </div>
+                            </div>
+                            <button 
+                                onClick={() => setLogPeta(null)}
+                                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                            >
+                                <span className="material-symbols-rounded">close</span>
+                            </button>
+                        </div>
+
+                        {/* Wadah Peta Leaflet */}
+                        <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-inner">
+                            <div ref={mapContainerRef} className="w-full h-80 z-0"></div>
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+                            <div className="text-xs font-mono text-slate-600 dark:text-slate-300">
+                                📍 Lat: <span className="font-bold text-[#0F91FC]">{logPeta.latitude}</span> | Lng: <span className="font-bold text-[#0F91FC]">{logPeta.longitude}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <a
+                                    href={`https://www.google.com/maps?q=${logPeta.latitude},${logPeta.longitude}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-950/40 dark:text-blue-400 px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border border-blue-200/50 dark:border-blue-800/40"
+                                >
+                                    <span className="material-symbols-rounded text-sm">open_in_new</span>
+                                    Google Maps
+                                </a>
+                                <button
+                                    onClick={() => setLogPeta(null)}
+                                    className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                                >
+                                    Tutup
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

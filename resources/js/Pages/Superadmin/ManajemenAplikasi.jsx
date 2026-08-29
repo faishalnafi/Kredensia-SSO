@@ -14,6 +14,7 @@ export default function ManajemenAplikasi({ daftarAplikasi, daftarPeran, apiKeyB
     const [sortError, setSortError] = useState('');
     const [showOnceBuka, setShowOnceBuka] = useState(false);
     const [copyState, setCopyState] = useState({});
+    const [secretTerlihat, setSecretTerlihat] = useState({});
     const [kataKunci, setKataKunci] = useState('');
     const [sematanIds, setSematanIds] = useState(() => {
         try {
@@ -23,6 +24,10 @@ export default function ManajemenAplikasi({ daftarAplikasi, daftarPeran, apiKeyB
             return [];
         }
     });
+
+    const toggleSecret = (id) => {
+        setSecretTerlihat(prev => ({ ...prev, [id]: !prev[id] }));
+    };
 
     // Helper untuk mengubah warna hex ke rgba
     const hexKeRgba = (hex, alpha) => {
@@ -471,7 +476,7 @@ export default function ManajemenAplikasi({ daftarAplikasi, daftarPeran, apiKeyB
                                                     {/* Kredensial Integrasi */}
                                                     <td className="px-4 py-4 text-xs font-mono">
                                                         {aplikasi.login_callback_url ? (
-                                                            <div className="space-y-1 max-w-[220px]">
+                                                            <div className="space-y-1 max-w-[240px]">
                                                                 <div className="flex items-center justify-between gap-1 bg-slate-50 dark:bg-slate-900/60 p-1.5 rounded-lg border border-slate-200/60 dark:border-slate-700/60">
                                                                     <span className="text-[10px] text-slate-400 font-bold uppercase">ID:</span>
                                                                     <span className="truncate text-[11px] font-semibold text-slate-700 dark:text-slate-300">{aplikasi.id}</span>
@@ -481,10 +486,29 @@ export default function ManajemenAplikasi({ daftarAplikasi, daftarPeran, apiKeyB
                                                                 </div>
                                                                 <div className="flex items-center justify-between gap-1 bg-slate-50 dark:bg-slate-900/60 p-1.5 rounded-lg border border-slate-200/60 dark:border-slate-700/60">
                                                                     <span className="text-[10px] text-slate-400 font-bold uppercase">Secret:</span>
-                                                                    <span className="truncate text-[11px] font-semibold text-slate-700 dark:text-slate-300">{aplikasi.api_key}</span>
-                                                                    <button onClick={() => salinTeks(aplikasi.api_key, `sec_${aplikasi.id}`)} className="text-slate-400 hover:text-[#0F91FC] transition-colors p-0.5 shrink-0" title="Salin Client Secret">
-                                                                        <span className="material-symbols-rounded text-xs">{copyState[`sec_${aplikasi.id}`] ? 'check' : 'content_copy'}</span>
-                                                                    </button>
+                                                                    <span className="truncate text-[11px] font-semibold text-slate-700 dark:text-slate-300">
+                                                                        {secretTerlihat[aplikasi.id] ? (aplikasi.api_key || '••••••••••••••••••••••••••••••••••••••••') : '••••••••••••••••••••••••••••••••••••••••'}
+                                                                    </span>
+                                                                    <div className="flex items-center shrink-0 gap-0.5">
+                                                                        <button 
+                                                                            onClick={() => toggleSecret(aplikasi.id)} 
+                                                                            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-0.5" 
+                                                                            title={secretTerlihat[aplikasi.id] ? "Sembunyikan Secret" : "Tampilkan Secret"}
+                                                                        >
+                                                                            <span className="material-symbols-rounded text-xs">
+                                                                                {secretTerlihat[aplikasi.id] ? 'visibility_off' : 'visibility'}
+                                                                            </span>
+                                                                        </button>
+                                                                        <button 
+                                                                            onClick={() => salinTeks(aplikasi.api_key, `sec_${aplikasi.id}`)} 
+                                                                            className="text-slate-400 hover:text-[#0F91FC] transition-colors p-0.5" 
+                                                                            title="Salin Client Secret"
+                                                                        >
+                                                                            <span className="material-symbols-rounded text-xs">
+                                                                                {copyState[`sec_${aplikasi.id}`] ? 'check' : 'content_copy'}
+                                                                            </span>
+                                                                        </button>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         ) : (

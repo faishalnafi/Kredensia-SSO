@@ -26,6 +26,8 @@ class LogAktivitas extends Model
         'aktivitas',
         'ip_address',
         'user_agent',
+        'latitude',
+        'longitude',
     ];
 
     /**

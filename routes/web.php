@@ -43,6 +43,7 @@ use App\Http\Controllers\Superadmin\DokumentasiApiController;
 use App\Http\Controllers\Superadmin\KunciApiController;
 use App\Http\Controllers\Superadmin\BackupRestoreController;
 use App\Http\Controllers\Superadmin\HapusDataController;
+use App\Http\Controllers\Superadmin\PembaruanSistemController;
 use App\Http\Controllers\Admin\DasborAdminController;
 use App\Http\Controllers\Admin\HapusDataAdminController;
 use App\Http\Controllers\ImportPenggunaController;
@@ -66,6 +67,11 @@ Route::middleware('auth')->group(function () {
     # Rute khusus pengisian biodata wajib (TIDAK dikenai biodata.check agar tidak loop)
     Route::get('/biodata-wajib', [BiodataWajibController::class, 'indeks'])->name('biodata.wajib');
     Route::post('/biodata-wajib', [BiodataWajibController::class, 'simpan'])->name('biodata.simpan');
+
+    # Rute Pencatatan & Health Check Ping Aplikasi
+    Route::post('/api/catat-akses-aplikasi', [UserKatalogController::class, 'catatAplikasiAkses'])->name('aplikasi.catat_akses');
+    Route::post('/api/ping-aplikasi', [UserKatalogController::class, 'pingDanCatatAplikasiAkses'])->name('aplikasi.ping');
+    Route::get('/aplikasi-down/{id}', [UserKatalogController::class, 'halamanServerDown'])->name('aplikasi.down');
 
     # Semua rute di bawah ini memerlukan biodata sudah dilengkapi
     Route::middleware('biodata.check')->group(function () {
@@ -163,6 +169,11 @@ Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmi
 
     Route::get('/pengaturan-sistem', [PengaturanSistemController::class, 'indeks'])->name('pengaturan.indeks');
     Route::post('/pengaturan-sistem', [PengaturanSistemController::class, 'perbarui'])->name('pengaturan.perbarui');
+    
+    # Pembaruan Sistem (Live Update via ZIP Upload)
+    Route::get('/pembaruan-sistem', [PembaruanSistemController::class, 'indeks'])->name('pembaruan.indeks');
+    Route::post('/pembaruan-sistem', [PembaruanSistemController::class, 'prosesPembaruan'])->name('pembaruan.proses');
+    Route::post('/pembaruan-sistem/bersihkan-cache', [PembaruanSistemController::class, 'bersihkanCache'])->name('pembaruan.bersihkan-cache');
     
     Route::get('/persetujuan-data', [PersetujuanDataController::class, 'indeks'])->name('persetujuan.indeks');
     Route::post('/persetujuan-data/{id}/setujui', [PersetujuanDataController::class, 'setujui'])->name('persetujuan.setujui');

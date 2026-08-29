@@ -13,6 +13,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->encryptCookies(except: [
+            'sso_user_lat',
+            'sso_user_lng',
+        ]);
+
         $middleware->web(append: [
             \App\Http\Middleware\SetSessionLifetime::class,
             \App\Http\Middleware\PerpanjangSesiRememberMe::class,
@@ -22,10 +27,11 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->alias([
-            'superadmin'    => \App\Http\Middleware\PeriksaPeranSuperadmin::class,
-            'admin'         => \App\Http\Middleware\PeriksaPeranAdmin::class,
-            'auth.apikey'   => \App\Http\Middleware\AutentikasiApiKey::class,
-            'biodata.check' => \App\Http\Middleware\PeriksaBiodataLengkap::class,
+            'superadmin'        => \App\Http\Middleware\PeriksaPeranSuperadmin::class,
+            'admin'             => \App\Http\Middleware\PeriksaPeranAdmin::class,
+            'auth.apikey'       => \App\Http\Middleware\AutentikasiApiKey::class,
+            'biodata.check'     => \App\Http\Middleware\PeriksaBiodataLengkap::class,
+            'cegah.back.cache'  => \App\Http\Middleware\CegahBackCacheGuest::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

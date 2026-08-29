@@ -498,17 +498,16 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                                         <tr key={user.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-850/50 transition-colors">
                                             <td className="px-6 py-4 truncate">
                                                 <div className="flex items-center gap-3">
-                                                    {user.avatar_url ? (
-                                                        <img 
-                                                            src={user.avatar_url} 
-                                                            alt={user.nama_lengkap} 
-                                                            className="w-9 h-9 rounded-full object-cover border border-slate-100 dark:border-slate-700"
-                                                        />
-                                                    ) : (
-                                                        <div className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-400">
-                                                            <span className="material-symbols-rounded">person</span>
-                                                        </div>
-                                                    )}
+                                                    <img 
+                                                        src={user.avatar_url || 'https://www.gravatar.com/avatar/?s=256&d=identicon'} 
+                                                        alt={user.nama_lengkap} 
+                                                        referrerPolicy="no-referrer"
+                                                        onError={(e) => {
+                                                            e.currentTarget.onerror = null;
+                                                            e.currentTarget.src = 'https://www.gravatar.com/avatar/?s=256&d=identicon';
+                                                        }}
+                                                        className="w-9 h-9 rounded-full object-cover border border-slate-100 dark:border-slate-700 bg-slate-100 dark:bg-slate-800"
+                                                    />
                                                     <div className="flex flex-col truncate">
                                                         <span className="font-bold text-slate-700 dark:text-slate-200 truncate">
                                                             {user.nama_lengkap}
@@ -516,7 +515,7 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                                                         <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
                                                             {user.nip_nis && (
                                                                 <span className="text-[10px] text-slate-400 font-mono">
-                                                                    NIP/NISN: {user.nip_nis}
+                                                                    {user.peran && user.peran.includes('Guru') ? `NIP: ${user.nip_nis}` : `NISN: ${user.nip_nis}`}
                                                                 </span>
                                                             )}
                                                             {user.kelas && (
@@ -767,7 +766,12 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Nomor Induk (NIP/NISN)</label>
+                                    <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">
+                                        {data.selected_roles && data.selected_roles.some(rId => {
+                                            const rObj = (roles || []).find(r => r.id === rId);
+                                            return rObj && (rObj.name === 'Guru' || rObj.name === 'guru');
+                                        }) ? 'NIP (Nomor Induk Pegawai)' : 'NISN (Nomor Induk Siswa Nasional)'}
+                                    </label>
                                     <input 
                                         type="text"
                                         value={data.nip_nis}

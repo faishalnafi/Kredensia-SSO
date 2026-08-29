@@ -419,7 +419,7 @@ Cek keberadaan & kecocokan identitas sebelum proses klaim (Langkah 1).
 |-------|------|-------|------------|
 | `jenis_pengguna` | string | ✅ | `Siswa` atau `Guru` |
 | `nik` | string | ✅ | Tepat 16 digit angka |
-| `nip_nis` | string | ✅ | Numerik (NIS untuk Siswa, NIP untuk Guru) |
+| `nip_nis` | string | ✅ | Numerik (NISN untuk Siswa, NIP untuk Guru) |
 | `tgl_lahir` | date | ✅ | Format YYYY-MM-DD |
 
 **Response 200 — Cocok**

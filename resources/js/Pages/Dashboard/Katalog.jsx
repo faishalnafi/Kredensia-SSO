@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Head } from '@inertiajs/react';
 import TataLetakUtama from '@/Layouts/TataLetakUtama';
+import axios from 'axios';
 
 export default function Katalog({ daftarAplikasi }) {
     const [sedangMemuat, setSedangMemuat] = useState(true);
@@ -13,6 +14,67 @@ export default function Katalog({ daftarAplikasi }) {
             return [];
         }
     });
+
+    const [sedangPingApp, setSedangPingApp] = useState(null);
+
+    // Melacak posisi GPS & Uji Kesehatan Server (Health Check Ping 200 OK) sebelum pengalihan
+    const bukaAplikasiDenganGps = (e, aplikasi) => {
+        e.preventDefault();
+        setSedangPingApp(aplikasi);
+
+        const jalankanPing = (lat, lng) => {
+            axios.post(route('aplikasi.ping'), {
+                app_id: aplikasi.id,
+                latitude: lat,
+                longitude: lng
+            }).then((res) => {
+                setSedangPingApp(null);
+                if (res.data.online) {
+                    if (aplikasi.open_in_new_tab) {
+                        window.open(res.data.target_url, '_blank', 'noopener,noreferrer');
+                    } else {
+                        window.location.href = res.data.target_url;
+                    }
+                } else {
+                    window.location.href = route('aplikasi.down', {
+                        id: aplikasi.id,
+                        status: res.data.status_code || 502,
+                        latency: res.data.response_time_ms || 4000,
+                        pesan: res.data.pesan
+                    });
+                }
+            }).catch(() => {
+                setSedangPingApp(null);
+                window.location.href = route('aplikasi.down', {
+                    id: aplikasi.id,
+                    status: 502,
+                    latency: 4000,
+                    pesan: 'Tidak dapat menghubungi server aplikasi (Connection Timeout / Refused).'
+                });
+            });
+        };
+
+        const storedLat = sessionStorage.getItem('sso_user_lat');
+        const storedLng = sessionStorage.getItem('sso_user_lng');
+
+        if ('geolocation' in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    sessionStorage.setItem('sso_user_lat', String(lat));
+                    sessionStorage.setItem('sso_user_lng', String(lng));
+                    jalankanPing(lat, lng);
+                },
+                () => {
+                    jalankanPing(storedLat ? parseFloat(storedLat) : null, storedLng ? parseFloat(storedLng) : null);
+                },
+                { enableHighAccuracy: false, timeout: 3000, maximumAge: 60000 }
+            );
+        } else {
+            jalankanPing(storedLat ? parseFloat(storedLat) : null, storedLng ? parseFloat(storedLng) : null);
+        }
+    };
 
     // Helper untuk mengubah warna hex ke rgba
     const hexKeRgba = (hex, alpha) => {
@@ -204,6 +266,7 @@ export default function Katalog({ daftarAplikasi }) {
                                             <div className="pt-4 border-t border-slate-100 dark:border-slate-700/40">
                                                 <a 
                                                     href={aplikasi.login_callback_url ? route('login', { client_id: aplikasi.id }) : aplikasi.portal_url}
+                                                    onClick={(e) => bukaAplikasiDenganGps(e, aplikasi)}
                                                     target={aplikasi.open_in_new_tab ? "_blank" : "_self"}
                                                     rel="noopener noreferrer"
                                                     className="inline-flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-200 group-hover:text-[#0F91FC] transition-colors"
@@ -239,6 +302,37 @@ export default function Katalog({ daftarAplikasi }) {
                         )}
                     </>
                 )}
+
+            {/* Modal Overlay Checking Ping Health Check (Cloudflare Style) */}
+            {sedangPingApp && (
+                <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 transition-all">
+                    <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 max-w-md w-full border border-blue-200 dark:border-blue-800/60 shadow-2xl text-center space-y-5">
+                        <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
+                            <span className="absolute inset-0 rounded-full border-4 border-blue-500/20 animate-ping"></span>
+                            <div className="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-[#0F91FC] flex items-center justify-center shadow-lg shadow-blue-500/10">
+                                <span className="material-symbols-rounded text-3xl animate-spin">sync</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <span className="text-[10px] uppercase font-black tracking-widest text-[#0F91FC] block mb-1">
+                                Cloudflare Health Check Protocol
+                            </span>
+                            <h3 className="font-extrabold text-slate-800 dark:text-white text-lg">
+                                Memeriksa Kesehatan Server...
+                            </h3>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                                Sedang melakukan verifikasi respon HTTP (200 OK) ke server <span className="font-extrabold text-slate-700 dark:text-slate-200">{sedangPingApp.nama_aplikasi}</span>...
+                            </p>
+                        </div>
+
+                        <div className="pt-2 flex items-center justify-center gap-2 text-[11px] text-slate-400 font-mono">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span>Uji latensi server & ketersediaan host</span>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             </div>
         </>

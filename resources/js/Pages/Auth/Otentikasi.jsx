@@ -52,43 +52,187 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
         '/images/login-3.png'
     ];
 
-    // Rotasi gambar ilustrasi
+    const [statusGps, setStatusGps] = useState('meminta'); // 'meminta' | 'tersedia' | 'ditolak' | 'tidak_didukung'
+
+    const simpanKoordinat = (lat, lng) => {
+        const strLat = String(lat);
+        const strLng = String(lng);
+        sessionStorage.setItem('sso_user_lat', strLat);
+        sessionStorage.setItem('sso_user_lng', strLng);
+        localStorage.setItem('sso_user_lat', strLat);
+        localStorage.setItem('sso_user_lng', strLng);
+        document.cookie = `sso_user_lat=${strLat}; path=/; max-age=86400; SameSite=Lax`;
+        document.cookie = `sso_user_lng=${strLng}; path=/; max-age=86400; SameSite=Lax`;
+        setStatusGps('tersedia');
+    };
+
+    const mintaLokasiCepat = (onDone) => {
+        if (!('geolocation' in navigator)) {
+            setStatusGps('tidak_didukung');
+            if (onDone) onDone(null, null);
+            return;
+        }
+
+        const cachedLat = sessionStorage.getItem('sso_user_lat') || localStorage.getItem('sso_user_lat');
+        const cachedLng = sessionStorage.getItem('sso_user_lng') || localStorage.getItem('sso_user_lng');
+
+        if (cachedLat && cachedLng) {
+            setStatusGps('tersedia');
+        }
+
+        // Pertama: Coba mode cepat (enableHighAccuracy: false) agar langsung dapat via seluler/wifi (< 300ms)
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                simpanKoordinat(pos.coords.latitude, pos.coords.longitude);
+                if (onDone) onDone(pos.coords.latitude, pos.coords.longitude);
+
+                // Latar belakang: Coba presisi tinggi jika GPS satelit aktif
+                navigator.geolocation.getCurrentPosition(
+                    (posHigh) => simpanKoordinat(posHigh.coords.latitude, posHigh.coords.longitude),
+                    () => {},
+                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 60000 }
+                );
+            },
+            (err) => {
+                // Fallback kedua: coba mode presisi jika mode cepat pertama gagal
+                navigator.geolocation.getCurrentPosition(
+                    (pos2) => {
+                        simpanKoordinat(pos2.coords.latitude, pos2.coords.longitude);
+                        if (onDone) onDone(pos2.coords.latitude, pos2.coords.longitude);
+                    },
+                    (err2) => {
+                        console.warn('Geolocation blocked or timeout:', err2.message);
+                        if (cachedLat && cachedLng) {
+                            simpanKoordinat(cachedLat, cachedLng);
+                            if (onDone) onDone(cachedLat, cachedLng);
+                        } else {
+                            setStatusGps('ditolak');
+                            if (onDone) onDone(null, null);
+                        }
+                    },
+                    { enableHighAccuracy: true, timeout: 3500, maximumAge: 300000 }
+                );
+            },
+            { enableHighAccuracy: false, timeout: 3500, maximumAge: 300000 }
+        );
+    };
+
+    const tampilkanPanduanIzinGps = () => {
+        Swal.fire({
+            title: '📍 Panduan Mengaktifkan Izin Lokasi',
+            html: `
+                <div class="text-left text-xs space-y-3 pt-2 text-slate-600 dark:text-slate-300">
+                    <p class="font-bold text-slate-800 dark:text-white">Agar lokasi login Anda dapat tercatat di Audit Trail SSO, ikuti langkah berikut:</p>
+                    <div class="p-3 bg-blue-50 dark:bg-blue-950/40 rounded-xl border border-blue-200 dark:border-blue-800/60 space-y-1.5">
+                        <span class="font-extrabold text-blue-900 dark:text-blue-200 block">📱 HP Android / iOS (Chrome / Safari):</span>
+                        <ol class="list-decimal list-inside space-y-1 pl-1">
+                            <li>Klik ikon <b>Gembok / Izin (🔒 atau ⚙️)</b> di samping URL browser.</li>
+                            <li>Pilih <b>Izin Situs / Permissions</b> ➔ <b>Lokasi / Location</b> ➔ Ubah ke <b>Izinkan / Allow</b>.</li>
+                            <li>Pastikan GPS/Layanan Lokasi HP dalam posisi <b>ON</b>.</li>
+                        </ol>
+                    </div>
+                    <div class="p-3 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-700/60 space-y-1.5">
+                        <span class="font-extrabold text-slate-800 dark:text-slate-200 block">💻 Laptop / PC (Chrome, Edge, Firefox):</span>
+                        <ol class="list-decimal list-inside space-y-1 pl-1">
+                            <li>Klik ikon 🔒 di sebelah kiri URL address bar.</li>
+                            <li>Aktifkan sakelar <b>Lokasi / Location</b> ➔ Refresh halaman.</li>
+                        </ol>
+                    </div>
+                </div>
+            `,
+            icon: 'info',
+            confirmButtonText: 'Saya Mengerti & Coba Lagi',
+            confirmButtonColor: '#0F91FC',
+            customClass: { popup: 'rounded-3xl max-w-lg', confirmButton: 'rounded-xl font-bold px-5 py-2.5' }
+        }).then(() => {
+            mintaLokasiCepat();
+        });
+    };
+
+    // Rotasi gambar ilustrasi & Tangkap koordinat GPS awal
     useEffect(() => {
         const timer = setInterval(() => {
             setCurrentImageIndex((prev) => (prev + 1) % images.length);
         }, 5000);
+
+        mintaLokasiCepat();
+
+        if ('permissions' in navigator && navigator.permissions.query) {
+            navigator.permissions.query({ name: 'geolocation' }).then((result) => {
+                if (result.state === 'denied') {
+                    setStatusGps('ditolak');
+                } else if (result.state === 'granted') {
+                    mintaLokasiCepat();
+                }
+                result.onchange = () => {
+                    if (result.state === 'granted') mintaLokasiCepat();
+                    else if (result.state === 'denied') setStatusGps('ditolak');
+                };
+            }).catch(() => {});
+        }
+
         return () => clearInterval(timer);
     }, []);
+
+    const { auth } = usePage().props;
+
+    // Standar Aplikasi Multinasional: Jika pengguna sudah punya sesi aktif,
+    // langsung alihkan ke dasbor meskipun pengguna menekan tombol Back (←) di browser!
+    useEffect(() => {
+        if (auth?.user) {
+            router.visit(route('dasbor'));
+        }
+
+        const handlePageShow = (e) => {
+            if (e.persisted) {
+                window.location.reload();
+            }
+        };
+        window.addEventListener('pageshow', handlePageShow);
+        return () => window.removeEventListener('pageshow', handlePageShow);
+    }, [auth]);
 
     // Sinkronisasi hash URL dengan state mode
     useEffect(() => {
         const handleHashChange = () => {
-            const hash = window.location.hash.replace('#', '');
-            if (hash === 'verifikasi' && modeAktif !== 'verifikasi') {
-                gantiMode('verifikasi');
-            } else if (hash === 'masuk' && modeAktif !== 'masuk') {
-                gantiMode('masuk');
+            if (typeof window !== 'undefined') {
+                const hash = window.location.hash.replace('#', '');
+                if (hash === 'verifikasi') {
+                    setModeAktif('verifikasi');
+                } else if (hash === 'masuk') {
+                    setModeAktif('masuk');
+                }
             }
         };
-        window.addEventListener('hashchange', handleHashChange);
-        return () => window.removeEventListener('hashchange', handleHashChange);
-    }, [modeAktif]);
 
-    // Set hash pada mount
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
+        if (typeof window !== 'undefined' && window.location.hash) {
+            const currentHash = window.location.hash.replace('#', '');
+            if (currentHash === 'verifikasi' || currentHash === 'masuk') {
+                setModeAktif(currentHash);
+            } else {
+                window.location.hash = modeAktif;
+            }
+        } else if (typeof window !== 'undefined') {
             window.location.hash = modeAktif;
         }
+
+        window.addEventListener('hashchange', handleHashChange);
+        return () => window.removeEventListener('hashchange', handleHashChange);
     }, []);
 
-    // Sinkronisasi dengan prop mode dari backend (misal setelah redirect dari Laravel)
+    // Sinkronisasi dengan prop mode dari backend (hanya jika Hash URL di browser kosong)
     useEffect(() => {
+        if (typeof window !== 'undefined' && window.location.hash) {
+            const hash = window.location.hash.replace('#', '');
+            if (hash === 'verifikasi' || hash === 'masuk') {
+                return; // Prioritaskan Hash URL jika pengguna secara eksplisit membuka URL dengan hash (#verifikasi)
+            }
+        }
         if (modeProp && modeProp !== modeAktif) {
             setModeAktif(modeProp);
             if (typeof window !== 'undefined') {
                 window.location.hash = modeProp;
             }
-            // Reset ke tahap 1 jika dipaksa ke mode verifikasi
             if (modeProp === 'verifikasi') {
                 setTahapKlaim(1);
                 setStatusValidasi({ nik: null, nip_nis: null, tgl_lahir: null });
@@ -177,14 +321,41 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
             if (urlParams.has('redirect_uri')) params.redirect_uri = urlParams.get('redirect_uri');
         }
 
-        transformLogin((data) => ({
-            ...data,
-            recaptcha_token: token
-        }));
+        const getCookie = (name) => {
+            if (typeof document === 'undefined') return null;
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        };
 
-        kirimLogin(route('login', params), {
-            onFinish: () => resetLogin('password'),
-        });
+        const eksekusiSubmit = (latVal, lngVal) => {
+            const finalLat = latVal || sessionStorage.getItem('sso_user_lat') || localStorage.getItem('sso_user_lat') || getCookie('sso_user_lat');
+            const finalLng = lngVal || sessionStorage.getItem('sso_user_lng') || localStorage.getItem('sso_user_lng') || getCookie('sso_user_lng');
+
+            transformLogin((data) => ({
+                ...data,
+                recaptcha_token: token,
+                latitude: finalLat ? parseFloat(finalLat) : null,
+                longitude: finalLng ? parseFloat(finalLng) : null,
+            }));
+
+            kirimLogin(route('login', params), {
+                onFinish: () => resetLogin('password'),
+            });
+        };
+
+        const existingLat = sessionStorage.getItem('sso_user_lat') || localStorage.getItem('sso_user_lat') || getCookie('sso_user_lat');
+        const existingLng = sessionStorage.getItem('sso_user_lng') || localStorage.getItem('sso_user_lng') || getCookie('sso_user_lng');
+
+        if (existingLat && existingLng) {
+            eksekusiSubmit(existingLat, existingLng);
+        } else {
+            // Jika lokasi belum tersimpan, jalankan probe lokasi cepat max 1.5s sebelum submit
+            mintaLokasiCepat((latRes, lngRes) => {
+                eksekusiSubmit(latRes, lngRes);
+            });
+        }
     };
 
     // === Form Klaim ===
@@ -530,7 +701,10 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                     {/* Google OAuth (Full Width) */}
                                     <button
                                         type="button"
-                                        onClick={() => window.location.href = route('auth.google')}
+                                        onClick={() => {
+                                            const rememberParam = dataLogin.remember ? '?remember=1' : '?remember=0';
+                                            window.location.href = route('auth.google') + rememberParam;
+                                        }}
                                         className="w-full flex items-center justify-center gap-2 px-3 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all focus:ring-4 focus:ring-slate-100 dark:focus:ring-slate-800 shadow-sm"
                                     >
                                         <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
@@ -645,6 +819,42 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                     >
                                         Lupa kata sandi?
                                     </Link>
+                                </div>
+
+                                {/* Indicator Status Izin Akses Lokasi (GPS) */}
+                                <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700/60 text-xs my-2">
+                                    <div className="flex items-center gap-2">
+                                        <span className="material-symbols-rounded text-base text-[#0F91FC]">location_on</span>
+                                        <span className="text-slate-600 dark:text-slate-300 font-medium">Izin Lokasi:</span>
+                                    </div>
+
+                                    {statusGps === 'tersedia' && (
+                                        <span className="text-emerald-600 dark:text-emerald-400 font-extrabold flex items-center gap-1">
+                                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping inline-block"></span>
+                                            Terdeteksi 🟢
+                                        </span>
+                                    )}
+
+                                    {statusGps === 'meminta' && (
+                                        <span className="text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1 animate-pulse">
+                                            <span className="material-symbols-rounded text-xs animate-spin">progress_activity</span>
+                                            Meminta Lokasi...
+                                        </span>
+                                    )}
+
+                                    {statusGps === 'ditolak' && (
+                                        <button
+                                            type="button"
+                                            onClick={tampilkanPanduanIzinGps}
+                                            className="text-red-600 dark:text-red-400 font-extrabold underline hover:text-red-700 transition-all flex items-center gap-1 cursor-pointer"
+                                        >
+                                            <span>Ditolak (Panduan 📍)</span>
+                                        </button>
+                                    )}
+
+                                    {statusGps === 'tidak_didukung' && (
+                                        <span className="text-slate-400 font-medium">Tidak Didukung</span>
+                                    )}
                                 </div>
 
                                 <button 

@@ -28,6 +28,7 @@
     },
     "dependencies": {
         "@fontsource/inter": "^5.2.8",
+        "leaflet": "^1.9.4",
         "lucide-react": "^1.24.0",
         "material-symbols": "^0.45.7",
         "sweetalert2": "^11.26.25",

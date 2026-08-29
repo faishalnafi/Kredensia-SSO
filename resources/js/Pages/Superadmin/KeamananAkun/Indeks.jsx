@@ -116,6 +116,46 @@ export default function KeamananAkun({ daftarSesi = [], pengguna = {}, pendingCo
                     <form onSubmit={ajukanPerbaikanProfil} className="space-y-6">
                         {/* Grid Data Diri */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="md:col-span-2">
+                                <label className="block text-xs font-bold text-slate-450 dark:text-slate-500 uppercase tracking-wider mb-2">
+                                    UUID (ID Pengguna)
+                                </label>
+                                <div className="relative flex items-center">
+                                    <input 
+                                        type="text" 
+                                        value={pengguna?.id || ''} 
+                                        readOnly 
+                                        disabled
+                                        className="w-full bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/80 rounded-xl px-4 py-2.5 text-sm font-mono text-slate-600 dark:text-slate-400 select-all cursor-not-allowed pr-10"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            if (pengguna?.id) {
+                                                navigator.clipboard.writeText(pengguna.id);
+                                                Swal.fire({
+                                                    icon: 'success',
+                                                    title: 'UUID Disalin!',
+                                                    text: 'ID Pengguna (UUID) berhasil disalin ke clipboard.',
+                                                    toast: true,
+                                                    position: 'top-end',
+                                                    showConfirmButton: false,
+                                                    timer: 2000,
+                                                    timerProgressBar: true
+                                                });
+                                            }
+                                        }}
+                                        className="absolute right-2.5 p-1.5 text-slate-400 hover:text-[#0F91FC] dark:hover:text-[#ff6b39] transition-colors rounded-lg hover:bg-slate-200/50 dark:hover:bg-slate-800"
+                                        title="Salin UUID"
+                                    >
+                                        <span className="material-symbols-rounded text-lg">content_copy</span>
+                                    </button>
+                                </div>
+                                <span className="text-[11px] text-slate-400 dark:text-slate-500 mt-1 block">
+                                    UUID ini merupakan ID unik akun Anda di sistem SSO.
+                                </span>
+                            </div>
+
                             <div>
                                 <label className="block text-xs font-bold text-slate-450 dark:text-slate-500 uppercase tracking-wider mb-2">Nama Lengkap</label>
                                 <input 
@@ -153,12 +193,14 @@ export default function KeamananAkun({ daftarSesi = [], pengguna = {}, pendingCo
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold text-slate-455 dark:text-slate-500 uppercase tracking-wider mb-2">NIP / NISN</label>
+                                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+                                    {(pengguna.peran || []).some(p => p === 'Guru' || p === 'guru') ? 'Nomor Induk Pegawai (NIP)' : 'Nomor Induk Siswa Nasional (NISN)'}
+                                </label>
                                 <input 
                                     type="text" 
                                     value={formProfil.data.nip_nis}
                                     onChange={e => formProfil.setData('nip_nis', e.target.value)}
-                                    placeholder="Masukkan NIP atau NISN"
+                                    placeholder={(pengguna.peran || []).some(p => p === 'Guru' || p === 'guru') ? "Masukkan NIP (18 digit)" : "Masukkan NISN (10 digit)"}
                                     className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#0F91FC] dark:text-white"
                                 />
                                 <InputError message={formProfil.errors.nip_nis} className="mt-1" />

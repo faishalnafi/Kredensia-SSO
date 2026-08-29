@@ -22,6 +22,18 @@ use Illuminate\Validation\ValidationException;
 class LoginRequest extends FormRequest
 {
     /**
+     * Persiapkan data sebelum validasi (normalisasi email).
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('email')) {
+            $this->merge([
+                'email' => strtolower(trim((string) $this->email)),
+            ]);
+        }
+    }
+
+    /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
@@ -121,9 +133,14 @@ class LoginRequest extends FormRequest
 
         RateLimiter::clear($this->throttleKey());
 
-        // 5. Atur masa hidup sesi dinamis (jika dicentang 1 hari, jika tidak 120 menit)
-        $lifetime = $this->boolean('remember') ? 1440 : 120;
-        session(['session_lifetime' => $lifetime]);
+        // 5. Atur masa hidup sesi dinamis: jika dicentang "Ingat Saya" = SEUMUR HIDUP / FOREVER (5 Tahun = 2.628.000 menit), jika tidak = 31 hari (44.640 menit dengan sliding expiration)
+        if ($this->boolean('remember')) {
+            $lifetime = 2628000; // 5 Tahun = Seumur Hidup
+            session(['is_remember_forever' => true, 'session_lifetime' => $lifetime]);
+        } else {
+            $lifetime = 44640; // 31 Hari (Sliding Expiration)
+            session(['is_remember_forever' => false, 'session_lifetime' => $lifetime]);
+        }
         config(['session.lifetime' => $lifetime]);
     }
 

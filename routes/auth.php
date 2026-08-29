@@ -12,6 +12,7 @@ use App\Http\Controllers\Auth\ClaimAccountController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('otentikasi', [AuthenticatedSessionController::class, 'create'])
+    ->middleware(\App\Http\Middleware\CegahBackCacheGuest::class)
     ->name('login');
 
 Route::get('otentikasi/keluar', [AuthenticatedSessionController::class, 'destroy'])
@@ -33,14 +34,14 @@ Route::get('otentikasi/verifikasi', function(\Illuminate\Http\Request $request) 
     return redirect('/otentikasi' . (!empty($query) ? '?' . http_build_query($query) : '') . '#verifikasi');
 })->name('claim.form');
 
+Route::get('auth/google', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'redirectToGoogle'])
+    ->name('auth.google');
+
+Route::get('auth/google/callback', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'handleGoogleCallback'])
+    ->name('auth.google.callback');
+
 Route::middleware('guest')->group(function () {
     Route::post('otentikasi', [AuthenticatedSessionController::class, 'store']);
-
-    Route::get('auth/google', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'redirectToGoogle'])
-        ->name('auth.google');
-
-    Route::get('auth/google/callback', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'handleGoogleCallback'])
-        ->name('auth.google.callback');
 
     Route::post('otentikasi/verifikasi', [ClaimAccountController::class, 'prosesKlaim'])
         ->name('claim.process');
