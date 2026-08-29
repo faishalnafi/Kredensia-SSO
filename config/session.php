@@ -32,7 +32,9 @@ return [
     |
     */
 
-    'lifetime' => (int) env('SESSION_LIFETIME', 44640),
+    // Sengaja tidak dibaca dari env('SESSION_LIFETIME', ...): nilai .env di server gampang basi/tidak
+    // ikut ter-deploy, jadi durasi 31 hari ini dikunci di kode agar tidak diam-diam turun ke default lama.
+    'lifetime' => 44640,
 
     'expire_on_close' => env('SESSION_EXPIRE_ON_CLOSE', false),
 
