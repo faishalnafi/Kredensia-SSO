@@ -14,6 +14,27 @@
     }
 }
 
+/* Scrollbar minimalis: transparan secara default, tampil tipis saat hover/scroll */
+.scrollbar-minimalis {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+}
+.scrollbar-minimalis:hover,
+.scrollbar-minimalis:focus-within {
+    scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+}
+.scrollbar-minimalis::-webkit-scrollbar {
+    width: 6px;
+}
+.scrollbar-minimalis::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 9999px;
+}
+.scrollbar-minimalis:hover::-webkit-scrollbar-thumb,
+.scrollbar-minimalis:focus-within::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.35);
+}
+
 /* SweetAlert2 Dark Mode Styling Fix */
 .dark .swal2-popup {
     background-color: #1e293b !important;

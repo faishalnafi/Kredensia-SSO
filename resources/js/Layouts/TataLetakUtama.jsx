@@ -8,6 +8,25 @@ export default function TataLetakUtama({ children, title }) {
     const { auth, settings } = props;
     const [sidebarBuka, setSidebarBuka] = useState(false);
     const [logoGagal, setLogoGagal] = useState(false);
+    const [sidebarMengecil, setSidebarMengecil] = useState(() => {
+        try {
+            return localStorage.getItem('sso_sidebar_collapsed') === '1';
+        } catch {
+            return false;
+        }
+    });
+
+    const toggleSidebarMengecil = () => {
+        setSidebarMengecil((prev) => {
+            const next = !prev;
+            try {
+                localStorage.setItem('sso_sidebar_collapsed', next ? '1' : '0');
+            } catch {
+                /* ignore */
+            }
+            return next;
+        });
+    };
 
     const [bannerLokasiBuka, setBannerLokasiBuka] = useState(false);
     const [statusGPS, setStatusGPS] = useState('pending'); // 'pending', 'granted', 'denied'
@@ -269,40 +288,53 @@ export default function TataLetakUtama({ children, title }) {
 
             {/* Sidebar */}
             <aside className={`
-                fixed lg:sticky top-0 left-0 z-40 h-screen w-64 flex flex-col 
-                bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-r border-slate-200/50 dark:border-slate-800/50
+                fixed lg:sticky top-0 left-0 z-40 h-screen flex flex-col shrink-0
+                bg-[#0F91FC] text-white border-r border-white/10
                 shadow-xl shadow-slate-200/50 dark:shadow-none
-                transition-transform duration-300 ease-in-out
+                transition-all duration-300 ease-in-out
                 ${sidebarBuka ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+                w-64 ${sidebarMengecil ? 'lg:w-20' : 'lg:w-64'}
             `}>
-                <div className="flex items-center justify-between h-20 px-6 border-b border-slate-200/50 dark:border-slate-800/50">
-                    <div className="flex items-center gap-3">
+                {/* Tombol perkecil/perbesar sidebar (desktop) */}
+                <button
+                    type="button"
+                    onClick={toggleSidebarMengecil}
+                    aria-label="Perkecil/perbesar sidebar"
+                    className="hidden lg:flex absolute top-6 -right-3 w-7 h-7 rounded-full bg-white text-[#0F91FC] shadow-md border border-slate-200 items-center justify-center hover:bg-blue-50 transition-transform duration-300 z-10"
+                >
+                    <span className={`material-symbols-rounded text-base transition-transform duration-300 ${sidebarMengecil ? 'rotate-180' : ''}`}>
+                        chevron_left
+                    </span>
+                </button>
+
+                <div className={`flex items-center h-20 border-b border-white/15 ${sidebarMengecil ? 'lg:justify-center lg:px-0 px-6 justify-between' : 'justify-between px-6'}`}>
+                    <div className="flex items-center gap-3 min-w-0">
                         {settings?.logo_primer_url && !logoGagal ? (
-                            <img 
-                                src={settings.logo_primer_url} 
-                                alt={settings.nama_aplikasi || 'Logo'} 
-                                className="w-8 h-8 rounded-xl object-contain shadow-md"
+                            <img
+                                src={settings.logo_primer_url}
+                                alt={settings.nama_aplikasi || 'Logo'}
+                                className="w-9 h-9 rounded-xl object-contain shadow-md shrink-0 bg-white/10"
                                 onError={() => setLogoGagal(true)}
                             />
                         ) : (
-                            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#0F91FC] to-[#0a78d6] flex items-center justify-center text-white font-bold shadow-lg shadow-[#0F91FC]/30">
+                            <div className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center text-white shrink-0">
                                 <span className="material-symbols-rounded text-lg">vpn_key</span>
                             </div>
                         )}
-                        <span className="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[#081242] to-[#0F91FC] dark:from-white dark:to-slate-300">
+                        <span className={`font-extrabold text-lg tracking-tight text-white truncate ${sidebarMengecil ? 'lg:hidden' : ''}`}>
                             {settings?.nama_aplikasi || 'SingleSignOn'}
                         </span>
                     </div>
-                    <button onClick={() => setSidebarBuka(false)} className="lg:hidden text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <button onClick={() => setSidebarBuka(false)} className={`lg:hidden text-white/70 hover:text-white ${sidebarMengecil ? 'lg:hidden' : ''}`}>
                         <span className="material-symbols-rounded">close</span>
                     </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto py-4 px-4 space-y-4">
+                <div className="flex-1 overflow-y-auto py-4 px-4 space-y-4 scrollbar-minimalis">
                     {biodataBelumLengkap && (
-                        <div className="mx-1 mb-2 p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 rounded-2xl text-xs text-amber-800 dark:text-amber-300 space-y-1">
+                        <div className={`mx-1 mb-2 p-3 bg-white/10 border border-white/15 rounded-2xl text-xs text-white space-y-1 ${sidebarMengecil ? 'lg:hidden' : ''}`}>
                             <div className="flex items-center gap-1.5 font-bold">
-                                <span className="material-symbols-rounded text-base text-amber-600 dark:text-amber-400">lock</span>
+                                <span className="material-symbols-rounded text-base text-amber-300">lock</span>
                                 Menu Dikunci
                             </div>
                             <p className="text-[11px] leading-relaxed opacity-90">
@@ -313,53 +345,55 @@ export default function TataLetakUtama({ children, title }) {
 
                     {menuGroups.map((group, groupIdx) => (
                         <div key={groupIdx} className="space-y-1">
-                            <div className="flex items-center gap-2 px-3 pt-2 pb-1">
-                                <span className="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest whitespace-nowrap">
+                            <div className={`flex items-center gap-2 px-3 pt-2 pb-1 ${sidebarMengecil ? 'lg:hidden' : ''}`}>
+                                <span className="text-[10px] font-extrabold text-white/50 uppercase tracking-widest whitespace-nowrap">
                                     {group.kategori}
                                 </span>
-                                <div className="h-[1px] w-full bg-slate-200/60 dark:bg-slate-800/60"></div>
+                                <div className="h-[1px] w-full bg-white/15"></div>
                             </div>
 
                             {group.items.map((item, index) => {
                                 if (item.dikunci) {
                                     return (
-                                        <div 
+                                        <div
                                             key={index}
-                                            className="flex items-center justify-between px-3 py-2.5 rounded-xl font-semibold text-sm text-slate-400 dark:text-slate-600 bg-slate-100/50 dark:bg-slate-900/30 cursor-not-allowed select-none opacity-60"
-                                            title="Fitur dikunci sampai Anda melengkapi biodata wajib"
+                                            title={sidebarMengecil ? item.nama : 'Fitur dikunci sampai Anda melengkapi biodata wajib'}
+                                            className={`flex items-center justify-between px-3 py-2.5 rounded-xl font-semibold text-sm text-white/40 bg-white/5 cursor-not-allowed select-none opacity-60 ${sidebarMengecil ? 'lg:justify-center lg:px-0' : ''}`}
                                         >
                                             <div className="flex items-center gap-3">
                                                 <span className="material-symbols-rounded text-xl">
                                                     {item.ikon}
                                                 </span>
-                                                {item.nama}
+                                                <span className={sidebarMengecil ? 'lg:hidden' : ''}>{item.nama}</span>
                                             </div>
-                                            <span className="material-symbols-rounded text-base text-amber-500">lock</span>
+                                            <span className={`material-symbols-rounded text-base text-amber-300 ${sidebarMengecil ? 'lg:hidden' : ''}`}>lock</span>
                                         </div>
                                     );
                                 }
 
                                 const Tag = item.eksternal ? 'a' : Link;
-                                const extraProps = item.eksternal 
-                                    ? { target: '_blank', rel: 'noopener noreferrer' } 
+                                const extraProps = item.eksternal
+                                    ? { target: '_blank', rel: 'noopener noreferrer' }
                                     : { prefetch: 'hover' };
                                 return (
-                                    <Tag 
+                                    <Tag
                                         key={index}
                                         href={item.rute}
+                                        title={sidebarMengecil ? item.nama : undefined}
                                         {...extraProps}
                                         className={`
                                             flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 font-semibold text-sm
-                                            ${item.aktif 
-                                                ? 'bg-[#0F91FC]/10 dark:bg-[#0F91FC]/20 text-[#0F91FC] dark:text-[#ff6b39] shadow-sm' 
-                                                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200'
+                                            ${sidebarMengecil ? 'lg:justify-center lg:px-0' : ''}
+                                            ${item.aktif
+                                                ? 'bg-white/15 text-white shadow-sm'
+                                                : 'text-white/75 hover:bg-white/10 hover:text-white'
                                             }
                                         `}
                                     >
-                                        <span className="material-symbols-rounded text-xl transition-transform duration-300 group-hover:scale-110">
+                                        <span className="material-symbols-rounded text-xl transition-transform duration-300 group-hover:scale-110 shrink-0">
                                             {item.ikon}
                                         </span>
-                                        {item.nama}
+                                        <span className={sidebarMengecil ? 'lg:hidden' : ''}>{item.nama}</span>
                                     </Tag>
                                 );
                             })}
@@ -367,15 +401,16 @@ export default function TataLetakUtama({ children, title }) {
                     ))}
                 </div>
 
-                <div className="p-4 border-t border-slate-200/50 dark:border-slate-800/50">
-                    <Link 
-                        href={route('logout')} 
-                        method="post" 
+                <div className="p-4 border-t border-white/15">
+                    <Link
+                        href={route('logout')}
+                        method="post"
                         as="button"
-                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 font-bold hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors text-sm"
+                        title="Keluar"
+                        className={`flex items-center gap-3 rounded-xl bg-white/10 text-white font-bold hover:bg-white/20 transition-colors text-sm ${sidebarMengecil ? 'lg:justify-center lg:px-0 lg:w-11 lg:h-11 w-full px-4 py-3' : 'w-full px-4 py-3'}`}
                     >
-                        <span className="material-symbols-rounded text-xl">logout</span>
-                        Keluar
+                        <span className="material-symbols-rounded text-xl shrink-0">logout</span>
+                        <span className={sidebarMengecil ? 'lg:hidden' : ''}>Keluar</span>
                     </Link>
                 </div>
             </aside>
