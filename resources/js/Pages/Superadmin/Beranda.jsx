@@ -10,16 +10,16 @@ export default function Beranda({ statistik, penggunaTerbaru }) {
             <div className="w-full max-w-6xl mx-auto space-y-6">
                 
                 {/* Welcome Banner */}
-                <div className="relative overflow-hidden bg-gradient-to-br from-[#081242] to-[#0F91FC] rounded-3xl p-8 lg:p-10 text-white shadow-xl shadow-[#0F91FC]/20">
+                <div className="relative overflow-hidden bg-[#0F91FC] rounded-3xl p-8 lg:p-10 text-white shadow-xl shadow-[#0F91FC]/30">
                     <div className="relative z-10 max-w-2xl">
                         <h2 className="text-3xl lg:text-4xl font-extrabold mb-4 tracking-tight">Selamat Datang di Pusat Kendali!</h2>
-                        <p className="text-blue-100 text-sm leading-relaxed">
+                        <p className="text-white/80 text-sm leading-relaxed">
                             Pantau aktivitas sistem Single Sign-On, kelola akses pengguna, peran, dan aplikasi yang terhubung secara terpusat.
                         </p>
                     </div>
                     {/* Decorative Elements */}
                     <div className="absolute -right-20 -top-20 w-64 h-64 rounded-full bg-white/10 blur-3xl"></div>
-                    <div className="absolute right-20 -bottom-20 w-48 h-48 rounded-full bg-[#0F91FC]/40 blur-2xl"></div>
+                    <div className="absolute right-20 -bottom-20 w-48 h-48 rounded-full bg-white/10 blur-2xl"></div>
                 </div>
 
                 {/* Bento Grid Stats */}

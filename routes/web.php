@@ -77,6 +77,24 @@ Route::middleware('auth')->group(function () {
     Route::middleware('biodata.check')->group(function () {
         Route::get('/dasbor', [UserKatalogController::class, 'tampilkanKatalog'])->name('dasbor');
         Route::get('/beranda', [KatalogAplikasiController::class, 'indeks'])->name('beranda');
+
+        # Fitur Segera Hadir (Temukan & Komunitas)
+        Route::get('/temukan', function () {
+            return Inertia::render('ComingSoon', [
+                'title' => 'Temukan',
+                'ikon' => 'explore',
+                'deskripsi' => 'Jelajahi dan temukan berbagai sumber daya, program inovatif, dan wawasan pendidikan terkini untuk Anda.'
+            ]);
+        })->name('temukan.indeks');
+
+        Route::get('/komunitas', function () {
+            return Inertia::render('ComingSoon', [
+                'title' => 'Komunitas',
+                'ikon' => 'groups',
+                'deskripsi' => 'Ruang kolaborasi, diskusi interaktif, dan jejaring komunitas antar civitas akademika sekolah.'
+            ]);
+        })->name('komunitas.indeks');
+
         Route::get('/profil-saya', [ProfilSayaController::class, 'indeks'])->name('profil.indeks');
         Route::get('/keamanan-akun', [KeamananAkunController::class, 'indeks'])->name('keamanan.indeks');
         Route::post('/keamanan-akun/ajukan-perubahan', [KeamananAkunController::class, 'ajukanPerubahan'])->name('keamanan.ajukan_perubahan');

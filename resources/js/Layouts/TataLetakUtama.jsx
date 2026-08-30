@@ -8,6 +8,7 @@ export default function TataLetakUtama({ children, title }) {
     const { auth, settings } = props;
     const [sidebarBuka, setSidebarBuka] = useState(false);
     const [logoGagal, setLogoGagal] = useState(false);
+    const [floatingTooltip, setFloatingTooltip] = useState({ show: false, text: '', top: 0 });
     const [sidebarMengecil, setSidebarMengecil] = useState(() => {
         try {
             return localStorage.getItem('sso_sidebar_collapsed') === '1';
@@ -257,263 +258,370 @@ export default function TataLetakUtama({ children, title }) {
         ];
     } else {
         // Pengguna Umum (Siswa, Guru, dll)
+        const itemsPengguna = [];
+        if (biodataBelumLengkap) {
+            itemsPengguna.push({
+                nama: 'Lengkapi Biodata',
+                rute: route('biodata.wajib'),
+                ikon: 'badge',
+                aktif: url.startsWith('/biodata-wajib'),
+                dikunci: false
+            });
+        }
+        itemsPengguna.push(
+            { nama: 'Katalog Aplikasi', rute: route('dasbor'), ikon: 'grid_view', aktif: url === '/dasbor', dikunci: biodataBelumLengkap },
+            { nama: 'Temukan', rute: route('temukan.indeks'), ikon: 'explore', aktif: url.startsWith('/temukan'), dikunci: biodataBelumLengkap },
+            { nama: 'Komunitas', rute: route('komunitas.indeks'), ikon: 'groups', aktif: url.startsWith('/komunitas'), dikunci: biodataBelumLengkap },
+            { nama: 'Profil Saya', rute: route('profil.indeks'), ikon: 'person', aktif: url.startsWith('/profil-saya'), dikunci: biodataBelumLengkap },
+            { nama: 'Keamanan Akun', rute: route('keamanan.indeks'), ikon: 'security', aktif: url.startsWith('/keamanan-akun'), dikunci: biodataBelumLengkap },
+        );
+
         menuGroups = [
             {
                 kategori: 'Utama',
-                items: [
-                    { nama: 'Lengkapi Biodata', rute: route('biodata.wajib'), ikon: 'badge', aktif: url.startsWith('/biodata-wajib'), dikunci: false },
-                    { nama: 'Katalog Aplikasi', rute: route('dasbor'), ikon: 'grid_view', aktif: url === '/dasbor', dikunci: biodataBelumLengkap },
-                    { nama: 'Profil Saya', rute: route('profil.indeks'), ikon: 'person', aktif: url.startsWith('/profil-saya'), dikunci: biodataBelumLengkap },
-                    { nama: 'Keamanan Akun', rute: route('keamanan.indeks'), ikon: 'security', aktif: url.startsWith('/keamanan-akun'), dikunci: biodataBelumLengkap },
-                ]
+                items: itemsPengguna
             }
         ];
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex text-slate-800 dark:text-slate-100 font-sans transition-colors duration-300">
-            {/* Ornamen Background Glassmorphism */}
-            <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-[-10%] right-[-5%] w-[40%] h-[40%] rounded-full bg-[#0F91FC]/10 dark:bg-[#0F91FC]/20 blur-[100px]"></div>
-                <div className="absolute bottom-[-10%] left-[-5%] w-[30%] h-[30%] rounded-full bg-emerald-500/10 dark:bg-emerald-500/10 blur-[100px]"></div>
-            </div>
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col font-sans transition-colors duration-300">
+            {/* Top Unified Header */}
+            <header className="h-16 bg-[#0F91FC] text-white flex items-center justify-between px-4 lg:px-6 sticky top-0 z-40 shrink-0">
+                <div className="flex items-center gap-3">
+                    {/* Tombol Hamburger / Collapse */}
+                    <button
+                        type="button"
+                        onClick={() => {
+                            if (window.innerWidth >= 1024) {
+                                toggleSidebarMengecil();
+                            } else {
+                                setSidebarBuka((prev) => !prev);
+                            }
+                        }}
+                        aria-label="Menu navigasi"
+                        className="w-10 h-10 rounded-full hover:bg-white/15 active:bg-white/25 flex items-center justify-center text-white transition-colors cursor-pointer"
+                    >
+                        <span className="material-symbols-rounded text-2xl">menu</span>
+                    </button>
 
-            {/* Overlay Mobile */}
-            {sidebarBuka && (
-                <div 
-                    className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-30 lg:hidden"
-                    onClick={() => setSidebarBuka(false)}
-                ></div>
-            )}
-
-            {/* Sidebar */}
-            <aside className={`
-                fixed lg:sticky top-0 left-0 z-40 h-screen flex flex-col shrink-0
-                bg-[#0F91FC] text-white border-r border-white/10
-                shadow-xl shadow-slate-200/50 dark:shadow-none
-                transition-all duration-300 ease-in-out
-                ${sidebarBuka ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-                w-64 ${sidebarMengecil ? 'lg:w-20' : 'lg:w-64'}
-            `}>
-                {/* Tombol perkecil/perbesar sidebar (desktop) */}
-                <button
-                    type="button"
-                    onClick={toggleSidebarMengecil}
-                    aria-label="Perkecil/perbesar sidebar"
-                    className="hidden lg:flex absolute top-6 -right-3 w-7 h-7 rounded-full bg-white text-[#0F91FC] shadow-md border border-slate-200 items-center justify-center hover:bg-blue-50 transition-transform duration-300 z-10"
-                >
-                    <span className={`material-symbols-rounded text-base transition-transform duration-300 ${sidebarMengecil ? 'rotate-180' : ''}`}>
-                        chevron_left
-                    </span>
-                </button>
-
-                <div className={`flex items-center h-20 border-b border-white/15 ${sidebarMengecil ? 'lg:justify-center lg:px-0 px-6 justify-between' : 'justify-between px-6'}`}>
-                    <div className="flex items-center gap-3 min-w-0">
+                    {/* Logo & Nama Aplikasi */}
+                    <Link href={route('dasbor')} className="flex items-center gap-2.5 group">
                         {settings?.logo_primer_url && !logoGagal ? (
                             <img
                                 src={settings.logo_primer_url}
                                 alt={settings.nama_aplikasi || 'Logo'}
-                                className="w-9 h-9 rounded-xl object-contain shadow-md shrink-0 bg-white/10"
+                                className="w-8 h-8 rounded-xl object-contain bg-white/15 p-0.5 shadow-sm shrink-0"
                                 onError={() => setLogoGagal(true)}
                             />
                         ) : (
-                            <div className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center text-white shrink-0">
+                            <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center text-white font-bold shrink-0">
                                 <span className="material-symbols-rounded text-lg">vpn_key</span>
                             </div>
                         )}
-                        <span className={`font-extrabold text-lg tracking-tight text-white truncate ${sidebarMengecil ? 'lg:hidden' : ''}`}>
+                        <span className="font-extrabold text-base lg:text-lg tracking-tight text-white group-hover:opacity-90 transition-opacity">
                             {settings?.nama_aplikasi || 'SingleSignOn'}
                         </span>
-                    </div>
-                    <button onClick={() => setSidebarBuka(false)} className={`lg:hidden text-white/70 hover:text-white ${sidebarMengecil ? 'lg:hidden' : ''}`}>
-                        <span className="material-symbols-rounded">close</span>
-                    </button>
-                </div>
-
-                <div className="flex-1 overflow-y-auto py-4 px-4 space-y-4 scrollbar-minimalis">
-                    {biodataBelumLengkap && (
-                        <div className={`mx-1 mb-2 p-3 bg-white/10 border border-white/15 rounded-2xl text-xs text-white space-y-1 ${sidebarMengecil ? 'lg:hidden' : ''}`}>
-                            <div className="flex items-center gap-1.5 font-bold">
-                                <span className="material-symbols-rounded text-base text-amber-300">lock</span>
-                                Menu Dikunci
-                            </div>
-                            <p className="text-[11px] leading-relaxed opacity-90">
-                                Harap lengkapi seluruh biodata wajib untuk membuka akses ke semua menu.
-                            </p>
-                        </div>
-                    )}
-
-                    {menuGroups.map((group, groupIdx) => (
-                        <div key={groupIdx} className="space-y-1">
-                            <div className={`flex items-center gap-2 px-3 pt-2 pb-1 ${sidebarMengecil ? 'lg:hidden' : ''}`}>
-                                <span className="text-[10px] font-extrabold text-white/50 uppercase tracking-widest whitespace-nowrap">
-                                    {group.kategori}
-                                </span>
-                                <div className="h-[1px] w-full bg-white/15"></div>
-                            </div>
-
-                            {group.items.map((item, index) => {
-                                if (item.dikunci) {
-                                    return (
-                                        <div
-                                            key={index}
-                                            title={sidebarMengecil ? item.nama : 'Fitur dikunci sampai Anda melengkapi biodata wajib'}
-                                            className={`flex items-center justify-between px-3 py-2.5 rounded-xl font-semibold text-sm text-white/40 bg-white/5 cursor-not-allowed select-none opacity-60 ${sidebarMengecil ? 'lg:justify-center lg:px-0' : ''}`}
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <span className="material-symbols-rounded text-xl">
-                                                    {item.ikon}
-                                                </span>
-                                                <span className={sidebarMengecil ? 'lg:hidden' : ''}>{item.nama}</span>
-                                            </div>
-                                            <span className={`material-symbols-rounded text-base text-amber-300 ${sidebarMengecil ? 'lg:hidden' : ''}`}>lock</span>
-                                        </div>
-                                    );
-                                }
-
-                                const Tag = item.eksternal ? 'a' : Link;
-                                const extraProps = item.eksternal
-                                    ? { target: '_blank', rel: 'noopener noreferrer' }
-                                    : { prefetch: 'hover' };
-                                return (
-                                    <Tag
-                                        key={index}
-                                        href={item.rute}
-                                        title={sidebarMengecil ? item.nama : undefined}
-                                        {...extraProps}
-                                        className={`
-                                            flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 font-semibold text-sm
-                                            ${sidebarMengecil ? 'lg:justify-center lg:px-0' : ''}
-                                            ${item.aktif
-                                                ? 'bg-white/15 text-white shadow-sm'
-                                                : 'text-white/75 hover:bg-white/10 hover:text-white'
-                                            }
-                                        `}
-                                    >
-                                        <span className="material-symbols-rounded text-xl transition-transform duration-300 group-hover:scale-110 shrink-0">
-                                            {item.ikon}
-                                        </span>
-                                        <span className={sidebarMengecil ? 'lg:hidden' : ''}>{item.nama}</span>
-                                    </Tag>
-                                );
-                            })}
-                        </div>
-                    ))}
-                </div>
-
-                <div className="p-4 border-t border-white/15">
-                    <Link
-                        href={route('logout')}
-                        method="post"
-                        as="button"
-                        title="Keluar"
-                        className={`flex items-center gap-3 rounded-xl bg-white/10 text-white font-bold hover:bg-white/20 transition-colors text-sm ${sidebarMengecil ? 'lg:justify-center lg:px-0 lg:w-11 lg:h-11 w-full px-4 py-3' : 'w-full px-4 py-3'}`}
-                    >
-                        <span className="material-symbols-rounded text-xl shrink-0">logout</span>
-                        <span className={sidebarMengecil ? 'lg:hidden' : ''}>Keluar</span>
                     </Link>
                 </div>
-            </aside>
 
-            {/* Main Content */}
-            <main className="flex-1 flex flex-col min-h-screen relative z-10 w-full">
-                {/* Header */}
-                <header className="h-20 bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border-b border-slate-200/50 dark:border-slate-800/50 flex items-center justify-between px-6 sticky top-0 z-20">
-                    <div className="flex items-center gap-4">
-                        <button 
-                            onClick={() => setSidebarBuka(true)} 
-                            className="lg:hidden text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white"
-                        >
-                            <span className="material-symbols-rounded text-2xl">menu</span>
-                        </button>
-                        <h1 className="text-xl font-extrabold text-[#081242] dark:text-white tracking-tight">
-                            {title}
-                        </h1>
+                {/* Kanan Header: ThemeToggle & User Profile */}
+                <div className="flex items-center gap-3">
+                    <ThemeToggle />
+                    <div className="flex items-center gap-2.5 pl-2 pr-3 py-1 bg-white/15 hover:bg-white/20 transition-colors rounded-full border border-white/20">
+                        <img 
+                            src={auth.user?.avatar_url || 'https://www.gravatar.com/avatar/?s=256&d=identicon'} 
+                            alt={auth.user?.nama_lengkap} 
+                            referrerPolicy="no-referrer"
+                            onError={(e) => {
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.src = 'https://www.gravatar.com/avatar/?s=256&d=identicon';
+                            }}
+                            className="w-7 h-7 rounded-full object-cover shadow-sm border border-white/40 bg-white/20"
+                        />
+                        <span className="text-xs font-bold text-white hidden md:block capitalize">{roleUtama}</span>
                     </div>
-                    <div className="flex items-center gap-4">
-                        <ThemeToggle />
-                        <div className="flex items-center gap-3 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-full">
-                            <img 
-                                src={auth.user?.avatar_url || 'https://www.gravatar.com/avatar/?s=256&d=identicon'} 
-                                alt={auth.user?.nama_lengkap} 
-                                referrerPolicy="no-referrer"
-                                onError={(e) => {
-                                    e.currentTarget.onerror = null;
-                                    e.currentTarget.src = 'https://www.gravatar.com/avatar/?s=256&d=identicon';
-                                }}
-                                className="w-8 h-8 rounded-full object-cover shadow-sm border border-white dark:border-slate-700 bg-slate-200 dark:bg-slate-700"
-                            />
-                            <span className="text-sm font-bold text-slate-700 dark:text-slate-200 pr-2 hidden sm:block capitalize">{roleUtama}</span>
-                        </div>
-                    </div>
-                </header>
-
-                {/* Page Content */}
-                <div className="p-6 lg:p-8 flex-1 overflow-x-hidden">
-                    {children}
                 </div>
+            </header>
 
-                {/* Banner Floating Notifikasi Izin Akses Lokasi (GPS) */}
-                {bannerLokasiBuka && (
-                    <div className="fixed bottom-5 right-5 z-50 max-w-md w-full p-4 bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl border border-blue-200/80 dark:border-blue-800/80 shadow-2xl rounded-3xl space-y-3 transition-all">
-                        <div className="flex items-start justify-between gap-3">
-                            <div className="flex items-center gap-2.5">
-                                <div className="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-950/50 text-[#0F91FC] flex items-center justify-center shrink-0">
-                                    <span className="material-symbols-rounded text-2xl text-red-500">location_on</span>
+            {/* Layout Body: Sidebar + Main Content */}
+            <div className="flex-1 flex relative">
+                {/* Overlay Mobile */}
+                {sidebarBuka && (
+                    <div 
+                        className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 lg:hidden"
+                        onClick={() => setSidebarBuka(false)}
+                    ></div>
+                )}
+
+                {/* Sidebar Navigasi (Full height dari paling atas di mode mobile, sticky di bawah header di mode desktop) */}
+                <aside className={`
+                    fixed lg:sticky top-0 lg:top-16 left-0 z-50 lg:z-30 h-screen lg:h-[calc(100vh-4rem)] flex flex-col shrink-0
+                    bg-[#0F91FC] text-white shadow-2xl lg:shadow-none
+                    rounded-r-[28px] lg:rounded-none
+                    transition-all duration-300 ease-in-out
+                    ${sidebarBuka ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+                    w-64 ${sidebarMengecil ? 'lg:w-[5.75rem]' : 'lg:w-[13.5rem]'}
+                `}>
+                    {/* Header khusus Mobile Drawer (di paling atas drawer) */}
+                    <div className="h-16 flex items-center justify-between px-4 border-b border-white/15 shrink-0 lg:hidden">
+                        <div className="flex items-center gap-2.5">
+                            {settings?.logo_primer_url && !logoGagal ? (
+                                <img
+                                    src={settings.logo_primer_url}
+                                    alt={settings.nama_aplikasi || 'Logo'}
+                                    className="w-8 h-8 rounded-xl object-contain bg-white/15 p-0.5 shadow-sm shrink-0"
+                                    onError={() => setLogoGagal(true)}
+                                />
+                            ) : (
+                                <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center text-white font-bold shrink-0">
+                                    <span className="material-symbols-rounded text-lg">vpn_key</span>
                                 </div>
-                                <div>
-                                    <h4 className="font-bold text-sm text-slate-800 dark:text-white flex items-center gap-1.5">
-                                        Izin Akses Lokasi (GPS)
-                                    </h4>
-                                    <span className="text-[10px] text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider block">Keamanan & Audit Trail</span>
-                                </div>
-                            </div>
-                            <button
-                                onClick={() => {
-                                    setBannerLokasiBuka(false);
-                                    localStorage.setItem('sso_gps_prompt_dismissed', 'true');
-                                }}
-                                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1"
-                            >
-                                <span className="material-symbols-rounded text-lg">close</span>
-                            </button>
+                            )}
+                            <span className="font-extrabold text-base tracking-tight text-white">
+                                {settings?.nama_aplikasi || 'SingleSignOn'}
+                            </span>
                         </div>
+                        <button
+                            type="button"
+                            onClick={() => setSidebarBuka(false)}
+                            className="w-9 h-9 rounded-full hover:bg-white/15 active:bg-white/25 flex items-center justify-center text-white transition-colors cursor-pointer"
+                            aria-label="Tutup menu navigasi"
+                        >
+                            <span className="material-symbols-rounded text-2xl">close</span>
+                        </button>
+                    </div>
+                    <div className="flex-1 overflow-y-auto overflow-x-hidden py-3 px-2 space-y-4 scrollbar-minimalis">
+                        {biodataBelumLengkap && (
+                            <div className={`mx-1 mb-2 p-3 bg-white/10 border border-white/15 rounded-2xl text-xs text-white space-y-1 ${sidebarMengecil ? 'lg:hidden' : ''}`}>
+                                <div className="flex items-center gap-1.5 font-bold">
+                                    <span className="material-symbols-rounded text-base text-amber-300">lock</span>
+                                    Menu Dikunci
+                                </div>
+                                <p className="text-[11px] leading-relaxed opacity-90">
+                                    Harap lengkapi seluruh biodata wajib untuk membuka akses ke semua menu.
+                                </p>
+                            </div>
+                        )}
 
-                        <p className="text-xs text-slate-500 dark:text-slate-300 leading-relaxed">
-                            Portal SSO membutuhkan akses lokasi perangkat Anda untuk memverifikasi keamanan aktivitas login dan pencatatan audit trail lokasi secara presisi.
-                        </p>
+                        {menuGroups.map((group, groupIdx) => (
+                            <div key={groupIdx} className="space-y-1">
+                                <div className={`flex items-center gap-2 px-3 pt-2 pb-1 ${sidebarMengecil ? 'lg:hidden' : ''}`}>
+                                    <span className="text-[10px] font-extrabold text-white/50 uppercase tracking-widest whitespace-nowrap">
+                                        {group.kategori}
+                                    </span>
+                                    <div className="h-[1px] w-full bg-white/15"></div>
+                                </div>
 
-                        <div className="flex items-center justify-end gap-2 pt-1">
-                            <button
-                                onClick={() => {
-                                    setBannerLokasiBuka(false);
-                                    localStorage.setItem('sso_gps_prompt_dismissed', 'true');
-                                }}
-                                className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors"
-                            >
-                                Nanti Saja
-                            </button>
-                            <button
-                                onClick={() => mintaIzinGPS(true)}
-                                disabled={sedangMintaGPS}
-                                className="px-4 py-2 rounded-xl bg-[#0F91FC] hover:bg-[#0a78d6] text-white text-xs font-bold shadow-md shadow-[#0F91FC]/20 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-                            >
-                                {sedangMintaGPS ? (
-                                    <>
-                                        <span className="material-symbols-rounded text-sm animate-spin">progress_activity</span>
-                                        Meminta Lokasi...
-                                    </>
-                                ) : (
-                                    <>
-                                        <span className="material-symbols-rounded text-sm">my_location</span>
-                                        Izinkan Lokasi
-                                    </>
-                                )}
-                            </button>
+                                {group.items.map((item, index) => {
+                                    if (item.dikunci) {
+                                        return (
+                                            <div
+                                                key={index}
+                                                onMouseEnter={(e) => {
+                                                    if (!sidebarMengecil) return;
+                                                    const rect = e.currentTarget.getBoundingClientRect();
+                                                    setFloatingTooltip({
+                                                        show: true,
+                                                        text: item.nama,
+                                                        top: rect.top + rect.height / 2,
+                                                        left: rect.right + 12
+                                                    });
+                                                }}
+                                                onMouseLeave={() => setFloatingTooltip({ show: false, text: '', top: 0, left: 0 })}
+                                                className={`flex transition-all duration-300 font-semibold text-sm text-white/40 bg-white/5 cursor-not-allowed select-none opacity-60 rounded-xl
+                                                    ${sidebarMengecil
+                                                        ? 'lg:flex-col lg:items-center lg:justify-center lg:px-1.5 lg:py-2.5 lg:gap-1 lg:rounded-2xl flex items-center gap-3 px-3 py-2.5 justify-between'
+                                                        : 'items-center justify-between px-3 py-2.5'
+                                                    }`}
+                                            >
+                                                <div className={`flex w-full ${sidebarMengecil ? 'lg:flex-col lg:items-center lg:gap-1 items-center gap-3' : 'items-center gap-3'}`}>
+                                                    <span className="material-symbols-rounded text-xl shrink-0">
+                                                        {item.ikon}
+                                                    </span>
+                                                    <span className={sidebarMengecil ? 'lg:text-[10px] lg:text-center lg:leading-tight lg:font-bold lg:text-white/50 lg:w-full lg:px-0.5' : ''}>
+                                                        {item.nama}
+                                                    </span>
+                                                </div>
+                                                <span className={`material-symbols-rounded text-base text-amber-300 ${sidebarMengecil ? 'lg:hidden' : ''}`}>lock</span>
+                                            </div>
+                                        );
+                                    }
+
+                                    const Tag = item.eksternal ? 'a' : Link;
+                                    const extraProps = item.eksternal
+                                        ? { target: '_blank', rel: 'noopener noreferrer' }
+                                        : { prefetch: 'hover' };
+                                    return (
+                                        <Tag
+                                            key={index}
+                                            href={item.rute}
+                                            onMouseEnter={(e) => {
+                                                if (!sidebarMengecil) return;
+                                                const rect = e.currentTarget.getBoundingClientRect();
+                                                setFloatingTooltip({
+                                                    show: true,
+                                                    text: item.nama,
+                                                    top: rect.top + rect.height / 2,
+                                                    left: rect.right + 12
+                                                });
+                                            }}
+                                            onMouseLeave={() => setFloatingTooltip({ show: false, text: '', top: 0, left: 0 })}
+                                            {...extraProps}
+                                            className={`
+                                                flex transition-all duration-300 font-semibold text-sm rounded-xl
+                                                ${sidebarMengecil
+                                                    ? 'lg:flex-col lg:items-center lg:justify-center lg:px-1.5 lg:py-2.5 lg:gap-1 lg:rounded-2xl flex items-center gap-3 px-3 py-2.5'
+                                                    : 'items-center gap-3 px-3 py-2.5'
+                                                }
+                                                ${item.aktif
+                                                    ? 'bg-white/15 text-white shadow-sm'
+                                                    : 'text-white/75 hover:bg-white/10 hover:text-white'
+                                                }
+                                            `}
+                                        >
+                                            <span className="material-symbols-rounded text-xl transition-transform duration-300 shrink-0">
+                                                {item.ikon}
+                                            </span>
+                                            <span className={sidebarMengecil
+                                                ? 'lg:text-[10px] lg:text-center lg:leading-tight lg:font-bold lg:w-full lg:px-0.5'
+                                                : ''
+                                            }>
+                                                {item.nama}
+                                            </span>
+                                        </Tag>
+                                    );
+                                })}
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="p-3 border-t border-white/15">
+                        <Link
+                            href={route('logout')}
+                            method="post"
+                            as="button"
+                            onMouseEnter={(e) => {
+                                if (!sidebarMengecil) return;
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                setFloatingTooltip({
+                                    show: true,
+                                    text: 'Keluar',
+                                    top: rect.top + rect.height / 2,
+                                    left: rect.right + 12
+                                });
+                            }}
+                            onMouseLeave={() => setFloatingTooltip({ show: false, text: '', top: 0, left: 0 })}
+                            className={`flex rounded-xl bg-white/10 text-white font-bold hover:bg-white/20 transition-colors text-sm
+                                ${sidebarMengecil
+                                    ? 'lg:flex-col lg:items-center lg:justify-center lg:w-full lg:py-2.5 lg:px-1.5 lg:gap-1 lg:rounded-2xl w-full px-4 py-3 items-center gap-3'
+                                    : 'w-full px-4 py-3 items-center gap-3'
+                                }`}
+                        >
+                            <span className="material-symbols-rounded text-xl shrink-0">logout</span>
+                            <span className={sidebarMengecil
+                                ? 'lg:text-[10px] lg:font-bold lg:text-center'
+                                : ''
+                            }>Keluar</span>
+                        </Link>
+                    </div>
+
+                    {/* Lekukan cekung sudut kiri-atas (Sticky / Nempel permanen di persimpangan Header & Sidebar, tidak ikut scroll) */}
+                    <div className="absolute top-0 -right-6 w-6 h-6 overflow-hidden pointer-events-none z-30 hidden lg:block">
+                        <div className="w-full h-full bg-[#0F91FC]">
+                            <div className="w-full h-full bg-slate-50 dark:bg-slate-900 rounded-tl-2xl"></div>
                         </div>
                     </div>
-                )}
-            </main>
+                </aside>
+
+                {/* Main Content Area */}
+                <main className="flex-1 min-h-[calc(100vh-4rem)] bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col relative overflow-x-hidden transition-colors duration-300">
+                    {/* Ornamen Background Glassmorphism di dalam konten */}
+                    <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+                        <div className="absolute top-[-10%] right-[-5%] w-[40%] h-[40%] rounded-full bg-[#0F91FC]/10 dark:bg-[#0F91FC]/20 blur-[100px]"></div>
+                        <div className="absolute bottom-[-10%] left-[-5%] w-[30%] h-[30%] rounded-full bg-emerald-500/10 dark:bg-emerald-500/10 blur-[100px]"></div>
+                    </div>
+
+                    {/* Page Content */}
+                    <div className="p-6 lg:p-8 flex-1 relative z-10">
+                        {children}
+                    </div>
+
+                    {/* Banner Floating Notifikasi Izin Akses Lokasi (GPS) */}
+                    {bannerLokasiBuka && (
+                        <div className="fixed bottom-5 right-5 z-50 max-w-md w-full p-4 bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl border border-blue-200/80 dark:border-blue-800/80 shadow-2xl rounded-3xl space-y-3 transition-all">
+                            <div className="flex items-start justify-between gap-3">
+                                <div className="flex items-center gap-2.5">
+                                    <div className="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-950/50 text-[#0F91FC] flex items-center justify-center shrink-0">
+                                        <span className="material-symbols-rounded text-2xl text-red-500">location_on</span>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-sm text-slate-800 dark:text-white flex items-center gap-1.5">
+                                            Izin Akses Lokasi (GPS)
+                                        </h4>
+                                        <span className="text-[10px] text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider block">Keamanan & Audit Trail</span>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => {
+                                        setBannerLokasiBuka(false);
+                                        localStorage.setItem('sso_gps_prompt_dismissed', 'true');
+                                    }}
+                                    className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1"
+                                >
+                                    <span className="material-symbols-rounded text-lg">close</span>
+                                </button>
+                            </div>
+
+                            <p className="text-xs text-slate-500 dark:text-slate-300 leading-relaxed">
+                                Portal SSO membutuhkan akses lokasi perangkat Anda untuk memverifikasi keamanan aktivitas login dan pencatatan audit trail lokasi secara presisi.
+                            </p>
+
+                            <div className="flex items-center justify-end gap-2 pt-1">
+                                <button
+                                    onClick={() => {
+                                        setBannerLokasiBuka(false);
+                                        localStorage.setItem('sso_gps_prompt_dismissed', 'true');
+                                    }}
+                                    className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors"
+                                >
+                                    Nanti Saja
+                                </button>
+                                <button
+                                    onClick={() => mintaIzinGPS(true)}
+                                    disabled={sedangMintaGPS}
+                                    className="px-4 py-2 rounded-xl bg-[#0F91FC] hover:bg-[#0a78d6] text-white text-xs font-bold shadow-md shadow-[#0F91FC]/20 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                >
+                                    {sedangMintaGPS ? (
+                                        <>
+                                            <span className="material-symbols-rounded text-sm animate-spin">progress_activity</span>
+                                            Meminta Lokasi...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span className="material-symbols-rounded text-sm">my_location</span>
+                                            Izinkan Lokasi
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </main>
+            </div>
+
+            {/* Floating Tooltip kustom saat sidebar minimize */}
+            {sidebarMengecil && floatingTooltip.show && (
+                <div 
+                    className="fixed z-[9999] pointer-events-none -translate-y-1/2 flex items-center transition-all duration-150"
+                    style={{ left: `${floatingTooltip.left || 100}px`, top: `${floatingTooltip.top}px` }}
+                >
+                    <div className="relative bg-white dark:bg-slate-800 text-[#081242] dark:text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-2xl border border-slate-200/80 dark:border-slate-700 whitespace-nowrap">
+                        {floatingTooltip.text}
+                        <span className="absolute right-full top-1/2 -translate-y-1/2 border-[5px] border-transparent border-r-white dark:border-r-slate-800"></span>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

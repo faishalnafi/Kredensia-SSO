@@ -1,4 +1,5 @@
 import '../css/app.css';
+import 'material-symbols/rounded.css';
 import './bootstrap';
 
 import { createInertiaApp } from '@inertiajs/react';

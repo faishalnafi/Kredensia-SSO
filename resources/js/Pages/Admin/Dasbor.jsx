@@ -10,10 +10,10 @@ export default function DasborAdmin({ statistik }) {
             <div className="w-full max-w-6xl mx-auto space-y-6">
                 
                 {/* Welcome Banner */}
-                <div className="relative overflow-hidden bg-gradient-to-br from-[#081242] to-[#0F91FC] rounded-3xl p-8 lg:p-10 text-white shadow-xl shadow-[#0F91FC]/20">
+                <div className="relative overflow-hidden bg-[#0F91FC] rounded-3xl p-8 lg:p-10 text-white shadow-xl shadow-[#0F91FC]/30">
                     <div className="relative z-10 max-w-2xl">
                         <h2 className="text-3xl lg:text-4xl font-extrabold mb-4 tracking-tight">Manajemen Operasional</h2>
-                        <p className="text-blue-100 text-sm leading-relaxed">
+                        <p className="text-white/80 text-sm leading-relaxed">
                             Pusat kendali operasional untuk mengelola data siswa, guru, persetujuan data koreksi, serta audit dasar aktivitas pengguna.
                         </p>
                     </div>

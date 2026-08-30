@@ -14,6 +14,8 @@ export default defineConfig({
             registerType: 'autoUpdate',
             injectRegister: 'auto',
             workbox: {
+                skipWaiting: true,
+                clientsClaim: true,
                 globDirectory: 'public',
                 globPatterns: [
                     'build/assets/*.{js,css}',

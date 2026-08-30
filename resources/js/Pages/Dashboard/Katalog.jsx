@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Head } from '@inertiajs/react';
 import TataLetakUtama from '@/Layouts/TataLetakUtama';
 import axios from 'axios';
@@ -303,9 +304,9 @@ export default function Katalog({ daftarAplikasi }) {
                     </>
                 )}
 
-            {/* Modal Overlay Checking Ping Health Check (Cloudflare Style) */}
-            {sedangPingApp && (
-                <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 transition-all">
+            {/* Modal Overlay Checking Ping Health Check (Cloudflare Style) - Fullscreen Portal */}
+            {sedangPingApp && typeof document !== 'undefined' && createPortal(
+                <div className="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 transition-all">
                     <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 max-w-md w-full border border-blue-200 dark:border-blue-800/60 shadow-2xl text-center space-y-5">
                         <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
                             <span className="absolute inset-0 rounded-full border-4 border-blue-500/20 animate-ping"></span>
@@ -331,7 +332,8 @@ export default function Katalog({ daftarAplikasi }) {
                             <span>Uji latensi server & ketersediaan host</span>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
 
             </div>
