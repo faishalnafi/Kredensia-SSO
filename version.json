@@ -1,6 +1,6 @@
 {
-  "version": "1.3.4",
-  "name": "Pembaruan Portal SSO Sekolah v1.3.4",
+  "version": "1.3.5",
+  "name": "Pembaruan Portal SSO Sekolah v1.3.5",
   "release_date": "2026-08-31",
-  "description": "Penyederhanaan antarmuka formulir masuk dengan menghapus kotak indikator izin lokasi."
+  "description": "Optimasi tata letak dan proporsi formulir masuk agar pas 100% tinggi layar tanpa scroll."
 }
