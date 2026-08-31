@@ -597,41 +597,41 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                         `}></div>
                         
                         <div className={`
-                            relative z-10 flex flex-col h-full py-6 lg:pt-16 lg:pb-10 
-                            text-white justify-center flex-grow
-                            transition-all duration-700
+                            relative z-10 flex flex-col h-full py-6 lg:pt-14 lg:pb-12
+                            text-white justify-between flex-grow
+                            transition-all duration-700 select-none
                             ${kotakBiruDiKiri ? 'px-6 lg:pl-32 lg:pr-16 items-start text-left' : 'px-6 lg:pl-16 lg:pr-32 items-end text-right'}
                         `}>
+                            {/* Greeting & App Title */}
+                            <div>
+                                <p className="text-lg lg:text-xl font-medium text-white/90 mb-1">Selamat Datang di</p>
+                                <h2 className="text-3xl lg:text-5xl font-black tracking-tight text-white">
+                                    {settings?.nama_aplikasi || 'SSO Sekolah'}
+                                </h2>
+                            </div>
+
                             {/* Area Gambar Ilustrasi */}
-                            <div className={`flex-grow flex items-center py-6 w-full ${kotakBiruDiKiri ? 'justify-start' : 'justify-end'}`}>
+                            <div className={`flex items-center py-2 w-full ${kotakBiruDiKiri ? 'justify-start' : 'justify-end'}`}>
                                 <img 
                                     key={currentImageIndex}
                                     alt="Ilustrasi Layanan Pendidikan" 
-                                    className="w-full max-w-none h-auto object-contain drop-shadow-2xl opacity-90 dark:opacity-85 animate-particle scale-[1.5] origin-center" 
+                                    className="w-full max-w-none h-auto object-contain drop-shadow-2xl opacity-90 dark:opacity-85 animate-particle scale-[1.3] origin-center" 
                                     src={images[currentImageIndex]}
                                 />
                             </div>
 
-                            {/* Fitur Utama */}
-                            <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-white/20 pt-6 mt-8 w-full text-white transition-all duration-500 ${kotakBiruDiKiri ? 'text-left' : 'text-right'}`}>
-                                <div className={`flex flex-col ${kotakBiruDiKiri ? 'items-start' : 'items-end'}`}>
-                                    <div className={`flex items-center gap-2 mb-1 ${kotakBiruDiKiri ? '' : 'flex-row-reverse'}`}>
-                                        <span className="material-symbols-rounded text-xl">database</span>
-                                        <h3 className="text-sm font-bold">Data Terisi Otomatis</h3>
-                                    </div>
-                                    <p className="text-xs font-medium leading-relaxed opacity-80">
-                                        Sinkronisasi otomatis dengan data sekolah.
-                                    </p>
+                            {/* Bullets Slogan (Telkom SSO Style) */}
+                            <div className="border-t border-white/20 pt-4 w-full text-white">
+                                <div className="space-y-1 text-xs sm:text-sm font-bold text-white/95 mb-2.5">
+                                    <p>♦ One Data</p>
+                                    <p>♦ One App</p>
+                                    <p>♦ One Network</p>
+                                    <p>♦ One Platform</p>
+                                    <p>♦ One Screen</p>
                                 </div>
-                                <div className={`flex flex-col ${kotakBiruDiKiri ? 'items-start' : 'items-end'}`}>
-                                    <div className={`flex items-center gap-2 mb-1 ${kotakBiruDiKiri ? '' : 'flex-row-reverse'}`}>
-                                        <span className="material-symbols-rounded text-xl">shield_person</span>
-                                        <h3 className="text-sm font-bold">Akses Aman</h3>
-                                    </div>
-                                    <p className="text-xs font-medium leading-relaxed opacity-80">
-                                        Enkripsi tingkat tinggi untuk semua identitas sensitif.
-                                    </p>
-                                </div>
+                                <p className="text-xs font-semibold text-white/75 tracking-wider uppercase">
+                                    {settings?.nama_sekolah || settings?.nama_instansi || 'Portal Layanan Pendidikan Terpadu'}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -648,37 +648,60 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                     `}>
                         <div key={modeAktif === 'masuk' ? 'login-active' : 'login-hidden'} className={`w-full max-w-md mx-auto flex flex-col items-center text-center lg:items-start lg:text-left ${modeAktif === 'masuk' ? 'form-enter' : ''}`}>
                             
-                            {/* Logo & Nama Aplikasi Dinamis */}
-                            <div className="flex items-center gap-2.5 mb-2.5 select-none">
-                                {settings?.logo_primer_url && !logoGagal ? (
-                                    <img 
-                                        src={settings.logo_primer_url} 
-                                        alt={settings.nama_aplikasi || 'Logo'} 
-                                        className="w-8 h-8 object-contain shadow-sm rounded-xl"
-                                        onError={() => setLogoGagal(true)}
-                                    />
-                                ) : (
-                                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#0F91FC] to-[#0a78d6] flex items-center justify-center text-white font-bold shadow-md shadow-[#0F91FC]/20">
-                                        <span className="material-symbols-rounded text-lg">vpn_key</span>
-                                    </div>
-                                )}
-                                <span className="text-lg font-black text-[#081242] dark:text-white uppercase tracking-wider">
-                                    {settings?.nama_aplikasi || 'SingleSignOn'}
-                                </span>
+                            {/* Header Khusus Mobile (Sesuai Gambar 3) */}
+                            <div className="lg:hidden flex flex-col items-center text-center mb-4 w-full select-none">
+                                <div className="flex items-center justify-center gap-2 mb-2">
+                                    {settings?.logo_primer_url && !logoGagal ? (
+                                        <img 
+                                            src={settings.logo_primer_url} 
+                                            alt={settings.nama_aplikasi || 'Logo'} 
+                                            className="w-9 h-9 object-contain drop-shadow-sm rounded-xl"
+                                            onError={() => setLogoGagal(true)}
+                                        />
+                                    ) : (
+                                        <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-[#0F91FC] to-[#0a78d6] flex items-center justify-center text-white font-bold shadow-md shadow-[#0F91FC]/20">
+                                            <span className="material-symbols-rounded text-lg">vpn_key</span>
+                                        </div>
+                                    )}
+                                    <span className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">
+                                        {settings?.nama_aplikasi || 'SSO Sekolah'}
+                                    </span>
+                                </div>
+
+                                <div className="text-[11px] font-bold text-slate-700 dark:text-slate-200 space-y-0.5 mb-2.5">
+                                    <p>One <span className="text-red-500 font-extrabold">Data</span> ♦ One <span className="text-red-500 font-extrabold">App</span> ♦ One <span className="text-red-500 font-extrabold">Network</span></p>
+                                    <p>One <span className="text-red-500 font-extrabold">Platform</span> ♦ One <span className="text-red-500 font-extrabold">Screen</span></p>
+                                </div>
+
+                                <h1 className="text-xs font-bold text-slate-600 dark:text-slate-300">
+                                    Single Account, Single Sign On login
+                                </h1>
                             </div>
 
-                            <div className="flex items-center justify-center lg:justify-start gap-2 mb-2">
-                                <span className="text-[9px] font-extrabold tracking-widest text-[#0F91FC] dark:text-[#ff6b39] uppercase">PENYEDIA IDENTITAS</span>
-                                <span className="bg-gray-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[9px] px-2 py-0.5 rounded-full font-bold">TERVERIFIKASI</span>
+                            {/* Header Khusus Desktop (Sesuai Gambar 2) */}
+                            <div className="hidden lg:flex flex-col items-start mb-3.5 w-full select-none">
+                                <div className="flex items-center gap-2.5 mb-1.5">
+                                    {settings?.logo_primer_url && !logoGagal ? (
+                                        <img 
+                                            src={settings.logo_primer_url} 
+                                            alt={settings.nama_aplikasi || 'Logo'} 
+                                            className="w-8 h-8 object-contain shadow-sm rounded-xl"
+                                            onError={() => setLogoGagal(true)}
+                                        />
+                                    ) : (
+                                        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#0F91FC] to-[#0a78d6] flex items-center justify-center text-white font-bold shadow-md shadow-[#0F91FC]/20">
+                                            <span className="material-symbols-rounded text-lg">vpn_key</span>
+                                        </div>
+                                    )}
+                                    <span className="text-lg font-black text-[#081242] dark:text-white uppercase tracking-wider">
+                                        {settings?.nama_aplikasi || 'SSO Sekolah'}
+                                    </span>
+                                </div>
+
+                                <h1 className="text-sm font-bold text-slate-700 dark:text-slate-200 tracking-tight">
+                                    Single Account, Single Sign On login
+                                </h1>
                             </div>
-                            
-                            <h1 className="text-2xl sm:text-3xl font-extrabold leading-tight mb-1.5 text-slate-800 dark:text-white tracking-tight">
-                                Satu Akun Semua<br />Layanan Pendidikan.
-                            </h1>
-                            
-                            <p className="text-slate-500 dark:text-slate-400 text-xs mb-3.5 leading-relaxed">
-                                Masuk sekali untuk mengakses sistem pembelajaran (E-Learning), penilaian, administrasi, dan seluruh ekosistem digital sekolah.
-                            </p>
 
                             {/* Status Pesan Sukses / Info */}
                             {status && modeAktif === 'masuk' && (
