@@ -54,25 +54,26 @@ class HandleInertiaRequests extends Middleware
             : null;
 
         $settings = Cache::remember('platform_settings', 3600, function() use ($recaptchaSiteKey) {
+            $defaultLogo = 'https://support.nafii.my.id/icon/domains.png';
             try {
                 $data = \App\Models\PengaturanSistem::first();
                 return $data ? [
-                    'nama_aplikasi' => $data->nama_aplikasi,
-                    'logo_primer_url' => $data->logo_primer_url,
-                    'favicon_url' => $data->favicon_url,
+                    'nama_aplikasi' => $data->nama_aplikasi ?: 'SSO Sekolah',
+                    'logo_primer_url' => $data->logo_primer_url ?: $defaultLogo,
+                    'favicon_url' => $data->favicon_url ?: $defaultLogo,
                     'recaptcha_site_key' => $recaptchaSiteKey,
                 ] : [
                     'nama_aplikasi' => 'SSO Sekolah',
-                    'logo_primer_url' => null,
-                    'favicon_url' => '/favicon.ico',
+                    'logo_primer_url' => $defaultLogo,
+                    'favicon_url' => $defaultLogo,
                     'recaptcha_site_key' => $recaptchaSiteKey,
                 ];
             } catch (\Exception $e) {
                 // Return default settings if table doesn't exist yet (during setup)
                 return [
                     'nama_aplikasi' => 'SSO Sekolah',
-                    'logo_primer_url' => null,
-                    'favicon_url' => '/favicon.ico',
+                    'logo_primer_url' => $defaultLogo,
+                    'favicon_url' => $defaultLogo,
                     'recaptcha_site_key' => $recaptchaSiteKey,
                 ];
             }

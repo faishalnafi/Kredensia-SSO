@@ -15,18 +15,12 @@ export default function GuestLayout({ children }) {
 
             <div className="flex flex-col items-center gap-3 mb-6 select-none">
                 <Link href="/">
-                    {settings?.logo_primer_url && !logoGagal ? (
-                        <img 
-                            src={settings.logo_primer_url} 
-                            alt={settings.nama_aplikasi || 'Logo'} 
-                            className="h-16 w-16 object-contain shadow-sm rounded-2xl"
-                            onError={() => setLogoGagal(true)}
-                        />
-                    ) : (
-                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#0F91FC] to-[#0a78d6] flex items-center justify-center text-white font-bold shadow-lg shadow-[#0F91FC]/25">
-                            <span className="material-symbols-rounded text-4xl">vpn_key</span>
-                        </div>
-                    )}
+                    <img 
+                        src={(!logoGagal && settings?.logo_primer_url) ? settings.logo_primer_url : 'https://support.nafii.my.id/icon/domains.png'} 
+                        alt={settings?.nama_aplikasi || 'Logo'} 
+                        className="h-16 w-16 object-contain shadow-sm rounded-2xl p-1 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700"
+                        onError={() => setLogoGagal(true)}
+                    />
                 </Link>
                 {settings?.nama_aplikasi && (
                     <span className="text-lg font-black text-[#081242] dark:text-white uppercase tracking-wider">

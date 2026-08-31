@@ -1,6 +1,6 @@
 {
-  "version": "1.4.9",
-  "name": "Pembaruan Portal SSO Sekolah v1.4.9",
+  "version": "1.5.0",
+  "name": "Pembaruan Portal SSO Sekolah v1.5.0",
   "release_date": "2026-08-31",
-  "description": "Membesarkan sedikit ukuran judul Single Account, Single Sign On login (text-lg sm:text-xl lg:text-2xl)."
+  "description": "Mengimplementasikan efek partikel Sintesa Canvas melayang (floating constellation net) khusus di dalam latar belakang biru banner."
 }

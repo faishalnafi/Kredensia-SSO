@@ -1,9 +1,140 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Head, Link, useForm, router, usePage } from '@inertiajs/react';
 import InputError from '@/Components/InputError';
 import Checkbox from '@/Components/Checkbox';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+
+/**
+ * Komponen Partikel Sintesa Canvas
+ * Menampilkan efek partikel melayang dan constellation net khusus di bagian biru banner
+ */
+function KomponenPartikelSintesa() {
+    const canvasRef = useRef(null);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        let animationFrameId;
+
+        let width = (canvas.width = canvas.parentElement.offsetWidth);
+        let height = (canvas.height = canvas.parentElement.offsetHeight);
+
+        const tanganiResize = () => {
+            if (!canvas || !canvas.parentElement) return;
+            width = canvas.width = canvas.parentElement.offsetWidth;
+            height = canvas.height = canvas.parentElement.offsetHeight;
+        };
+
+        window.addEventListener('resize', tanganiResize);
+
+        // Inisialisasi Partikel Sintesa
+        const jumlahPartikel = Math.min(Math.floor((width * height) / 8000), 65);
+        const partikelArray = [];
+
+        class Partikel {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.ukuran = Math.random() * 2.2 + 1.2;
+                this.kecepatanX = (Math.random() - 0.5) * 0.6;
+                this.kecepatanY = -Math.random() * 0.5 - 0.2;
+                this.alpha = Math.random() * 0.5 + 0.25;
+                this.targetAlpha = this.alpha;
+                this.kecepatanAlpha = Math.random() * 0.01 + 0.005;
+            }
+
+            perbarui() {
+                this.x += this.kecepatanX;
+                this.y += this.kecepatanY;
+
+                // Reset posisi saat keluar layar
+                if (this.y < -10) {
+                    this.y = height + 10;
+                    this.x = Math.random() * width;
+                }
+                if (this.x < -10) this.x = width + 10;
+                if (this.x > width + 10) this.x = -10;
+
+                // Animasi kelap-kelip lembut
+                if (Math.abs(this.alpha - this.targetAlpha) < 0.01) {
+                    this.targetAlpha = Math.random() * 0.6 + 0.2;
+                }
+                if (this.alpha < this.targetAlpha) {
+                    this.alpha += this.kecepatanAlpha;
+                } else {
+                    this.alpha -= this.kecepatanAlpha;
+                }
+            }
+
+            gambar() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.ukuran, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
+                ctx.shadowBlur = 6;
+                ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        for (let i = 0; i < jumlahPartikel; i++) {
+            partikelArray.push(new Partikel());
+        }
+
+        // Menghubungkan Garis Antar Partikel (Constellation Net Effect Sintesa)
+        const hubungkanGaris = () => {
+            const jarakMaksimal = 110;
+            for (let a = 0; a < partikelArray.length; a++) {
+                for (let b = a + 1; b < partikelArray.length; b++) {
+                    const dx = partikelArray[a].x - partikelArray[b].x;
+                    const dy = partikelArray[a].y - partikelArray[b].y;
+                    const jarak = Math.sqrt(dx * dx + dy * dy);
+
+                    if (jarak < jarakMaksimal) {
+                        const opasitas = (1 - jarak / jarakMaksimal) * 0.22;
+                        ctx.strokeStyle = `rgba(255, 255, 255, ${opasitas})`;
+                        ctx.lineWidth = 0.75;
+                        ctx.beginPath();
+                        ctx.moveTo(partikelArray[a].x, partikelArray[a].y);
+                        ctx.lineTo(partikelArray[b].x, partikelArray[b].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        };
+
+        // Loop Animasi Canvas
+        const animasi = () => {
+            ctx.clearRect(0, 0, width, height);
+
+            partikelArray.forEach((partikel) => {
+                partikel.perbarui();
+                partikel.gambar();
+            });
+
+            hubungkanGaris();
+
+            animationFrameId = requestAnimationFrame(animasi);
+        };
+
+        animasi();
+
+        return () => {
+            window.removeEventListener('resize', tanganiResize);
+            cancelAnimationFrame(animationFrameId);
+        };
+    }, []);
+
+    return (
+        <canvas
+            ref={canvasRef}
+            className="absolute inset-0 w-full h-full pointer-events-none z-0 rounded-[4rem]"
+        />
+    );
+}
 
 
 /**
@@ -588,13 +719,16 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                     >
                         {/* Background Shape - rounded corner tetap sama di semua ujung */}
                         <div className={`
-                            absolute inset-y-0 w-full bg-[#0F91FC] dark:bg-slate-950 z-0 lg:rounded-[4rem]
+                            absolute inset-y-0 w-full bg-[#0F91FC] dark:bg-slate-950 z-0 lg:rounded-[4rem] overflow-hidden
                             transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]
                             ${kotakBiruDiKiri 
                                 ? 'shadow-[30px_0_60px_-15px_rgba(0,0,0,0.3)]' 
                                 : 'shadow-[-30px_0_60px_-15px_rgba(0,0,0,0.3)]'
                             }
-                        `}></div>
+                        `}>
+                            {/* Partikel Sintesa Canvas Khusus Latar Belakang Biru */}
+                            <KomponenPartikelSintesa />
+                        </div>
                         
                         <div className="relative z-10 flex flex-col h-full py-8 text-white justify-center items-center flex-grow transition-all duration-700 select-none px-6 lg:px-14 text-center">
                             {/* Area Gambar Ilustrasi */}
@@ -653,18 +787,12 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                             {/* Tampilan Khusus Mobile: Logo, Nama SSO, dan Slogan Aksen Merah (Sesuai Gambar 5) */}
                             <div className="flex md:hidden flex-col items-center mb-6 select-none w-full text-center">
                                 <div className="flex items-center gap-3 mb-2.5">
-                                    {settings?.logo_primer_url && !logoGagal ? (
-                                        <img 
-                                            src={settings.logo_primer_url} 
-                                            alt={settings.nama_aplikasi || 'Logo'} 
-                                            className="w-11 h-11 object-contain shadow-sm rounded-xl"
-                                            onError={() => setLogoGagal(true)}
-                                        />
-                                    ) : (
-                                        <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#0F91FC] to-[#0a78d6] flex items-center justify-center text-white font-bold shadow-lg shadow-[#0F91FC]/25">
-                                            <span className="material-symbols-rounded text-2xl">vpn_key</span>
-                                        </div>
-                                    )}
+                                    <img 
+                                        src={(!logoGagal && settings?.logo_primer_url) ? settings.logo_primer_url : 'https://support.nafii.my.id/icon/domains.png'} 
+                                        alt={settings?.nama_aplikasi || 'Logo'} 
+                                        className="w-11 h-11 object-contain shadow-sm rounded-xl"
+                                        onError={() => setLogoGagal(true)}
+                                    />
                                     <span className="text-2xl font-black text-[#081242] dark:text-white uppercase tracking-wider">
                                         {settings?.nama_aplikasi || 'SSO Sekolah'}
                                     </span>

@@ -21,10 +21,11 @@ class PengaturanSistemController extends Controller
      */
     public function indeks(): Response
     {
+        $defaultLogo = 'https://support.nafii.my.id/icon/domains.png';
         $pengaturan = PengaturanSistem::firstOrCreate(['id' => 1], [
             'nama_aplikasi' => 'SSO Sekolah',
-            'logo_primer_url' => null,
-            'favicon_url' => '/favicon.ico',
+            'logo_primer_url' => $defaultLogo,
+            'favicon_url' => $defaultLogo,
         ]);
 
         // Jika data di database kosong, salin dari file .env agar tidak terputus
