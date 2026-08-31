@@ -614,8 +614,8 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                 </h2>
 
                                 <div className="text-xs sm:text-sm font-semibold text-white/95 space-y-0.5">
-                                    <p>One <span className="text-red-300 font-extrabold">Data</span> ♦ One <span className="text-red-300 font-extrabold">App</span> ♦ One <span className="text-red-300 font-extrabold">Network</span></p>
-                                    <p>One <span className="text-red-300 font-extrabold">Platform</span> ♦ One <span className="text-red-300 font-extrabold">Screen</span></p>
+                                    <p>One <span className="text-[#EA4335] font-extrabold">Data</span> ♦ One <span className="text-[#EA4335] font-extrabold">App</span> ♦ One <span className="text-[#EA4335] font-extrabold">Network</span></p>
+                                    <p>One <span className="text-[#EA4335] font-extrabold">Platform</span> ♦ One <span className="text-[#EA4335] font-extrabold">Screen</span></p>
                                 </div>
 
                                 <p className="text-[11px] font-bold text-white/75 tracking-wider uppercase">

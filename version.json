@@ -1,6 +1,6 @@
 {
-  "version": "1.4.0",
-  "name": "Pembaruan Portal SSO Sekolah v1.4.0",
+  "version": "1.4.1",
+  "name": "Pembaruan Portal SSO Sekolah v1.4.1",
   "release_date": "2026-08-31",
-  "description": "Tagline login dikunci dalam 1 baris (single line) tanpa line wrap."
+  "description": "Penyesuaian warna aksen merah pada slogan menjadi kode warna spesifik #EA4335."
 }
