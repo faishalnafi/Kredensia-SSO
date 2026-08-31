@@ -1,6 +1,6 @@
 {
-  "version": "1.3.3",
-  "name": "Pembaruan Portal SSO Sekolah v1.3.3",
+  "version": "1.3.4",
+  "name": "Pembaruan Portal SSO Sekolah v1.3.4",
   "release_date": "2026-08-31",
-  "description": "Peningkatan kelengkungan sudut (radius 42px) pada konten utama antarmuka."
+  "description": "Penyederhanaan antarmuka formulir masuk dengan menghapus kotak indikator izin lokasi."
 }

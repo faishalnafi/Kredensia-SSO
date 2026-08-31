@@ -821,42 +821,6 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                     </Link>
                                 </div>
 
-                                {/* Indicator Status Izin Akses Lokasi (GPS) */}
-                                <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700/60 text-xs my-2">
-                                    <div className="flex items-center gap-2">
-                                        <span className="material-symbols-rounded text-base text-[#0F91FC]">location_on</span>
-                                        <span className="text-slate-600 dark:text-slate-300 font-medium">Izin Lokasi:</span>
-                                    </div>
-
-                                    {statusGps === 'tersedia' && (
-                                        <span className="text-emerald-600 dark:text-emerald-400 font-extrabold flex items-center gap-1">
-                                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping inline-block"></span>
-                                            Terdeteksi 🟢
-                                        </span>
-                                    )}
-
-                                    {statusGps === 'meminta' && (
-                                        <span className="text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1 animate-pulse">
-                                            <span className="material-symbols-rounded text-xs animate-spin">progress_activity</span>
-                                            Meminta Lokasi...
-                                        </span>
-                                    )}
-
-                                    {statusGps === 'ditolak' && (
-                                        <button
-                                            type="button"
-                                            onClick={tampilkanPanduanIzinGps}
-                                            className="text-red-600 dark:text-red-400 font-extrabold underline hover:text-red-700 transition-all flex items-center gap-1 cursor-pointer"
-                                        >
-                                            <span>Ditolak (Panduan 📍)</span>
-                                        </button>
-                                    )}
-
-                                    {statusGps === 'tidak_didukung' && (
-                                        <span className="text-slate-400 font-medium">Tidak Didukung</span>
-                                    )}
-                                </div>
-
                                 <button 
                                     className="w-full bg-slate-900 dark:bg-[#0F91FC] text-white font-bold py-4 px-8 rounded-xl hover:bg-slate-800 dark:hover:bg-[#e03d09] transition-all text-xs uppercase tracking-widest mt-2 shadow-lg shadow-slate-900/10 dark:shadow-orange-600/10 disabled:opacity-50"
                                     disabled={prosesLogin}
