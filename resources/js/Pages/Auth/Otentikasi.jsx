@@ -32,7 +32,6 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
     };
 
     const [modeAktif, setModeAktif] = useState(ambilModeAwal);
-    const [premiumPopup, setPremiumPopup] = useState({ buka: false, tipe: '' });
     const [logoGagal, setLogoGagal] = useState(false);
     const [tahapKlaim, setTahapKlaim] = useState(1);
     const [tampilkanSandi, setTampilkanSandi] = useState(false);
@@ -716,24 +715,26 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                         Masuk dengan Google
                                     </button>
 
-                                    {/* Apple & Microsoft (Grid 2 Kolom) */}
+                                    {/* Apple & Microsoft (Grid 2 Kolom - Dinonaktifkan) */}
                                     <div className="grid grid-cols-2 gap-2.5 w-full">
                                         <button
                                             type="button"
-                                            onClick={() => setPremiumPopup({ buka: true, tipe: 'Apple' })}
-                                            className="flex items-center justify-center gap-2 px-3 py-2.5 bg-black text-white dark:bg-white dark:text-black border border-black dark:border-white rounded-xl text-xs font-bold hover:bg-neutral-900 dark:hover:bg-neutral-100 transition-all focus:ring-2 focus:ring-neutral-200 dark:focus:ring-slate-800 shadow-sm"
+                                            disabled
+                                            title="Masuk dengan Apple saat ini belum tersedia"
+                                            className="flex items-center justify-center gap-2 px-3 py-2.5 bg-neutral-100 text-neutral-400 dark:bg-slate-800/80 dark:text-slate-500 border border-neutral-200 dark:border-slate-700/60 rounded-xl text-xs font-bold opacity-60 cursor-not-allowed select-none shadow-none"
                                         >
-                                            <svg className="w-4 h-4 shrink-0 fill-current" viewBox="0 0 24 24">
+                                            <svg className="w-4 h-4 shrink-0 fill-current opacity-70" viewBox="0 0 24 24">
                                                 <path d="M18.71 19.5C17.88 20.74 17 21.95 15.66 21.97C14.32 22 13.89 21.18 12.37 21.18C10.84 21.18 10.37 21.95 9.1 22C7.79 22.05 6.8 20.68 5.96 19.48C4.25 17 2.94 12.45 4.7 9.39C5.57 7.87 7.13 6.91 8.82 6.88C10.1 6.86 11.32 7.75 12.11 7.75C12.89 7.75 14.37 6.68 15.92 6.84C16.57 6.87 18.39 7.1 19.56 8.82C19.47 8.88 17.39 10.1 17.41 12.63C17.44 15.65 20.06 16.66 20.1 16.67C20.08 16.74 19.67 18.11 18.71 19.5M15.97 4.17C16.63 3.37 17.07 2.28 16.95 1C15.85 1.04 14.51 1.73 13.73 2.64C13.07 3.41 12.49 4.52 12.64 5.78C13.87 5.87 15.12 5.17 15.97 4.17Z" />
                                             </svg>
                                             Masuk dengan Apple
                                         </button>
                                         <button
                                             type="button"
-                                            onClick={() => setPremiumPopup({ buka: true, tipe: 'Microsoft' })}
-                                            className="flex items-center justify-center gap-2 px-3 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all focus:ring-2 focus:ring-slate-100 dark:focus:ring-slate-800 shadow-sm"
+                                            disabled
+                                            title="Masuk dengan Microsoft saat ini belum tersedia"
+                                            className="flex items-center justify-center gap-2 px-3 py-2.5 bg-neutral-100 text-neutral-400 dark:bg-slate-800/80 dark:text-slate-500 border border-neutral-200 dark:border-slate-700/60 rounded-xl text-xs font-bold opacity-60 cursor-not-allowed select-none shadow-none"
                                         >
-                                            <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 23 23">
+                                            <svg className="w-3.5 h-3.5 shrink-0 opacity-70 grayscale" viewBox="0 0 23 23">
                                                 <path fill="#f35325" d="M0 0h11v11H0z" />
                                                 <path fill="#81bc06" d="M12 0h11v11H12z" />
                                                 <path fill="#05a6f0" d="M0 12h11v11H0z" />
@@ -1165,51 +1166,6 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
 
                 </div>
             </main>
-
-            {/* Modal Informasi Fitur Premium (Apple / Microsoft) */}
-            {premiumPopup.buka && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-                    <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl w-full max-w-md p-6 shadow-2xl space-y-5 text-center">
-                        <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto text-slate-800 dark:text-white">
-                            <span className="material-symbols-rounded text-3xl animate-pulse">workspace_premium</span>
-                        </div>
-                        <div className="space-y-2">
-                            <h3 className="font-extrabold text-lg text-slate-800 dark:text-white">Fitur Eksklusif Gold</h3>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                                Otentikasi masuk "Masuk dengan {premiumPopup.tipe}" merupakan fitur tambahan premium. Lakukan donasi pengembangan atau langganan paket Gold untuk mengaktifkan integrasi OAuth2 {premiumPopup.tipe}.
-                            </p>
-                        </div>
-                        <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200/40 dark:border-amber-800/30 p-4 rounded-2xl text-left text-xs leading-relaxed text-amber-800 dark:text-amber-400 font-bold space-y-1">
-                            <div className="flex items-center gap-1">
-                                <span className="material-symbols-rounded text-sm text-amber-600 dark:text-amber-500">stars</span>
-                                <span>Keuntungan Paket Gold:</span>
-                            </div>
-                            <ul className="list-disc list-inside font-medium mt-1 space-y-0.5 text-[11px] text-amber-700 dark:text-amber-400">
-                                <li>OAuth2 Apple & Microsoft Azure AD</li>
-                                <li>Custom Domain Lintas Subdomain SSO</li>
-                                <li>Dukungan Prioritas 24/7</li>
-                            </ul>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <a 
-                                href="https://saweria.co/" 
-                                target="_blank" 
-                                rel="noopener noreferrer" 
-                                className="w-full bg-[#0F91FC] hover:bg-blue-600 text-white font-bold py-3.5 px-4 rounded-xl text-xs uppercase tracking-widest shadow-lg shadow-blue-500/10 transition-all text-center"
-                            >
-                                Hubungi Pengembang / Donasi
-                            </a>
-                            <button
-                                type="button"
-                                onClick={() => setPremiumPopup({ buka: false, tipe: '' })}
-                                className="w-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold py-3.5 px-4 rounded-xl text-xs uppercase tracking-widest transition-all"
-                            >
-                                Tutup
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }
