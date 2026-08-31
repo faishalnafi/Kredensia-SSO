@@ -679,7 +679,7 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
 
                             {/* Heading Form Login - Single Account, Single Sign On login sebagai Judul Utama */}
                             <div className="flex flex-col items-center lg:items-start mb-6 select-none w-full text-center lg:text-left">
-                                <h1 className="text-base sm:text-lg lg:text-xl font-extrabold leading-tight text-[#081242] dark:text-white tracking-tight whitespace-nowrap">
+                                <h1 className="text-lg sm:text-xl lg:text-2xl font-extrabold leading-tight text-[#081242] dark:text-white tracking-tight whitespace-nowrap">
                                     Single Account, Single Sign On login
                                 </h1>
                             </div>

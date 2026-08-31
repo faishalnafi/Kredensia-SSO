@@ -1,6 +1,6 @@
 {
-  "version": "1.4.8",
-  "name": "Pembaruan Portal SSO Sekolah v1.4.8",
+  "version": "1.4.9",
+  "name": "Pembaruan Portal SSO Sekolah v1.4.9",
   "release_date": "2026-08-31",
-  "description": "Mengunci judul Single Account, Single Sign On login dalam 1 baris utuh (whitespace-nowrap) tanpa line wrap."
+  "description": "Membesarkan sedikit ukuran judul Single Account, Single Sign On login (text-lg sm:text-xl lg:text-2xl)."
 }
