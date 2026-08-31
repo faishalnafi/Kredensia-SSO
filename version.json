@@ -1,6 +1,6 @@
 {
-  "version": "1.5.1",
-  "name": "Pembaruan Portal SSO Sekolah v1.5.1",
+  "version": "1.5.2",
+  "name": "Pembaruan Portal SSO Sekolah v1.5.2",
   "release_date": "2026-08-31",
-  "description": "Mengintegrasikan halaman #buat-akun, #panduan, dan #kata-sandi dalam 1 halaman SPA Otentikasi dengan transisi geser kotak biru yang halus."
+  "description": "Pembaruan Otentikasi SPA dengan transisi geser kotak biru, form surel lipat/buka, penyesuaian header & slogan mobile, serta perataan teks rata kiri konsisten."
 }

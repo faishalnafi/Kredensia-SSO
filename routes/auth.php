@@ -59,6 +59,16 @@ Route::middleware('guest')->group(function () {
         return redirect('/otentikasi' . (!empty($query) ? '?' . http_build_query($query) : '') . '#buat-akun');
     })->name('register');
 
+    Route::get('kebijakan-privasi', function (\Illuminate\Http\Request $request) {
+        $query = $request->query();
+        return redirect('/otentikasi' . (!empty($query) ? '?' . http_build_query($query) : '') . '#kebijakan-privasi');
+    })->name('kebijakan-privasi');
+
+    Route::get('syarat-dan-ketentuan', function (\Illuminate\Http\Request $request) {
+        $query = $request->query();
+        return redirect('/otentikasi' . (!empty($query) ? '?' . http_build_query($query) : '') . '#syarat-dan-ketentuan');
+    })->name('syarat-dan-ketentuan');
+
     Route::get('lupa-kata-sandi', function (\Illuminate\Http\Request $request) {
         $query = $request->query();
         return redirect('/otentikasi' . (!empty($query) ? '?' . http_build_query($query) : '') . '#kata-sandi');
