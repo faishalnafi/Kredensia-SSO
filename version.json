@@ -1,6 +1,6 @@
 {
-  "version": "1.5.0",
-  "name": "Pembaruan Portal SSO Sekolah v1.5.0",
+  "version": "1.5.1",
+  "name": "Pembaruan Portal SSO Sekolah v1.5.1",
   "release_date": "2026-08-31",
-  "description": "Mengimplementasikan efek partikel Sintesa Canvas melayang (floating constellation net) khusus di dalam latar belakang biru banner."
+  "description": "Mengintegrasikan halaman #buat-akun, #panduan, dan #kata-sandi dalam 1 halaman SPA Otentikasi dengan transisi geser kotak biru yang halus."
 }

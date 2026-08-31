@@ -305,20 +305,13 @@ export default function TataLetakUtama({ children, title }) {
                         <span className="material-symbols-rounded text-2xl">menu</span>
                     </button>
 
-                    {/* Logo & Nama Aplikasi */}
                     <Link href={route('dasbor')} className="flex items-center gap-2.5 group">
-                        {settings?.logo_primer_url && !logoGagal ? (
-                            <img
-                                src={settings.logo_primer_url}
-                                alt={settings.nama_aplikasi || 'Logo'}
-                                className="w-8 h-8 rounded-xl object-contain bg-white/15 p-0.5 shadow-sm shrink-0"
-                                onError={() => setLogoGagal(true)}
-                            />
-                        ) : (
-                            <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center text-white font-bold shrink-0">
-                                <span className="material-symbols-rounded text-lg">vpn_key</span>
-                            </div>
-                        )}
+                        <img
+                            src={(!logoGagal && settings?.logo_primer_url) ? settings.logo_primer_url : 'https://support.nafii.my.id/icon/domains.png'}
+                            alt={settings?.nama_aplikasi || 'Logo'}
+                            className="w-8 h-8 rounded-xl object-contain bg-white/15 p-0.5 shadow-sm shrink-0"
+                            onError={() => setLogoGagal(true)}
+                        />
                         <span className="font-extrabold text-base lg:text-lg tracking-tight text-white group-hover:opacity-90 transition-opacity">
                             {settings?.nama_aplikasi || 'SingleSignOn'}
                         </span>
@@ -363,21 +356,14 @@ export default function TataLetakUtama({ children, title }) {
                     ${sidebarBuka ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
                     w-64 ${sidebarMengecil ? 'lg:w-[5.75rem]' : 'lg:w-[13.5rem]'}
                 `}>
-                    {/* Header khusus Mobile Drawer (di paling atas drawer) */}
                     <div className="h-16 flex items-center justify-between px-4 border-b border-white/15 shrink-0 lg:hidden">
                         <div className="flex items-center gap-2.5">
-                            {settings?.logo_primer_url && !logoGagal ? (
-                                <img
-                                    src={settings.logo_primer_url}
-                                    alt={settings.nama_aplikasi || 'Logo'}
-                                    className="w-8 h-8 rounded-xl object-contain bg-white/15 p-0.5 shadow-sm shrink-0"
-                                    onError={() => setLogoGagal(true)}
-                                />
-                            ) : (
-                                <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center text-white font-bold shrink-0">
-                                    <span className="material-symbols-rounded text-lg">vpn_key</span>
-                                </div>
-                            )}
+                            <img
+                                src={(!logoGagal && settings?.logo_primer_url) ? settings.logo_primer_url : 'https://support.nafii.my.id/icon/domains.png'}
+                                alt={settings?.nama_aplikasi || 'Logo'}
+                                className="w-8 h-8 rounded-xl object-contain bg-white/15 p-0.5 shadow-sm shrink-0"
+                                onError={() => setLogoGagal(true)}
+                            />
                             <span className="font-extrabold text-base tracking-tight text-white">
                                 {settings?.nama_aplikasi || 'SingleSignOn'}
                             </span>

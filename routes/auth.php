@@ -49,16 +49,19 @@ Route::middleware('guest')->group(function () {
     Route::post('otentikasi/cek-identitas', [ClaimAccountController::class, 'cekIdentitas'])
         ->name('claim.check');
 
-    Route::get('panduan', function () {
-        return inertia('ComingSoon', ['title' => 'Panduan Penggunaan']);
+    Route::get('panduan', function (\Illuminate\Http\Request $request) {
+        $query = $request->query();
+        return redirect('/otentikasi' . (!empty($query) ? '?' . http_build_query($query) : '') . '#panduan');
     })->name('panduan');
 
-    Route::get('buat-akun', function () {
-        return inertia('ComingSoon', ['title' => 'Pembuatan Akun Baru']);
+    Route::get('buat-akun', function (\Illuminate\Http\Request $request) {
+        $query = $request->query();
+        return redirect('/otentikasi' . (!empty($query) ? '?' . http_build_query($query) : '') . '#buat-akun');
     })->name('register');
 
-    Route::get('lupa-kata-sandi', function () {
-        return inertia('ComingSoon', ['title' => 'Pemulihan Kata Sandi']);
+    Route::get('lupa-kata-sandi', function (\Illuminate\Http\Request $request) {
+        $query = $request->query();
+        return redirect('/otentikasi' . (!empty($query) ? '?' . http_build_query($query) : '') . '#kata-sandi');
     })->name('password.request');
 
     Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])

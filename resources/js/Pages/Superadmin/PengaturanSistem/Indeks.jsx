@@ -4,8 +4,8 @@ import TataLetakUtama from '@/Layouts/TataLetakUtama';
 import InputError from '@/Components/InputError';
 
 export default function PengaturanSistem({ pengaturan, callbackUri }) {
-    const [logoPreview, setLogoPreview] = useState(pengaturan.logo_primer_url || '/icon/domains.png');
-    const [faviconPreview, setFaviconPreview] = useState(pengaturan.favicon_url || '/favicon.ico');
+    const [logoPreview, setLogoPreview] = useState(pengaturan.logo_primer_url || 'https://support.nafii.my.id/icon/domains.png');
+    const [faviconPreview, setFaviconPreview] = useState(pengaturan.favicon_url || 'https://support.nafii.my.id/icon/domains.png');
     const [logoError, setLogoError] = useState(false);
     const [faviconError, setFaviconError] = useState(false);
     const [statusSalin, setStatusSalin] = useState(false);

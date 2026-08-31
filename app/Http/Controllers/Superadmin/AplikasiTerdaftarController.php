@@ -74,6 +74,8 @@ class AplikasiTerdaftarController extends Controller
             $logoUrl = Storage::url($path);
         }
 
+        $logoUrl = $logoUrl ?: 'https://support.nafii.my.id/icon/domains.png';
+
         // Generate Client Secret jika login_callback_url diisi
         $clientSecret = null;
         if ($request->filled('login_callback_url')) {

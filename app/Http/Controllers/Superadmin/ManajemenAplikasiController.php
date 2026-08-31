@@ -58,6 +58,8 @@ class ManajemenAplikasiController extends Controller
             $logoUrl = Storage::url($path);
         }
 
+        $logoUrl = $logoUrl ?: 'https://support.nafii.my.id/icon/domains.png';
+
         $app = RegisteredApp::create([
             'nama_aplikasi' => $request->nama_aplikasi,
             'deskripsi' => $request->deskripsi,

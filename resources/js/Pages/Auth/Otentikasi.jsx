@@ -156,7 +156,9 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
     const ambilModeAwal = () => {
         if (typeof window !== 'undefined') {
             const hash = window.location.hash.replace('#', '');
-            if (hash === 'verifikasi') return 'verifikasi';
+            if (['verifikasi', 'buat-akun', 'panduan', 'kata-sandi'].includes(hash)) {
+                return hash;
+            }
             if (hash === 'masuk') return 'masuk';
         }
         return modeProp || 'masuk';
@@ -327,17 +329,15 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
         const handleHashChange = () => {
             if (typeof window !== 'undefined') {
                 const hash = window.location.hash.replace('#', '');
-                if (hash === 'verifikasi') {
-                    setModeAktif('verifikasi');
-                } else if (hash === 'masuk') {
-                    setModeAktif('masuk');
+                if (['verifikasi', 'masuk', 'buat-akun', 'panduan', 'kata-sandi'].includes(hash)) {
+                    setModeAktif(hash);
                 }
             }
         };
 
         if (typeof window !== 'undefined' && window.location.hash) {
             const currentHash = window.location.hash.replace('#', '');
-            if (currentHash === 'verifikasi' || currentHash === 'masuk') {
+            if (['verifikasi', 'masuk', 'buat-akun', 'panduan', 'kata-sandi'].includes(currentHash)) {
                 setModeAktif(currentHash);
             } else {
                 window.location.hash = modeAktif;
@@ -354,7 +354,7 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
     useEffect(() => {
         if (typeof window !== 'undefined' && window.location.hash) {
             const hash = window.location.hash.replace('#', '');
-            if (hash === 'verifikasi' || hash === 'masuk') {
+            if (['verifikasi', 'masuk', 'buat-akun', 'panduan', 'kata-sandi'].includes(hash)) {
                 return; // Prioritaskan Hash URL jika pengguna secara eksplisit membuka URL dengan hash (#verifikasi)
             }
         }
@@ -877,12 +877,12 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                     </div>
                                 </div>
 
-                                <div className="flex justify-center items-center gap-3 text-xs font-semibold text-slate-500 dark:text-slate-400 py-1">
-                                    <Link href={route('panduan')} className="hover:text-[#0F91FC] dark:hover:text-[#ff6b39] transition-colors">Panduan</Link>
+                                <div className="flex justify-center items-center gap-3 text-xs font-semibold text-slate-500 dark:text-slate-400 py-1 select-none">
+                                    <button type="button" onClick={() => gantiMode('panduan')} className="hover:text-[#0F91FC] dark:hover:text-[#ff6b39] transition-colors">Panduan</button>
                                     <span className="text-slate-300 dark:text-slate-600">•</span>
                                     <button type="button" onClick={() => gantiMode('verifikasi')} className="hover:text-[#0F91FC] dark:hover:text-[#ff6b39] transition-colors">Verifikasi Akun</button>
                                     <span className="text-slate-300 dark:text-slate-600">•</span>
-                                    <Link href={route('register')} className="hover:text-[#0F91FC] dark:hover:text-[#ff6b39] transition-colors">Buat Akun</Link>
+                                    <button type="button" onClick={() => gantiMode('buat-akun')} className="hover:text-[#0F91FC] dark:hover:text-[#ff6b39] transition-colors">Buat Akun</button>
                                 </div>
                                 
                                 <div className="flex items-center gap-3 py-0.5">
@@ -946,12 +946,13 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                         </span>
                                     </label>
 
-                                    <Link
-                                        href={route('password.request')}
-                                        className="text-xs font-semibold text-[#0F91FC] hover:text-[#0a78d6] dark:text-[#0F91FC] dark:hover:text-[#42a7ff]"
+                                    <button
+                                        type="button"
+                                        onClick={() => gantiMode('kata-sandi')}
+                                        className="text-xs font-semibold text-[#0F91FC] hover:text-[#0a78d6] dark:text-[#0F91FC] dark:hover:text-[#42a7ff] transition-colors"
                                     >
                                         Lupa kata sandi?
-                                    </Link>
+                                    </button>
                                 </div>
 
                                 <button 
@@ -975,33 +976,37 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                         transition-all duration-500
                         ${modeAktif === 'verifikasi' ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}
                     `}>
-                        <div key={modeAktif === 'verifikasi' ? 'klaim-active' : 'klaim-hidden'} className={`w-full max-w-md mx-auto flex flex-col items-start text-left ${modeAktif === 'verifikasi' ? 'form-enter' : ''}`}>
+                        <div key={modeAktif === 'verifikasi' ? 'klaim-active' : 'klaim-hidden'} className={`w-full max-w-md mx-auto flex flex-col items-center text-center lg:items-start lg:text-left ${modeAktif === 'verifikasi' ? 'form-enter' : ''}`}>
                             
-                            {/* Logo & Nama Aplikasi Dinamis (Disembunyikan pada Tampilan Tablet & Desktop) */}
-                            <div className="flex md:hidden items-center gap-3 mb-6 select-none">
-                                {settings?.logo_primer_url && !logoGagal ? (
+                            {/* Tampilan Khusus Mobile: Logo, Nama SSO, dan Slogan Aksen Merah */}
+                            <div className="flex md:hidden flex-col items-center mb-6 select-none w-full text-center">
+                                <div className="flex items-center gap-3 mb-2.5">
                                     <img 
-                                        src={settings.logo_primer_url} 
-                                        alt={settings.nama_aplikasi || 'Logo'} 
-                                        className="w-10 h-10 object-contain shadow-sm rounded-xl"
+                                        src={(!logoGagal && settings?.logo_primer_url) ? settings.logo_primer_url : 'https://support.nafii.my.id/icon/domains.png'} 
+                                        alt={settings?.nama_aplikasi || 'Logo'} 
+                                        className="w-11 h-11 object-contain shadow-sm rounded-xl"
                                         onError={() => setLogoGagal(true)}
                                     />
-                                ) : (
-                                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#0F91FC] to-[#0a78d6] flex items-center justify-center text-white font-bold shadow-lg shadow-[#0F91FC]/25">
-                                        <span className="material-symbols-rounded text-xl">vpn_key</span>
-                                    </div>
-                                )}
-                                <span className="text-xl font-black text-[#081242] dark:text-white uppercase tracking-wider">
-                                    {settings?.nama_aplikasi || 'SSO Sekolah'}
-                                </span>
+                                    <span className="text-2xl font-black text-[#081242] dark:text-white uppercase tracking-wider">
+                                        {settings?.nama_aplikasi || 'SSO Sekolah'}
+                                    </span>
+                                </div>
+
+                                {/* Slogan 2 Baris Aksen Merah #EA4335 Khusus Mobile */}
+                                <div className="text-xs font-bold text-slate-700 dark:text-slate-200 space-y-0.5 mb-2">
+                                    <p>One <span className="text-[#EA4335] font-black">Data</span> ♦ One <span className="text-[#EA4335] font-black">App</span> ♦ One <span className="text-[#EA4335] font-black">Network</span></p>
+                                    <p>One <span className="text-[#EA4335] font-black">Platform</span> ♦ One <span className="text-[#EA4335] font-black">Screen</span></p>
+                                </div>
                             </div>
                             
                             {/* ===== TAHAP 1: Verifikasi Identitas ===== */}
                             {tahapKlaim === 1 && (
                                 <>
-                                    <h1 className="text-3xl lg:text-4xl font-extrabold leading-tight mb-6 text-[#081242] dark:text-white tracking-tight">
-                                        Verifikasi Identitas
-                                    </h1>
+                                    <div className="flex flex-col items-center lg:items-start mb-6 select-none w-full text-center lg:text-left">
+                                        <h1 className="text-lg sm:text-xl lg:text-2xl font-extrabold leading-tight text-[#081242] dark:text-white tracking-tight whitespace-nowrap">
+                                            Verifikasi Identitas
+                                        </h1>
+                                    </div>
 
                                     {/* Warning Banner Akun Terklaim (Kuning/Emas) */}
                                     {pesanTerklaim && (
@@ -1149,9 +1154,11 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                             </span>
                                         </div>
 
-                                        <h1 className="text-3xl lg:text-4xl font-extrabold leading-tight mb-2 text-[#081242] dark:text-white tracking-tight">
-                                            Verifikasi Identitas Akademik
-                                        </h1>
+                                        <div className="flex flex-col items-center lg:items-start mb-6 select-none w-full text-center lg:text-left">
+                                            <h1 className="text-lg sm:text-xl lg:text-2xl font-extrabold leading-tight text-[#081242] dark:text-white tracking-tight">
+                                                Verifikasi Identitas Akademik
+                                            </h1>
+                                        </div>
                                         
                                         <p className="text-slate-500 dark:text-slate-400 text-sm mb-6 leading-relaxed">
                                             Masukkan surel terdaftar Anda untuk mengatur kata sandi baru dan mengaktifkan akun Anda.
@@ -1290,6 +1297,88 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                 );
                             })()}
                         </div>
+
+                        {/* ===== FITUR DALAM MASA PENGEMBANGAN (#buat-akun, #panduan, #kata-sandi) ===== */}
+                        {['buat-akun', 'panduan', 'kata-sandi'].includes(modeAktif) && (
+                            <div key={modeAktif} className={`w-full max-w-md mx-auto flex flex-col items-start text-left ${modeAktif !== 'masuk' ? 'form-enter' : ''}`}>
+                                
+                                {/* Logo & Nama Aplikasi (Mobile Mode) */}
+                                <div className="flex md:hidden items-center gap-3 mb-6 select-none">
+                                    {settings?.logo_primer_url && !logoGagal ? (
+                                        <img 
+                                            src={settings.logo_primer_url} 
+                                            alt={settings.nama_aplikasi || 'Logo'} 
+                                            className="w-10 h-10 object-contain shadow-sm rounded-xl"
+                                            onError={() => setLogoGagal(true)}
+                                        />
+                                    ) : (
+                                        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#0F91FC] to-[#0a78d6] flex items-center justify-center text-white font-bold shadow-lg shadow-[#0F91FC]/25">
+                                            <span className="material-symbols-rounded text-xl">vpn_key</span>
+                                        </div>
+                                    )}
+                                    <span className="text-xl font-black text-[#081242] dark:text-white uppercase tracking-wider">
+                                        {settings?.nama_aplikasi || 'SSO Sekolah'}
+                                    </span>
+                                </div>
+
+                                <h1 className="text-3xl lg:text-4xl font-extrabold leading-tight mb-6 text-[#081242] dark:text-white tracking-tight">
+                                    {modeAktif === 'buat-akun' && 'Buat Akun Baru'}
+                                    {modeAktif === 'panduan' && 'Panduan Penggunaan'}
+                                    {modeAktif === 'kata-sandi' && 'Lupa Kata Sandi'}
+                                </h1>
+
+                                {/* Card Informasional Fitur Dalam Masa Pengembangan */}
+                                <div className="w-full p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 space-y-4 mb-6 text-left">
+                                    <div className="w-12 h-12 rounded-xl bg-[#0F91FC]/10 dark:bg-[#0F91FC]/20 flex items-center justify-center text-[#0F91FC] dark:text-[#38b6ff]">
+                                        <span className="material-symbols-rounded text-2xl">
+                                            {modeAktif === 'buat-akun' && 'engineering'}
+                                            {modeAktif === 'panduan' && 'menu_book'}
+                                            {modeAktif === 'kata-sandi' && 'lock_reset'}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-base font-bold text-[#081242] dark:text-white mb-1.5">
+                                            Fitur Dalam Masa Pengembangan
+                                        </h3>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                            {modeAktif === 'buat-akun' && 'Modul pendaftaran akun mandiri saat ini sedang dikembangkan oleh tim pengembang. Silakan gunakan fitur Verifikasi Akun untuk mengklaim akun sekolah Anda.'}
+                                            {modeAktif === 'panduan' && 'Dokumentasi dan petunjuk penggunaan terpadu SSO Sekolah sedang dalam tahap penyusunan dan penyempurnaan.'}
+                                            {modeAktif === 'kata-sandi' && 'Fitur pemulihan dan reset kata sandi mandiri sedang dalam tahap pengujian keamanan. Silakan hubungi Administrator Sekolah Anda untuk melakukan permohonan reset kata sandi.'}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Tombol Navigasi Aksi */}
+                                <div className="w-full flex gap-3">
+                                    <button 
+                                        type="button"
+                                        onClick={() => gantiMode('masuk')}
+                                        className="flex-1 py-3.5 px-5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-all text-xs shadow-sm flex items-center justify-center gap-2"
+                                    >
+                                        <span className="material-symbols-rounded text-base">arrow_back</span>
+                                        Kembali ke Masuk
+                                    </button>
+
+                                    {modeAktif === 'buat-akun' && (
+                                        <button 
+                                            type="button"
+                                            onClick={() => gantiMode('verifikasi')}
+                                            className="flex-1 bg-[#111827] dark:bg-[#0F91FC] text-white font-bold py-3.5 px-5 rounded-xl hover:bg-slate-800 dark:hover:bg-[#0a78d6] transition-all text-xs shadow-lg flex items-center justify-center gap-2 group"
+                                        >
+                                            Verifikasi Akun
+                                            <span className="material-symbols-rounded text-base group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                                        </button>
+                                    )}
+                                </div>
+
+                                {/* Footer Note */}
+                                <div className="w-full mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
+                                    <p className="text-xs text-slate-400 dark:text-slate-500 leading-relaxed mx-auto">
+                                        Mohon masukkan kredensial resmi Anda sebagaimana terdaftar dalam sistem sekolah.
+                                    </p>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                 </div>
