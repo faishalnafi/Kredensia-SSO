@@ -285,9 +285,9 @@ export default function TataLetakUtama({ children, title }) {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col font-sans transition-colors duration-300">
+        <div className="h-screen bg-[#0F91FC] text-white flex flex-col font-sans overflow-hidden transition-colors duration-300">
             {/* Top Unified Header */}
-            <header className="h-16 bg-[#0F91FC] text-white flex items-center justify-between px-4 lg:px-6 sticky top-0 z-40 shrink-0">
+            <header className="h-16 bg-[#0F91FC] text-white flex items-center justify-between px-4 lg:px-6 shrink-0 z-40">
                 <div className="flex items-center gap-3">
                     {/* Tombol Hamburger / Collapse */}
                     <button
@@ -345,7 +345,7 @@ export default function TataLetakUtama({ children, title }) {
             </header>
 
             {/* Layout Body: Sidebar + Main Content */}
-            <div className="flex-1 flex relative">
+            <div className="flex-1 flex relative overflow-hidden bg-[#0F91FC]">
                 {/* Overlay Mobile */}
                 {sidebarBuka && (
                     <div 
@@ -354,9 +354,9 @@ export default function TataLetakUtama({ children, title }) {
                     ></div>
                 )}
 
-                {/* Sidebar Navigasi (Full height dari paling atas di mode mobile, sticky di bawah header di mode desktop) */}
+                {/* Sidebar Navigasi (Full height dari paling atas di mode mobile, h-full di bawah header di mode desktop) */}
                 <aside className={`
-                    fixed lg:sticky top-0 lg:top-16 left-0 z-50 lg:z-30 h-screen lg:h-[calc(100vh-4rem)] flex flex-col shrink-0
+                    fixed lg:static top-0 left-0 z-50 lg:z-10 h-screen lg:h-full flex flex-col shrink-0
                     bg-[#0F91FC] text-white shadow-2xl lg:shadow-none
                     rounded-r-[28px] lg:rounded-none
                     transition-all duration-300 ease-in-out
@@ -525,17 +525,10 @@ export default function TataLetakUtama({ children, title }) {
                             }>Keluar</span>
                         </Link>
                     </div>
-
-                    {/* Lekukan cekung sudut kiri-atas (Sticky / Nempel permanen di persimpangan Header & Sidebar, tidak ikut scroll) */}
-                    <div className="absolute top-0 -right-6 w-6 h-6 overflow-hidden pointer-events-none z-30 hidden lg:block">
-                        <div className="w-full h-full bg-[#0F91FC]">
-                            <div className="w-full h-full bg-slate-50 dark:bg-slate-900 rounded-tl-2xl"></div>
-                        </div>
-                    </div>
                 </aside>
 
-                {/* Main Content Area */}
-                <main className="flex-1 min-h-[calc(100vh-4rem)] bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col relative overflow-x-hidden transition-colors duration-300">
+                {/* Main Content Area (Native rounded-tl curve with independent smooth scroll) */}
+                <main className="flex-1 h-full bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 lg:rounded-tl-[28px] shadow-[-4px_0_20px_rgba(0,0,0,0.06)] flex flex-col relative overflow-y-auto overflow-x-hidden transition-colors duration-300 scrollbar-minimalis">
                     {/* Ornamen Background Glassmorphism di dalam konten */}
                     <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
                         <div className="absolute top-[-10%] right-[-5%] w-[40%] h-[40%] rounded-full bg-[#0F91FC]/10 dark:bg-[#0F91FC]/20 blur-[100px]"></div>

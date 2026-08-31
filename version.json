@@ -1,6 +1,6 @@
 {
-  "version": "1.3.1",
-  "name": "Pembaruan Portal SSO Sekolah v1.3.1",
-  "release_date": "2026-08-30",
-  "description": "Pembaruan Unified Shell Layout, offline Google Material Symbols icon bundling, responsive mobile drawer, dynamic Lengkapi Biodata menu, dan halaman Coming Soon Temukan & Komunitas."
+  "version": "1.3.2",
+  "name": "Pembaruan Portal SSO Sekolah v1.3.2",
+  "release_date": "2026-08-31",
+  "description": "Perbaikan cacat visual sudut kiri atas (eliminasi notch tiruan dengan layout native curved viewport shell)."
 }
