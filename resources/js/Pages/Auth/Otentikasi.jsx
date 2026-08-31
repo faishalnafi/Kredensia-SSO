@@ -677,14 +677,11 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                 </div>
                             </div>
 
-                            {/* Heading Form Login - Disamakan Persis dengan Ukuran Halaman Verifikasi */}
+                            {/* Heading Form Login - Single Account, Single Sign On login sebagai Judul Utama */}
                             <div className="flex flex-col items-center lg:items-start mb-6 select-none w-full text-center lg:text-left">
-                                <h1 className="text-3xl lg:text-4xl font-extrabold leading-tight mb-2 text-[#081242] dark:text-white tracking-tight">
-                                    Masuk ke Akun
-                                </h1>
-                                <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
+                                <h1 className="text-2xl sm:text-3xl lg:text-3xl font-extrabold leading-tight text-[#081242] dark:text-white tracking-tight">
                                     Single Account, Single Sign On login
-                                </p>
+                                </h1>
                             </div>
 
                             {/* Status Pesan Sukses / Info */}
