@@ -650,9 +650,9 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                     `}>
                         <div key={modeAktif === 'masuk' ? 'login-active' : 'login-hidden'} className={`w-full max-w-md mx-auto flex flex-col items-center text-center lg:items-start lg:text-left ${modeAktif === 'masuk' ? 'form-enter' : ''}`}>
                             
-                            {/* Logo & Nama Aplikasi + Tagline (1 Baris Teks Rapi) */}
+                            {/* Logo & Nama Aplikasi (Disembunyikan pada Tampilan Tablet & Desktop) + Tagline */}
                             <div className="flex flex-col items-center lg:items-start mb-6 select-none w-full">
-                                <div className="flex items-center gap-3 mb-2">
+                                <div className="flex md:hidden items-center gap-3 mb-3">
                                     {settings?.logo_primer_url && !logoGagal ? (
                                         <img 
                                             src={settings.logo_primer_url} 
@@ -670,7 +670,7 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                     </span>
                                 </div>
 
-                                <h1 className="text-xs sm:text-sm md:text-base font-bold text-slate-600 dark:text-slate-300 tracking-tight whitespace-nowrap">
+                                <h1 className="text-xs sm:text-sm md:text-base font-bold text-slate-700 dark:text-slate-200 tracking-tight whitespace-nowrap">
                                     Single Account, Single Sign On login
                                 </h1>
                             </div>

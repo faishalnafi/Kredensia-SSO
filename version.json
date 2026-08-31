@@ -1,6 +1,6 @@
 {
-  "version": "1.4.1",
-  "name": "Pembaruan Portal SSO Sekolah v1.4.1",
+  "version": "1.4.2",
+  "name": "Pembaruan Portal SSO Sekolah v1.4.2",
   "release_date": "2026-08-31",
-  "description": "Penyesuaian warna aksen merah pada slogan menjadi kode warna spesifik #EA4335."
+  "description": "Menyembunyikan logo dan teks SSO Sekolah pada formulir login di tampilan tablet dan desktop."
 }
