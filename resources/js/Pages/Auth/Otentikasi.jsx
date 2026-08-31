@@ -670,7 +670,7 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                     </span>
                                 </div>
 
-                                <h1 className="text-xs sm:text-sm md:text-base font-bold text-slate-700 dark:text-slate-200 tracking-tight whitespace-nowrap">
+                                <h1 className="text-base sm:text-lg lg:text-xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight whitespace-nowrap">
                                     Single Account, Single Sign On login
                                 </h1>
                             </div>
@@ -690,7 +690,7 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                             )}
 
                             {/* Formulir Login */}
-                            <form onSubmit={tanganiLogin} className="w-full space-y-3.5 text-left">
+                            <form onSubmit={tanganiLogin} className="w-full space-y-4 text-left">
                                 <div className="w-full space-y-2.5">
                                     {/* Google OAuth (Full Width) */}
                                     <button
@@ -699,7 +699,7 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                             const rememberParam = dataLogin.remember ? '?remember=1' : '?remember=0';
                                             window.location.href = route('auth.google') + rememberParam;
                                         }}
-                                        className="w-full flex items-center justify-center gap-2.5 px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all focus:ring-2 focus:ring-slate-100 dark:focus:ring-slate-800 shadow-sm"
+                                        className="w-full flex items-center justify-center gap-2.5 px-4 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all focus:ring-2 focus:ring-slate-100 dark:focus:ring-slate-800 shadow-sm"
                                     >
                                         <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                                             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -716,7 +716,7 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                             type="button"
                                             disabled
                                             title="Masuk dengan Apple saat ini belum tersedia"
-                                            className="flex items-center justify-center gap-2 px-3 py-2.5 bg-neutral-100 text-neutral-400 dark:bg-slate-800/80 dark:text-slate-500 border border-neutral-200 dark:border-slate-700/60 rounded-xl text-xs font-bold opacity-60 cursor-not-allowed select-none shadow-none"
+                                            className="flex items-center justify-center gap-2 px-3 py-3 bg-neutral-100 text-neutral-400 dark:bg-slate-800/80 dark:text-slate-500 border border-neutral-200 dark:border-slate-700/60 rounded-xl text-xs font-bold opacity-60 cursor-not-allowed select-none shadow-none"
                                         >
                                             <svg className="w-4 h-4 shrink-0 fill-current opacity-70" viewBox="0 0 24 24">
                                                 <path d="M18.71 19.5C17.88 20.74 17 21.95 15.66 21.97C14.32 22 13.89 21.18 12.37 21.18C10.84 21.18 10.37 21.95 9.1 22C7.79 22.05 6.8 20.68 5.96 19.48C4.25 17 2.94 12.45 4.7 9.39C5.57 7.87 7.13 6.91 8.82 6.88C10.1 6.86 11.32 7.75 12.11 7.75C12.89 7.75 14.37 6.68 15.92 6.84C16.57 6.87 18.39 7.1 19.56 8.82C19.47 8.88 17.39 10.1 17.41 12.63C17.44 15.65 20.06 16.66 20.1 16.67C20.08 16.74 19.67 18.11 18.71 19.5M15.97 4.17C16.63 3.37 17.07 2.28 16.95 1C15.85 1.04 14.51 1.73 13.73 2.64C13.07 3.41 12.49 4.52 12.64 5.78C13.87 5.87 15.12 5.17 15.97 4.17Z" />
@@ -727,7 +727,7 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                             type="button"
                                             disabled
                                             title="Masuk dengan Microsoft saat ini belum tersedia"
-                                            className="flex items-center justify-center gap-2 px-3 py-2.5 bg-neutral-100 text-neutral-400 dark:bg-slate-800/80 dark:text-slate-500 border border-neutral-200 dark:border-slate-700/60 rounded-xl text-xs font-bold opacity-60 cursor-not-allowed select-none shadow-none"
+                                            className="flex items-center justify-center gap-2 px-3 py-3 bg-neutral-100 text-neutral-400 dark:bg-slate-800/80 dark:text-slate-500 border border-neutral-200 dark:border-slate-700/60 rounded-xl text-xs font-bold opacity-60 cursor-not-allowed select-none shadow-none"
                                         >
                                             <svg className="w-3.5 h-3.5 shrink-0 opacity-70 grayscale" viewBox="0 0 23 23">
                                                 <path fill="#f35325" d="M0 0h11v11H0z" />
@@ -759,7 +759,7 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                         Surel
                                     </label>
                                     <input 
-                                        className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#081242] py-3 px-4 text-sm transition-colors placeholder:text-slate-400"
+                                        className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#081242] py-3.5 px-4 text-sm transition-colors placeholder:text-slate-400"
                                         id="email-login" 
                                         type="email"
                                         placeholder="Gunakan surel yang terdaftar di sekolah" 
@@ -776,7 +776,7 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                     </label>
                                     <div className="relative">
                                         <input 
-                                            className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#081242] py-3 pl-4 pr-11 text-sm transition-colors placeholder:text-slate-400"
+                                            className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#081242] py-3.5 pl-4 pr-11 text-sm transition-colors placeholder:text-slate-400"
                                             id="password-login" 
                                             placeholder="••••••••" 
                                             type={tampilkanSandi ? "text" : "password"}
