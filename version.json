@@ -1,6 +1,6 @@
 {
-  "version": "1.3.9",
-  "name": "Pembaruan Portal SSO Sekolah v1.3.9",
+  "version": "1.4.0",
+  "name": "Pembaruan Portal SSO Sekolah v1.4.0",
   "release_date": "2026-08-31",
-  "description": "Penataan banner ilustrasi gaya SIMPKB (teks & slider dots di bawah gambar) serta penyederhanaan header formulir menjadi 2 baris rapi."
+  "description": "Tagline login dikunci dalam 1 baris (single line) tanpa line wrap."
 }
