@@ -528,7 +528,7 @@ export default function TataLetakUtama({ children, title }) {
                 </aside>
 
                 {/* Main Content Area (Native rounded-tl curve with independent smooth scroll) */}
-                <main className="flex-1 h-full bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 lg:rounded-tl-[28px] shadow-[-4px_0_20px_rgba(0,0,0,0.06)] flex flex-col relative overflow-y-auto overflow-x-hidden transition-colors duration-300 scrollbar-minimalis">
+                <main className="flex-1 h-full bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 lg:rounded-tl-[42px] shadow-[-4px_0_20px_rgba(0,0,0,0.06)] flex flex-col relative overflow-y-auto overflow-x-hidden transition-colors duration-300 scrollbar-minimalis">
                     {/* Ornamen Background Glassmorphism di dalam konten */}
                     <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
                         <div className="absolute top-[-10%] right-[-5%] w-[40%] h-[40%] rounded-full bg-[#0F91FC]/10 dark:bg-[#0F91FC]/20 blur-[100px]"></div>
