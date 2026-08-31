@@ -1,6 +1,6 @@
 {
-  "version": "1.4.6",
-  "name": "Pembaruan Portal SSO Sekolah v1.4.6",
+  "version": "1.4.7",
+  "name": "Pembaruan Portal SSO Sekolah v1.4.7",
   "release_date": "2026-08-31",
-  "description": "Menghapus teks Masuk ke Akun dan subtitle, menjadikan Single Account, Single Sign On login sebagai judul utama."
+  "description": "Memindahkan subjudul Verifikasi Identitas ke footer bagian bawah dan menggantikan teks footer sebelumnya."
 }

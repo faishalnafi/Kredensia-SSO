@@ -871,13 +871,9 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                             {/* ===== TAHAP 1: Verifikasi Identitas ===== */}
                             {tahapKlaim === 1 && (
                                 <>
-                                    <h1 className="text-3xl lg:text-4xl font-extrabold leading-tight mb-2 text-[#081242] dark:text-white tracking-tight">
+                                    <h1 className="text-3xl lg:text-4xl font-extrabold leading-tight mb-6 text-[#081242] dark:text-white tracking-tight">
                                         Verifikasi Identitas
                                     </h1>
-                                    
-                                    <p className="text-slate-500 dark:text-slate-400 text-sm mb-6 leading-relaxed">
-                                        Mohon masukkan kredensial resmi Anda sebagaimana terdaftar dalam sistem sekolah.
-                                    </p>
 
                                     {/* Warning Banner Akun Terklaim (Kuning/Emas) */}
                                     {pesanTerklaim && (
@@ -996,8 +992,8 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                     </div>
 
                                     <div className="w-full mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
-                                        <p className="text-[10px] text-slate-400 dark:text-slate-500 leading-relaxed mx-auto">
-                                            Hanya akun yang telah didaftarkan sebelumnya oleh admin yang dapat diverifikasi.
+                                        <p className="text-xs text-slate-400 dark:text-slate-500 leading-relaxed mx-auto">
+                                            Mohon masukkan kredensial resmi Anda sebagaimana terdaftar dalam sistem sekolah.
                                         </p>
                                     </div>
                                 </>
