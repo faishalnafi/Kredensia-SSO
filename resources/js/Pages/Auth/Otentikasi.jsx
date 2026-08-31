@@ -613,12 +613,12 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                     Selamat Datang di {settings?.nama_aplikasi || 'SSO Sekolah'}
                                 </h2>
 
-                                <div className="text-xs sm:text-sm font-semibold text-white/95 space-y-0.5">
-                                    <p>One <span className="text-[#EA4335] font-extrabold">Data</span> ♦ One <span className="text-[#EA4335] font-extrabold">App</span> ♦ One <span className="text-[#EA4335] font-extrabold">Network</span></p>
-                                    <p>One <span className="text-[#EA4335] font-extrabold">Platform</span> ♦ One <span className="text-[#EA4335] font-extrabold">Screen</span></p>
+                                <div className="text-xs sm:text-sm font-semibold text-white space-y-0.5">
+                                    <p>One <span className="font-extrabold text-white">Data</span> ♦ One <span className="font-extrabold text-white">App</span> ♦ One <span className="font-extrabold text-white">Network</span></p>
+                                    <p>One <span className="font-extrabold text-white">Platform</span> ♦ One <span className="font-extrabold text-white">Screen</span></p>
                                 </div>
 
-                                <p className="text-[11px] font-bold text-white/75 tracking-wider uppercase">
+                                <p className="text-[11px] font-bold text-white/80 tracking-wider uppercase">
                                     {settings?.nama_sekolah || settings?.nama_instansi || 'Portal Layanan Pendidikan Terpadu'}
                                 </p>
 
@@ -650,19 +650,19 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                     `}>
                         <div key={modeAktif === 'masuk' ? 'login-active' : 'login-hidden'} className={`w-full max-w-md mx-auto flex flex-col items-center text-center lg:items-start lg:text-left ${modeAktif === 'masuk' ? 'form-enter' : ''}`}>
                             
-                            {/* Logo & Nama Aplikasi (Disembunyikan pada Tampilan Tablet & Desktop) + Tagline */}
-                            <div className="flex flex-col items-center lg:items-start mb-6 select-none w-full">
-                                <div className="flex md:hidden items-center gap-3 mb-3">
+                            {/* Tampilan Khusus Mobile: Logo, Nama SSO, dan Slogan Aksen Merah (Sesuai Gambar 5) */}
+                            <div className="flex md:hidden flex-col items-center mb-6 select-none w-full text-center">
+                                <div className="flex items-center gap-3 mb-2.5">
                                     {settings?.logo_primer_url && !logoGagal ? (
                                         <img 
                                             src={settings.logo_primer_url} 
                                             alt={settings.nama_aplikasi || 'Logo'} 
-                                            className="w-10 h-10 object-contain shadow-sm rounded-xl"
+                                            className="w-11 h-11 object-contain shadow-sm rounded-xl"
                                             onError={() => setLogoGagal(true)}
                                         />
                                     ) : (
-                                        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#0F91FC] to-[#0a78d6] flex items-center justify-center text-white font-bold shadow-lg shadow-[#0F91FC]/25">
-                                            <span className="material-symbols-rounded text-xl">vpn_key</span>
+                                        <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#0F91FC] to-[#0a78d6] flex items-center justify-center text-white font-bold shadow-lg shadow-[#0F91FC]/25">
+                                            <span className="material-symbols-rounded text-2xl">vpn_key</span>
                                         </div>
                                     )}
                                     <span className="text-2xl font-black text-[#081242] dark:text-white uppercase tracking-wider">
@@ -670,9 +670,21 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                     </span>
                                 </div>
 
-                                <h1 className="text-base sm:text-lg lg:text-xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight whitespace-nowrap">
-                                    Single Account, Single Sign On login
+                                {/* Slogan 2 Baris Aksen Merah #EA4335 Khusus Mobile */}
+                                <div className="text-xs font-bold text-slate-700 dark:text-slate-200 space-y-0.5 mb-2">
+                                    <p>One <span className="text-[#EA4335] font-black">Data</span> ♦ One <span className="text-[#EA4335] font-black">App</span> ♦ One <span className="text-[#EA4335] font-black">Network</span></p>
+                                    <p>One <span className="text-[#EA4335] font-black">Platform</span> ♦ One <span className="text-[#EA4335] font-black">Screen</span></p>
+                                </div>
+                            </div>
+
+                            {/* Heading Form Login - Disamakan Persis dengan Ukuran Halaman Verifikasi */}
+                            <div className="flex flex-col items-center lg:items-start mb-6 select-none w-full text-center lg:text-left">
+                                <h1 className="text-3xl lg:text-4xl font-extrabold leading-tight mb-2 text-[#081242] dark:text-white tracking-tight">
+                                    Masuk ke Akun
                                 </h1>
+                                <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
+                                    Single Account, Single Sign On login
+                                </p>
                             </div>
 
                             {/* Status Pesan Sukses / Info */}
@@ -689,9 +701,9 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                 </div>
                             )}
 
-                            {/* Formulir Login */}
-                            <form onSubmit={tanganiLogin} className="w-full space-y-4 text-left">
-                                <div className="w-full space-y-2.5">
+                            {/* Formulir Login (Ukuran & Spacing Sama dengan Verifikasi Identitas) */}
+                            <form onSubmit={tanganiLogin} className="w-full space-y-5 text-left">
+                                <div className="w-full space-y-3">
                                     {/* Google OAuth (Full Width) */}
                                     <button
                                         type="button"
@@ -740,7 +752,7 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                     </div>
                                 </div>
 
-                                <div className="flex justify-center items-center gap-3 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                                <div className="flex justify-center items-center gap-3 text-xs font-semibold text-slate-500 dark:text-slate-400 py-1">
                                     <Link href={route('panduan')} className="hover:text-[#0F91FC] dark:hover:text-[#ff6b39] transition-colors">Panduan</Link>
                                     <span className="text-slate-300 dark:text-slate-600">•</span>
                                     <button type="button" onClick={() => gantiMode('verifikasi')} className="hover:text-[#0F91FC] dark:hover:text-[#ff6b39] transition-colors">Verifikasi Akun</button>
@@ -755,7 +767,7 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wider" htmlFor="email-login">
+                                    <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wider" htmlFor="email-login">
                                         Surel
                                     </label>
                                     <input 
@@ -771,7 +783,7 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wider" htmlFor="password-login">
+                                    <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wider" htmlFor="password-login">
                                         Kata Sandi
                                     </label>
                                     <div className="relative">

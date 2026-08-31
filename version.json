@@ -1,6 +1,6 @@
 {
-  "version": "1.4.4",
-  "name": "Pembaruan Portal SSO Sekolah v1.4.4",
+  "version": "1.4.5",
+  "name": "Pembaruan Portal SSO Sekolah v1.4.5",
   "release_date": "2026-08-31",
-  "description": "Membesarkan ukuran tipografi Single Account, Single Sign On login dan proporsi tombol masuk secara proporsional."
+  "description": "Slogan banner desktop/tab diubah putih penuh, slogan mobile diberi aksen merah #EA4335, dan ukuran form login diselaraskan dengan verifikasi identitas."
 }
