@@ -641,85 +641,66 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                     {/* ============================================= */}
                     <div className={`
                         absolute inset-y-0 w-full lg:w-1/2 left-0
-                        flex flex-col justify-center px-6 lg:px-12 py-4 lg:py-6 z-10
+                        flex flex-col justify-center px-6 lg:px-12 py-6 lg:py-8 z-10
                         overflow-y-auto scrollbar-none
                         transition-all duration-500
                         ${modeAktif === 'masuk' ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}
                     `}>
                         <div key={modeAktif === 'masuk' ? 'login-active' : 'login-hidden'} className={`w-full max-w-md mx-auto flex flex-col items-center text-center lg:items-start lg:text-left ${modeAktif === 'masuk' ? 'form-enter' : ''}`}>
                             
-                            {/* Header Khusus Mobile (Sesuai Gambar 3) */}
-                            <div className="lg:hidden flex flex-col items-center text-center mb-4 w-full select-none">
-                                <div className="flex items-center justify-center gap-2 mb-2">
-                                    {settings?.logo_primer_url && !logoGagal ? (
-                                        <img 
-                                            src={settings.logo_primer_url} 
-                                            alt={settings.nama_aplikasi || 'Logo'} 
-                                            className="w-9 h-9 object-contain drop-shadow-sm rounded-xl"
-                                            onError={() => setLogoGagal(true)}
-                                        />
-                                    ) : (
-                                        <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-[#0F91FC] to-[#0a78d6] flex items-center justify-center text-white font-bold shadow-md shadow-[#0F91FC]/20">
-                                            <span className="material-symbols-rounded text-lg">vpn_key</span>
-                                        </div>
-                                    )}
-                                    <span className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">
-                                        {settings?.nama_aplikasi || 'SSO Sekolah'}
-                                    </span>
-                                </div>
+                            {/* Logo & Nama Aplikasi Dinamis */}
+                            <div className="flex items-center gap-3 mb-4 select-none">
+                                {settings?.logo_primer_url && !logoGagal ? (
+                                    <img 
+                                        src={settings.logo_primer_url} 
+                                        alt={settings.nama_aplikasi || 'Logo'} 
+                                        className="w-10 h-10 object-contain shadow-sm rounded-xl"
+                                        onError={() => setLogoGagal(true)}
+                                    />
+                                ) : (
+                                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#0F91FC] to-[#0a78d6] flex items-center justify-center text-white font-bold shadow-lg shadow-[#0F91FC]/25">
+                                        <span className="material-symbols-rounded text-xl">vpn_key</span>
+                                    </div>
+                                )}
+                                <span className="text-xl font-black text-[#081242] dark:text-white uppercase tracking-wider">
+                                    {settings?.nama_aplikasi || 'SSO Sekolah'}
+                                </span>
+                            </div>
 
-                                <div className="text-[11px] font-bold text-slate-700 dark:text-slate-200 space-y-0.5 mb-2.5">
+                            {/* Header Khusus Mobile (Slogan Terpusat) */}
+                            <div className="lg:hidden w-full mb-3 text-center select-none">
+                                <div className="text-xs font-bold text-slate-700 dark:text-slate-200 space-y-0.5 mb-2">
                                     <p>One <span className="text-red-500 font-extrabold">Data</span> ♦ One <span className="text-red-500 font-extrabold">App</span> ♦ One <span className="text-red-500 font-extrabold">Network</span></p>
                                     <p>One <span className="text-red-500 font-extrabold">Platform</span> ♦ One <span className="text-red-500 font-extrabold">Screen</span></p>
                                 </div>
-
-                                <h1 className="text-xs font-bold text-slate-600 dark:text-slate-300">
-                                    Single Account, Single Sign On login
-                                </h1>
                             </div>
 
-                            {/* Header Khusus Desktop (Sesuai Gambar 2) */}
-                            <div className="hidden lg:flex flex-col items-start mb-3.5 w-full select-none">
-                                <div className="flex items-center gap-2.5 mb-1.5">
-                                    {settings?.logo_primer_url && !logoGagal ? (
-                                        <img 
-                                            src={settings.logo_primer_url} 
-                                            alt={settings.nama_aplikasi || 'Logo'} 
-                                            className="w-8 h-8 object-contain shadow-sm rounded-xl"
-                                            onError={() => setLogoGagal(true)}
-                                        />
-                                    ) : (
-                                        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#0F91FC] to-[#0a78d6] flex items-center justify-center text-white font-bold shadow-md shadow-[#0F91FC]/20">
-                                            <span className="material-symbols-rounded text-lg">vpn_key</span>
-                                        </div>
-                                    )}
-                                    <span className="text-lg font-black text-[#081242] dark:text-white uppercase tracking-wider">
-                                        {settings?.nama_aplikasi || 'SSO Sekolah'}
-                                    </span>
-                                </div>
-
-                                <h1 className="text-sm font-bold text-slate-700 dark:text-slate-200 tracking-tight">
-                                    Single Account, Single Sign On login
-                                </h1>
-                            </div>
+                            {/* Judul & Tagline Login */}
+                            <h1 className="text-2xl sm:text-3xl font-extrabold leading-tight mb-2 text-[#081242] dark:text-white tracking-tight">
+                                Single Account, Single Sign On login
+                            </h1>
+                            
+                            <p className="text-slate-500 dark:text-slate-400 text-sm mb-5 leading-relaxed">
+                                Masuk untuk mengakses seluruh layanan digital dan sistem informasi sekolah.
+                            </p>
 
                             {/* Status Pesan Sukses / Info */}
                             {status && modeAktif === 'masuk' && (
-                                <div className="w-full mb-3 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/30 text-xs text-emerald-600 dark:text-emerald-400 font-medium text-left">
+                                <div className="w-full mb-4 p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/30 text-xs text-emerald-600 dark:text-emerald-400 font-medium text-left">
                                     {status}
                                 </div>
                             )}
 
                             {/* Google OAuth / General Error Alert */}
                             {props.errors?.email && !dataLogin.email && (
-                                <div className="w-full mb-3 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/30 text-xs text-rose-600 dark:text-rose-400 font-medium text-left">
+                                <div className="w-full mb-4 p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/30 text-xs text-rose-600 dark:text-rose-400 font-medium text-left">
                                     {props.errors.email}
                                 </div>
                             )}
 
                             {/* Formulir Login */}
-                            <form onSubmit={tanganiLogin} className="w-full space-y-2.5 text-left">
-                                <div className="w-full space-y-2 mb-1">
+                            <form onSubmit={tanganiLogin} className="w-full space-y-3.5 text-left">
+                                <div className="w-full space-y-2.5">
                                     {/* Google OAuth (Full Width) */}
                                     <button
                                         type="button"
@@ -727,7 +708,7 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                             const rememberParam = dataLogin.remember ? '?remember=1' : '?remember=0';
                                             window.location.href = route('auth.google') + rememberParam;
                                         }}
-                                        className="w-full flex items-center justify-center gap-2 px-3 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all focus:ring-2 focus:ring-slate-100 dark:focus:ring-slate-800 shadow-sm"
+                                        className="w-full flex items-center justify-center gap-2.5 px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all focus:ring-2 focus:ring-slate-100 dark:focus:ring-slate-800 shadow-sm"
                                     >
                                         <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                                             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -768,7 +749,7 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                     </div>
                                 </div>
 
-                                <div className="flex justify-center items-center gap-3 mb-1 text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                                <div className="flex justify-center items-center gap-3 text-xs font-semibold text-slate-500 dark:text-slate-400">
                                     <Link href={route('panduan')} className="hover:text-[#0F91FC] dark:hover:text-[#ff6b39] transition-colors">Panduan</Link>
                                     <span className="text-slate-300 dark:text-slate-600">•</span>
                                     <button type="button" onClick={() => gantiMode('verifikasi')} className="hover:text-[#0F91FC] dark:hover:text-[#ff6b39] transition-colors">Verifikasi Akun</button>
@@ -778,16 +759,16 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                 
                                 <div className="flex items-center gap-3 py-0.5">
                                     <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700"></div>
-                                    <span className="text-[10px] font-medium text-slate-400">Atau masuk dengan surel</span>
+                                    <span className="text-xs font-medium text-slate-400">Atau masuk dengan surel</span>
                                     <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700"></div>
                                 </div>
 
                                 <div>
-                                    <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 mb-0.5 uppercase tracking-wider" htmlFor="email-login">
+                                    <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wider" htmlFor="email-login">
                                         Surel
                                     </label>
                                     <input 
-                                        className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#0F91FC] focus:border-[#0F91FC] py-2.5 px-3.5 text-xs transition-colors"
+                                        className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#081242] py-3 px-4 text-sm transition-colors placeholder:text-slate-400"
                                         id="email-login" 
                                         type="email"
                                         placeholder="Gunakan surel yang terdaftar di sekolah" 
@@ -795,16 +776,16 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                         onChange={(e) => setDataLogin('email', e.target.value)}
                                         autoFocus={modeAktif === 'masuk'}
                                     />
-                                    <InputError message={galatLogin.email} className="mt-0.5" />
+                                    <InputError message={galatLogin.email} className="mt-1" />
                                 </div>
 
                                 <div>
-                                    <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 mb-0.5 uppercase tracking-wider" htmlFor="password-login">
+                                    <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wider" htmlFor="password-login">
                                         Kata Sandi
                                     </label>
                                     <div className="relative">
                                         <input 
-                                            className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#0F91FC] focus:border-[#0F91FC] py-2.5 pl-3.5 pr-10 text-xs transition-colors"
+                                            className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#081242] py-3 pl-4 pr-11 text-sm transition-colors placeholder:text-slate-400"
                                             id="password-login" 
                                             placeholder="••••••••" 
                                             type={tampilkanSandi ? "text" : "password"}
@@ -813,16 +794,16 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                         />
                                         <button
                                             type="button"
-                                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 focus:outline-none"
+                                            className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 focus:outline-none"
                                             onClick={() => setTampilkanSandi(!tampilkanSandi)}
                                             aria-label={tampilkanSandi ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
                                         >
-                                            <span className="material-symbols-rounded text-lg">
+                                            <span className="material-symbols-rounded text-xl">
                                                 {tampilkanSandi ? 'visibility_off' : 'visibility'}
                                             </span>
                                         </button>
                                     </div>
-                                    <InputError message={galatLogin.password} className="mt-0.5" />
+                                    <InputError message={galatLogin.password} className="mt-1" />
                                 </div>
 
                                 <div className="flex items-center justify-between py-0.5">
@@ -832,21 +813,21 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                             checked={dataLogin.remember}
                                             onChange={(e) => setDataLogin('remember', e.target.checked)}
                                         />
-                                        <span className="ms-2 text-xs font-medium text-slate-500 dark:text-slate-400 select-none">
+                                        <span className="ms-2 text-sm font-medium text-slate-500 dark:text-slate-400 select-none">
                                             Ingat Saya
                                         </span>
                                     </label>
 
                                     <Link
                                         href={route('password.request')}
-                                        className="text-xs font-semibold text-[#0F91FC] hover:text-[#e03d09] dark:text-[#ff6b39] dark:hover:text-[#ff8a61]"
+                                        className="text-xs font-semibold text-[#0F91FC] hover:text-[#0a78d6] dark:text-[#0F91FC] dark:hover:text-[#42a7ff]"
                                     >
                                         Lupa kata sandi?
                                     </Link>
                                 </div>
 
                                 <button 
-                                    className="w-full bg-slate-900 dark:bg-[#0F91FC] text-white font-bold py-3 px-6 rounded-xl hover:bg-slate-800 dark:hover:bg-[#e03d09] transition-all text-xs uppercase tracking-widest mt-1 shadow-lg shadow-slate-900/10 dark:shadow-orange-600/10 disabled:opacity-50"
+                                    className="w-full bg-[#081242] dark:bg-[#0F91FC] text-white font-bold py-3.5 px-6 rounded-xl hover:bg-slate-800 dark:hover:bg-[#0a78d6] transition-all text-xs uppercase tracking-widest mt-1 shadow-lg shadow-[#081242]/20 dark:shadow-[#0F91FC]/20 disabled:opacity-50"
                                     disabled={prosesLogin}
                                     type="submit"
                                 >
