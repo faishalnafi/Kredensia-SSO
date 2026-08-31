@@ -840,8 +840,8 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                     `}>
                         <div key={modeAktif === 'verifikasi' ? 'klaim-active' : 'klaim-hidden'} className={`w-full max-w-md mx-auto flex flex-col items-start text-left ${modeAktif === 'verifikasi' ? 'form-enter' : ''}`}>
                             
-                            {/* Logo & Nama Aplikasi Dinamis */}
-                            <div className="flex items-center gap-3 mb-6 select-none">
+                            {/* Logo & Nama Aplikasi Dinamis (Disembunyikan pada Tampilan Tablet & Desktop) */}
+                            <div className="flex md:hidden items-center gap-3 mb-6 select-none">
                                 {settings?.logo_primer_url && !logoGagal ? (
                                     <img 
                                         src={settings.logo_primer_url} 
@@ -855,7 +855,7 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                     </div>
                                 )}
                                 <span className="text-xl font-black text-[#081242] dark:text-white uppercase tracking-wider">
-                                    {settings?.nama_aplikasi || 'SingleSignOn'}
+                                    {settings?.nama_aplikasi || 'SSO Sekolah'}
                                 </span>
                             </div>
                             

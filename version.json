@@ -1,6 +1,6 @@
 {
-  "version": "1.4.2",
-  "name": "Pembaruan Portal SSO Sekolah v1.4.2",
+  "version": "1.4.3",
+  "name": "Pembaruan Portal SSO Sekolah v1.4.3",
   "release_date": "2026-08-31",
-  "description": "Menyembunyikan logo dan teks SSO Sekolah pada formulir login di tampilan tablet dan desktop."
+  "description": "Menyembunyikan logo dan teks SSO Sekolah pada formulir verifikasi identitas di tampilan tablet dan desktop."
 }
