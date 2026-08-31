@@ -596,42 +596,44 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                             }
                         `}></div>
                         
-                        <div className={`
-                            relative z-10 flex flex-col h-full py-6 lg:pt-14 lg:pb-12
-                            text-white justify-between flex-grow
-                            transition-all duration-700 select-none
-                            ${kotakBiruDiKiri ? 'px-6 lg:pl-32 lg:pr-16 items-start text-left' : 'px-6 lg:pl-16 lg:pr-32 items-end text-right'}
-                        `}>
-                            {/* Greeting & App Title */}
-                            <div>
-                                <p className="text-lg lg:text-xl font-medium text-white/90 mb-1">Selamat Datang di</p>
-                                <h2 className="text-3xl lg:text-5xl font-black tracking-tight text-white">
-                                    {settings?.nama_aplikasi || 'SSO Sekolah'}
-                                </h2>
-                            </div>
-
+                        <div className="relative z-10 flex flex-col h-full py-8 text-white justify-center items-center flex-grow transition-all duration-700 select-none px-6 lg:px-14 text-center">
                             {/* Area Gambar Ilustrasi */}
-                            <div className={`flex items-center py-2 w-full ${kotakBiruDiKiri ? 'justify-start' : 'justify-end'}`}>
+                            <div className="flex-1 flex items-center justify-center w-full max-h-[50vh] py-2">
                                 <img 
                                     key={currentImageIndex}
                                     alt="Ilustrasi Layanan Pendidikan" 
-                                    className="w-full max-w-none h-auto object-contain drop-shadow-2xl opacity-90 dark:opacity-85 animate-particle scale-[1.3] origin-center" 
+                                    className="max-h-[38vh] w-auto object-contain drop-shadow-2xl opacity-95 dark:opacity-90 animate-particle origin-center" 
                                     src={images[currentImageIndex]}
                                 />
                             </div>
 
-                            {/* Bullets Slogan (Telkom SSO Style) */}
-                            <div className="border-t border-white/20 pt-4 w-full text-white">
-                                <div className="space-y-1 text-xs sm:text-sm font-bold text-white/95 mb-2.5">
-                                    <p>♦ One Data</p>
-                                    <p>♦ One App</p>
-                                    <p>♦ One Network</p>
-                                    <p>♦ One Platform</p>
-                                    <p>♦ One Screen</p>
+                            {/* Konten Teks di Bawah Gambar (Gaya SIMPKB) */}
+                            <div className="flex flex-col items-center text-center space-y-2.5 max-w-md mx-auto pt-2 pb-2">
+                                <h2 className="text-2xl lg:text-3xl font-black text-white tracking-tight">
+                                    Selamat Datang di {settings?.nama_aplikasi || 'SSO Sekolah'}
+                                </h2>
+
+                                <div className="text-xs sm:text-sm font-semibold text-white/95 space-y-0.5">
+                                    <p>One <span className="text-red-300 font-extrabold">Data</span> ♦ One <span className="text-red-300 font-extrabold">App</span> ♦ One <span className="text-red-300 font-extrabold">Network</span></p>
+                                    <p>One <span className="text-red-300 font-extrabold">Platform</span> ♦ One <span className="text-red-300 font-extrabold">Screen</span></p>
                                 </div>
-                                <p className="text-xs font-semibold text-white/75 tracking-wider uppercase">
+
+                                <p className="text-[11px] font-bold text-white/75 tracking-wider uppercase">
                                     {settings?.nama_sekolah || settings?.nama_instansi || 'Portal Layanan Pendidikan Terpadu'}
                                 </p>
+
+                                {/* Slider Indicator Dots (SIMPKB Style) */}
+                                <div className="flex items-center justify-center gap-2 pt-3">
+                                    {images.map((_, idx) => (
+                                        <button
+                                            key={idx}
+                                            type="button"
+                                            onClick={() => setCurrentImageIndex(idx)}
+                                            aria-label={`Slide ${idx + 1}`}
+                                            className={`h-2 rounded-full transition-all duration-300 ${currentImageIndex === idx ? 'w-7 bg-white shadow-sm' : 'w-2 bg-white/40 hover:bg-white/70'}`}
+                                        />
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -648,41 +650,30 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                     `}>
                         <div key={modeAktif === 'masuk' ? 'login-active' : 'login-hidden'} className={`w-full max-w-md mx-auto flex flex-col items-center text-center lg:items-start lg:text-left ${modeAktif === 'masuk' ? 'form-enter' : ''}`}>
                             
-                            {/* Logo & Nama Aplikasi Dinamis */}
-                            <div className="flex items-center gap-3 mb-4 select-none">
-                                {settings?.logo_primer_url && !logoGagal ? (
-                                    <img 
-                                        src={settings.logo_primer_url} 
-                                        alt={settings.nama_aplikasi || 'Logo'} 
-                                        className="w-10 h-10 object-contain shadow-sm rounded-xl"
-                                        onError={() => setLogoGagal(true)}
-                                    />
-                                ) : (
-                                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#0F91FC] to-[#0a78d6] flex items-center justify-center text-white font-bold shadow-lg shadow-[#0F91FC]/25">
-                                        <span className="material-symbols-rounded text-xl">vpn_key</span>
-                                    </div>
-                                )}
-                                <span className="text-xl font-black text-[#081242] dark:text-white uppercase tracking-wider">
-                                    {settings?.nama_aplikasi || 'SSO Sekolah'}
-                                </span>
-                            </div>
-
-                            {/* Header Khusus Mobile (Slogan Terpusat) */}
-                            <div className="lg:hidden w-full mb-3 text-center select-none">
-                                <div className="text-xs font-bold text-slate-700 dark:text-slate-200 space-y-0.5 mb-2">
-                                    <p>One <span className="text-red-500 font-extrabold">Data</span> ♦ One <span className="text-red-500 font-extrabold">App</span> ♦ One <span className="text-red-500 font-extrabold">Network</span></p>
-                                    <p>One <span className="text-red-500 font-extrabold">Platform</span> ♦ One <span className="text-red-500 font-extrabold">Screen</span></p>
+                            {/* Logo & Nama Aplikasi + Tagline (2 Baris Rapi Sesuai Gambar 2) */}
+                            <div className="flex flex-col items-center lg:items-start mb-6 select-none w-full">
+                                <div className="flex items-center gap-3 mb-1.5">
+                                    {settings?.logo_primer_url && !logoGagal ? (
+                                        <img 
+                                            src={settings.logo_primer_url} 
+                                            alt={settings.nama_aplikasi || 'Logo'} 
+                                            className="w-10 h-10 object-contain shadow-sm rounded-xl"
+                                            onError={() => setLogoGagal(true)}
+                                        />
+                                    ) : (
+                                        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#0F91FC] to-[#0a78d6] flex items-center justify-center text-white font-bold shadow-lg shadow-[#0F91FC]/25">
+                                            <span className="material-symbols-rounded text-xl">vpn_key</span>
+                                        </div>
+                                    )}
+                                    <span className="text-2xl font-black text-[#081242] dark:text-white uppercase tracking-wider">
+                                        {settings?.nama_aplikasi || 'SSO Sekolah'}
+                                    </span>
                                 </div>
-                            </div>
 
-                            {/* Judul & Tagline Login */}
-                            <h1 className="text-2xl sm:text-3xl font-extrabold leading-tight mb-2 text-[#081242] dark:text-white tracking-tight">
-                                Single Account, Single Sign On login
-                            </h1>
-                            
-                            <p className="text-slate-500 dark:text-slate-400 text-sm mb-5 leading-relaxed">
-                                Masuk untuk mengakses seluruh layanan digital dan sistem informasi sekolah.
-                            </p>
+                                <h1 className="text-sm font-semibold text-slate-500 dark:text-slate-400 tracking-tight">
+                                    Single Account, Single Sign On login
+                                </h1>
+                            </div>
 
                             {/* Status Pesan Sukses / Info */}
                             {status && modeAktif === 'masuk' && (
