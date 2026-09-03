@@ -1,6 +1,6 @@
 {
-  "version": "1.5.2",
-  "name": "Pembaruan Portal SSO Sekolah v1.5.2",
-  "release_date": "2026-08-31",
-  "description": "Pembaruan Otentikasi SPA dengan transisi geser kotak biru, form surel lipat/buka, penyesuaian header & slogan mobile, serta perataan teks rata kiri konsisten."
+  "version": "1.5.3",
+  "name": "Pembaruan Portal SSO Sekolah v1.5.3",
+  "release_date": "2026-09-03",
+  "description": "Penyimpanan aset font & ikon Material Symbols secara 100% lokal + Service Worker Precaching 10MB & aturan CSS anti-flash zero ligature text saat koneksi lambat."
 }

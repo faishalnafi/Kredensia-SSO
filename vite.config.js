@@ -16,9 +16,10 @@ export default defineConfig({
             workbox: {
                 skipWaiting: true,
                 clientsClaim: true,
+                maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
                 globDirectory: 'public',
                 globPatterns: [
-                    'build/assets/*.{js,css}',
+                    'build/assets/*.{js,css,woff2,woff,ttf}',
                     'images/*.{png,jpg,jpeg,svg}',
                     'favicon.ico',
                     'robots.txt'

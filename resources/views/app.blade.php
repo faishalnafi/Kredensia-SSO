@@ -9,10 +9,7 @@
         <!-- Favicon Sementara -->
         <link rel="icon" type="image/png" href="https://support.nafii.my.id/icon/domains.png">
 
-        <!-- Fonts (Figtree) -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-        
+
         <!-- Google reCAPTCHA Enterprise -->
         @if(env('RECAPTCHA_SITE_KEY') && env('RECAPTCHA_PROJECT_ID') && env('RECAPTCHA_API_KEY'))
             <script src="https://www.google.com/recaptcha/enterprise.js?render={{ env('RECAPTCHA_SITE_KEY') }}"></script>
