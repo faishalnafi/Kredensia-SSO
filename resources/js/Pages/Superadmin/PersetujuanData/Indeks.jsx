@@ -47,15 +47,47 @@ export default function PersetujuanData({ daftarKoreksi = [] }) {
         }
     };
 
+    const setujuiSemuaKoreksi = async () => {
+        const total = daftarKoreksi.length;
+        const res = await Swal.fire({
+            title: 'Setujui Semua Pengajuan?',
+            html: `Apakah Anda yakin ingin menyetujui sekaligus <strong>${total} pengajuan</strong> perbaikan data?<br/><span style="font-size:0.85rem;color:#10b981;margin-top:6px;display:block;">Profil semua pengguna terkait akan langsung diperbarui secara bersamaan.</span>`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: '✅ Ya, Setujui Semua',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#10b981',
+            cancelButtonColor: '#6b7280',
+            customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl font-bold px-5 py-2.5', cancelButton: 'rounded-xl font-bold px-5 py-2.5' }
+        });
+
+        if (res.isConfirmed) {
+            router.post(route(`${basePrefix}persetujuan.setujui-semua`), {}, {
+                preserveScroll: true
+            });
+        }
+    };
 
     return (
         <>
             <Head title="Persetujuan Data - SSO Sekolah" />
             
             <div className="w-full max-w-6xl mx-auto space-y-6">
-                <div>
-                    <h2 className="text-2xl font-extrabold text-slate-800 dark:text-white">Validasi Pengajuan Data</h2>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm">Setujui atau tolak pengajuan perbaikan data identitas profil dari pengguna secara teliti.</p>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 className="text-2xl font-extrabold text-slate-800 dark:text-white">Validasi Pengajuan Data</h2>
+                        <p className="text-slate-500 dark:text-slate-400 text-sm">Setujui atau tolak pengajuan perbaikan data identitas profil dari pengguna secara teliti.</p>
+                    </div>
+
+                    {daftarKoreksi && daftarKoreksi.length > 0 && (
+                        <button
+                            onClick={setujuiSemuaKoreksi}
+                            className="inline-flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98] text-white px-5 py-2.5 rounded-2xl font-extrabold text-sm transition-all shadow-lg shadow-emerald-500/20 shrink-0 cursor-pointer"
+                        >
+                            <span className="material-symbols-rounded text-lg">done_all</span>
+                            Setujui Semua ({daftarKoreksi.length})
+                        </button>
+                    )}
                 </div>
 
                 <div className="bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-3xl p-6 border border-slate-100 dark:border-slate-700/50 shadow-sm overflow-hidden">

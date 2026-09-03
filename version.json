@@ -1,6 +1,6 @@
 {
-  "version": "1.5.3",
-  "name": "Pembaruan Portal SSO Sekolah v1.5.3",
+  "version": "1.5.4",
+  "name": "Pembaruan Portal SSO Sekolah v1.5.4",
   "release_date": "2026-09-03",
-  "description": "Penyimpanan aset font & ikon Material Symbols secara 100% lokal + Service Worker Precaching 10MB & aturan CSS anti-flash zero ligature text saat koneksi lambat."
+  "description": "Penambahan fitur tombol Setujui Semua (Approve All) pada halaman Persetujuan Data untuk superadmin dan admin."
 }

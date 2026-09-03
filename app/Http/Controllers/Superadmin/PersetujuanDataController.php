@@ -144,4 +144,52 @@ class PersetujuanDataController extends Controller
 
         return redirect()->back()->with('success', 'Pengajuan perbaikan data berhasil ditolak.');
     }
+
+    /**
+     * Setujui semua pengajuan perbaikan data yang pending sekaligus.
+     */
+    public function setujuiSemua(): RedirectResponse
+    {
+        $daftarKoreksi = UserCorrection::where('status_correction', 'pending')->get();
+
+        if ($daftarKoreksi->isEmpty()) {
+            return redirect()->back()->with('error', 'Gagal: Tidak ada pengajuan perbaikan data yang tertunda.');
+        }
+
+        $totalSetujui = 0;
+
+        DB::transaction(function () use ($daftarKoreksi, &$totalSetujui) {
+            foreach ($daftarKoreksi as $koreksi) {
+                $user = $koreksi->userAsli;
+
+                if ($user) {
+                    $user->update([
+                        'nama_lengkap' => $koreksi->nama_lengkap ?? $user->nama_lengkap,
+                        'email'        => $koreksi->email ?? $user->email,
+                        'jk'           => $koreksi->jk ?? $user->jk,
+                        'tgl_lahir'    => $koreksi->tgl_lahir ?? $user->tgl_lahir,
+                        'nik'          => $koreksi->nik ?? $user->nik,
+                        'nip_nis'      => $koreksi->nip_nis ?? $user->nip_nis,
+                        'no_telp'      => $koreksi->no_telp ?? $user->no_telp,
+                        'alamat'       => $koreksi->alamat ?? $user->alamat,
+                    ]);
+                }
+
+                $koreksi->update([
+                    'status_correction' => 'approved',
+                    'reviewed_by'       => auth()->id(),
+                ]);
+
+                $totalSetujui++;
+            }
+        });
+
+        // Hapus cache daftar pengguna agar perubahan ter-update instan
+        Cache::forget('superadmin:daftar-pengguna');
+        Cache::forget('superadmin:statistik');
+
+        \App\Services\LayananLogAktivitas::catat("Menyetujui sekaligus ({$totalSetujui}) pengajuan perbaikan data pengguna.");
+
+        return redirect()->back()->with('success', "Berhasil menyetujui sekaligus {$totalSetujui} pengajuan perbaikan data.");
+    }
 }

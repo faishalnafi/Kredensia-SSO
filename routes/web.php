@@ -133,6 +133,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/manajemen-pengguna/template-guru', [ManajemenPenggunaController::class, 'unduhTemplateGuru'])->name('pengguna.template-guru');
     
     Route::get('/persetujuan-data', [PersetujuanDataController::class, 'indeks'])->name('persetujuan.indeks');
+    Route::post('/persetujuan-data/setujui-semua', [PersetujuanDataController::class, 'setujuiSemua'])->name('persetujuan.setujui-semua');
     Route::post('/persetujuan-data/{id}/setujui', [PersetujuanDataController::class, 'setujui'])->name('persetujuan.setujui');
     Route::post('/persetujuan-data/{id}/tolak', [PersetujuanDataController::class, 'tolak'])->name('persetujuan.tolak');
 
@@ -194,6 +195,7 @@ Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmi
     Route::post('/pembaruan-sistem/bersihkan-cache', [PembaruanSistemController::class, 'bersihkanCache'])->name('pembaruan.bersihkan-cache');
     
     Route::get('/persetujuan-data', [PersetujuanDataController::class, 'indeks'])->name('persetujuan.indeks');
+    Route::post('/persetujuan-data/setujui-semua', [PersetujuanDataController::class, 'setujuiSemua'])->name('persetujuan.setujui-semua');
     Route::post('/persetujuan-data/{id}/setujui', [PersetujuanDataController::class, 'setujui'])->name('persetujuan.setujui');
     Route::post('/persetujuan-data/{id}/tolak', [PersetujuanDataController::class, 'tolak'])->name('persetujuan.tolak');
 
