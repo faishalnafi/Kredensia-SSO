@@ -79,15 +79,18 @@ export default function PersetujuanData({ daftarKoreksi = [] }) {
                         <p className="text-slate-500 dark:text-slate-400 text-sm">Setujui atau tolak pengajuan perbaikan data identitas profil dari pengguna secara teliti.</p>
                     </div>
 
-                    {daftarKoreksi && daftarKoreksi.length > 0 && (
-                        <button
-                            onClick={setujuiSemuaKoreksi}
-                            className="inline-flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98] text-white px-5 py-2.5 rounded-2xl font-extrabold text-sm transition-all shadow-lg shadow-emerald-500/20 shrink-0 cursor-pointer"
-                        >
-                            <span className="material-symbols-rounded text-lg">done_all</span>
-                            Setujui Semua ({daftarKoreksi.length})
-                        </button>
-                    )}
+                    <button
+                        onClick={setujuiSemuaKoreksi}
+                        disabled={!daftarKoreksi || daftarKoreksi.length === 0}
+                        className={`inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl font-extrabold text-sm transition-all shrink-0 ${
+                            daftarKoreksi && daftarKoreksi.length > 0
+                                ? 'bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98] text-white shadow-lg shadow-emerald-500/20 cursor-pointer'
+                                : 'bg-slate-200 dark:bg-slate-700/60 text-slate-400 dark:text-slate-500 cursor-not-allowed opacity-70'
+                        }`}
+                    >
+                        <span className="material-symbols-rounded text-lg">done_all</span>
+                        Setujui Semua {daftarKoreksi && daftarKoreksi.length > 0 ? `(${daftarKoreksi.length})` : ''}
+                    </button>
                 </div>
 
                 <div className="bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-3xl p-6 border border-slate-100 dark:border-slate-700/50 shadow-sm overflow-hidden">

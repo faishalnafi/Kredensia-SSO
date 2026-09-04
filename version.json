@@ -1,6 +1,6 @@
 {
-  "version": "1.5.4",
-  "name": "Pembaruan Portal SSO Sekolah v1.5.4",
+  "version": "1.5.5",
+  "name": "Pembaruan Portal SSO Sekolah v1.5.5",
   "release_date": "2026-09-03",
-  "description": "Penambahan fitur tombol Setujui Semua (Approve All) pada halaman Persetujuan Data untuk superadmin dan admin."
+  "description": "Membuat tombol Setujui Semua (Approve All) tampil selalu di halaman Persetujuan Data dengan state disabled saat 0 pengajuan."
 }
