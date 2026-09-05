@@ -49,6 +49,11 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
         });
     };
 
+    const modalBukaRef = useRef(false);
+    useEffect(() => {
+        modalBukaRef.current = modalBuka || modalImportBuka;
+    }, [modalBuka, modalImportBuka]);
+
     // Dengarkan event broadcast real-time (Laravel Reverb/Pusher) dengan Fallback ke Polling
     useEffect(() => {
         let channel = null;
@@ -58,21 +63,25 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
             // Mode A: WebSocket Server Aktif (Real-time Instan)
             channel = window.Echo.channel('pengguna');
             channel.listen('PenggunaDiperbarui', (e) => {
-                router.reload({ 
-                    only: ['daftarPengguna'], 
-                    preserveScroll: true,
-                    preserveState: true
-                });
+                if (!modalBukaRef.current) {
+                    router.reload({ 
+                        only: ['daftarPengguna'], 
+                        preserveScroll: true,
+                        preserveState: true
+                    });
+                }
             });
         } else {
             // Mode B: Polling Berkala (Fallback untuk Shared Hosting / Tanpa WebSocket)
             intervalId = setInterval(() => {
-                router.reload({ 
-                    only: ['daftarPengguna'], 
-                    preserveScroll: true,
-                    preserveState: true
-                });
-            }, 5000);
+                if (!modalBukaRef.current) {
+                    router.reload({ 
+                        only: ['daftarPengguna'], 
+                        preserveScroll: true,
+                        preserveState: true
+                    });
+                }
+            }, 10000);
         }
         
         // Pembersihan (cleanup)
@@ -172,16 +181,58 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
         e.preventDefault();
         if (editMode) {
             put(route(`${pathPrefix}.pengguna.perbarui`, selectedUserId), {
+                preserveScroll: true,
                 onSuccess: () => {
                     setModalBuka(false);
                     reset();
+                    Swal.fire({
+                        title: 'Berhasil!',
+                        text: 'Data pengguna berhasil diperbarui.',
+                        icon: 'success',
+                        confirmButtonColor: '#0F91FC',
+                        timer: 2000,
+                        showConfirmButton: false,
+                        customClass: { popup: 'rounded-3xl' }
+                    });
+                },
+                onError: (errs) => {
+                    console.error('Gagal memperbarui pengguna:', errs);
+                    const pesanGalat = Object.values(errs)[0] || 'Periksa kembali data formulir yang Anda masukkan.';
+                    Swal.fire({
+                        title: 'Gagal Memperbarui!',
+                        text: pesanGalat,
+                        icon: 'error',
+                        confirmButtonColor: '#0F91FC',
+                        customClass: { popup: 'rounded-3xl' }
+                    });
                 }
             });
         } else {
             post(route(`${pathPrefix}.pengguna.simpan`), {
+                preserveScroll: true,
                 onSuccess: () => {
                     setModalBuka(false);
                     reset();
+                    Swal.fire({
+                        title: 'Berhasil!',
+                        text: 'Pengguna baru berhasil ditambahkan.',
+                        icon: 'success',
+                        confirmButtonColor: '#0F91FC',
+                        timer: 2000,
+                        showConfirmButton: false,
+                        customClass: { popup: 'rounded-3xl' }
+                    });
+                },
+                onError: (errs) => {
+                    console.error('Gagal menambah pengguna:', errs);
+                    const pesanGalat = Object.values(errs)[0] || 'Periksa kembali data formulir yang Anda masukkan.';
+                    Swal.fire({
+                        title: 'Gagal Menambah Pengguna!',
+                        text: pesanGalat,
+                        icon: 'error',
+                        confirmButtonColor: '#0F91FC',
+                        customClass: { popup: 'rounded-3xl' }
+                    });
                 }
             });
         }
@@ -680,13 +731,15 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Email</label>
+                                    <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">
+                                        Email (Opsional)
+                                    </label>
                                     <input 
                                         type="email"
                                         value={data.email}
                                         onChange={e => setData('email', e.target.value)}
+                                        placeholder="opsional@sekolah.sch.id"
                                         className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#0F91FC] dark:text-white"
-                                        required
                                     />
                                     <InputError message={errors.email} className="mt-1" />
                                 </div>
@@ -768,8 +821,8 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                                 <div>
                                     <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">
                                         {data.selected_roles && data.selected_roles.some(rId => {
-                                            const rObj = (roles || []).find(r => r.id === rId);
-                                            return rObj && (rObj.name === 'Guru' || rObj.name === 'guru');
+                                            const rObj = (daftarPeran || []).find(r => r.id === rId);
+                                            return rObj && (rObj.nama_role?.toLowerCase() === 'guru' || rObj.nama_role?.toLowerCase()?.includes('guru'));
                                         }) ? 'NIP (Nomor Induk Pegawai)' : 'NISN (Nomor Induk Siswa Nasional)'}
                                     </label>
                                     <input 

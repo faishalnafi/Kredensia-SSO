@@ -75,7 +75,7 @@ class ManajemenPenggunaController extends Controller
 
         $request->validate([
             'nama_lengkap' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'email' => ['nullable', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8'],
             'jk' => ['nullable', 'string', Rule::in(['L', 'P'])],
             'tgl_lahir' => ['nullable', 'date'],
@@ -97,16 +97,16 @@ class ManajemenPenggunaController extends Controller
         DB::transaction(function () use ($request) {
             $user = User::create([
                 'nama_lengkap' => $request->nama_lengkap,
-                'email' => $request->email,
+                'email' => $request->filled('email') ? trim($request->email) : null,
                 'password' => Hash::make($request->password),
-                'jk' => $request->jk,
-                'tgl_lahir' => $request->tgl_lahir,
-                'nik' => $request->nik,
-                'nip_nis' => $request->nip_nis,
-                'no_telp' => $request->no_telp,
-                'alamat' => $request->alamat,
-                'kelas_id' => $request->kelas_id ?: null,
-                'is_active' => $request->is_active,
+                'jk' => $request->filled('jk') ? $request->jk : null,
+                'tgl_lahir' => $request->filled('tgl_lahir') ? $request->tgl_lahir : null,
+                'nik' => $request->filled('nik') ? trim($request->nik) : null,
+                'nip_nis' => $request->filled('nip_nis') ? trim($request->nip_nis) : null,
+                'no_telp' => $request->filled('no_telp') ? trim($request->no_telp) : null,
+                'alamat' => $request->filled('alamat') ? trim($request->alamat) : null,
+                'kelas_id' => $request->filled('kelas_id') ? $request->kelas_id : null,
+                'is_active' => filter_var($request->is_active, FILTER_VALIDATE_BOOLEAN),
                 'claimed_at' => now(), // Otomatis aktif
             ]);
 
@@ -136,7 +136,7 @@ class ManajemenPenggunaController extends Controller
 
         $request->validate([
             'nama_lengkap' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($id)],
+            'email' => ['nullable', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($id)],
             'password' => ['nullable', 'string', 'min:8'],
             'jk' => ['nullable', 'string', Rule::in(['L', 'P'])],
             'tgl_lahir' => ['nullable', 'date'],
@@ -163,15 +163,15 @@ class ManajemenPenggunaController extends Controller
         DB::transaction(function () use ($user, $request) {
             $updateData = [
                 'nama_lengkap' => $request->nama_lengkap,
-                'email' => $request->email,
-                'jk' => $request->jk,
-                'tgl_lahir' => $request->tgl_lahir,
-                'nik' => $request->nik,
-                'nip_nis' => $request->nip_nis,
-                'no_telp' => $request->no_telp,
-                'alamat' => $request->alamat,
-                'kelas_id' => $request->kelas_id ?: null,
-                'is_active' => $request->is_active,
+                'email' => $request->filled('email') ? trim($request->email) : null,
+                'jk' => $request->filled('jk') ? $request->jk : null,
+                'tgl_lahir' => $request->filled('tgl_lahir') ? $request->tgl_lahir : null,
+                'nik' => $request->filled('nik') ? trim($request->nik) : null,
+                'nip_nis' => $request->filled('nip_nis') ? trim($request->nip_nis) : null,
+                'no_telp' => $request->filled('no_telp') ? trim($request->no_telp) : null,
+                'alamat' => $request->filled('alamat') ? trim($request->alamat) : null,
+                'kelas_id' => $request->filled('kelas_id') ? $request->kelas_id : null,
+                'is_active' => filter_var($request->is_active, FILTER_VALIDATE_BOOLEAN),
             ];
 
             if ($request->filled('password')) {

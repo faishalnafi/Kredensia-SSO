@@ -1,6 +1,6 @@
 {
-  "version": "1.5.7",
-  "name": "Pembaruan Portal SSO Sekolah v1.5.7",
+  "version": "1.5.8",
+  "name": "Pembaruan Portal SSO Sekolah v1.5.8",
   "release_date": "2026-09-05",
-  "description": "Mengubah warna aksen slogan (Data, App, Network, Platform, Screen) pada header mobile/tablet dari warna merah menjadi warna biru brand (#0F91FC)."
+  "description": "Perbaikan fitur edit pengguna: mengatasi error variabel peran tidak terdefinisi, email opsional untuk siswa, dan sanitasi input nullable."
 }
