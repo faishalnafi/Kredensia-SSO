@@ -1,6 +1,6 @@
 {
-  "version": "1.5.6",
-  "name": "Pembaruan Portal SSO Sekolah v1.5.6",
+  "version": "1.5.7",
+  "name": "Pembaruan Portal SSO Sekolah v1.5.7",
   "release_date": "2026-09-05",
-  "description": "Perbaikan pemotongan ring fokus dan garis bingkai pada input formulir otentikasi (Surel, Kata Sandi, NIK, NISN, NIP, Tanggal Lahir)."
+  "description": "Mengubah warna aksen slogan (Data, App, Network, Platform, Screen) pada header mobile/tablet dari warna merah menjadi warna biru brand (#0F91FC)."
 }

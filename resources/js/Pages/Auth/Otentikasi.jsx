@@ -822,10 +822,10 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                     </span>
                                 </div>
 
-                                {/* Slogan 2 Baris Aksen Merah #EA4335 Khusus Mobile */}
+                                {/* Slogan 2 Baris Aksen Biru #0F91FC Khusus Mobile */}
                                 <div className="text-xs font-bold text-slate-700 dark:text-slate-200 space-y-0.5 mb-2">
-                                    <p>One <span className="text-[#EA4335] font-black">Data</span> ♦ One <span className="text-[#EA4335] font-black">App</span> ♦ One <span className="text-[#EA4335] font-black">Network</span></p>
-                                    <p>One <span className="text-[#EA4335] font-black">Platform</span> ♦ One <span className="text-[#EA4335] font-black">Screen</span></p>
+                                    <p>One <span className="text-[#0F91FC] dark:text-[#38b6ff] font-black">Data</span> ♦ One <span className="text-[#0F91FC] dark:text-[#38b6ff] font-black">App</span> ♦ One <span className="text-[#0F91FC] dark:text-[#38b6ff] font-black">Network</span></p>
+                                    <p>One <span className="text-[#0F91FC] dark:text-[#38b6ff] font-black">Platform</span> ♦ One <span className="text-[#0F91FC] dark:text-[#38b6ff] font-black">Screen</span></p>
                                 </div>
                             </div>
 
@@ -1053,10 +1053,10 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                     </span>
                                 </div>
 
-                                {/* Slogan 2 Baris Aksen Merah #EA4335 Khusus Mobile */}
+                                {/* Slogan 2 Baris Aksen Biru #0F91FC Khusus Mobile */}
                                 <div className="text-xs font-bold text-slate-700 dark:text-slate-200 space-y-0.5 mb-2">
-                                    <p>One <span className="text-[#EA4335] font-black">Data</span> ♦ One <span className="text-[#EA4335] font-black">App</span> ♦ One <span className="text-[#EA4335] font-black">Network</span></p>
-                                    <p>One <span className="text-[#EA4335] font-black">Platform</span> ♦ One <span className="text-[#EA4335] font-black">Screen</span></p>
+                                    <p>One <span className="text-[#0F91FC] dark:text-[#38b6ff] font-black">Data</span> ♦ One <span className="text-[#0F91FC] dark:text-[#38b6ff] font-black">App</span> ♦ One <span className="text-[#0F91FC] dark:text-[#38b6ff] font-black">Network</span></p>
+                                    <p>One <span className="text-[#0F91FC] dark:text-[#38b6ff] font-black">Platform</span> ♦ One <span className="text-[#0F91FC] dark:text-[#38b6ff] font-black">Screen</span></p>
                                 </div>
                             </div>
                             
@@ -1378,10 +1378,10 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                         </span>
                                     </div>
 
-                                    {/* Slogan 2 Baris Aksen Merah #EA4335 Khusus Mobile/Tablet */}
+                                    {/* Slogan 2 Baris Aksen Biru #0F91FC Khusus Mobile/Tablet */}
                                     <div className="text-xs font-bold text-slate-700 dark:text-slate-200 space-y-0.5 mb-2">
-                                        <p>One <span className="text-[#EA4335] font-black">Data</span> ♦ One <span className="text-[#EA4335] font-black">App</span> ♦ One <span className="text-[#EA4335] font-black">Network</span></p>
-                                        <p>One <span className="text-[#EA4335] font-black">Platform</span> ♦ One <span className="text-[#EA4335] font-black">Screen</span></p>
+                                        <p>One <span className="text-[#0F91FC] dark:text-[#38b6ff] font-black">Data</span> ♦ One <span className="text-[#0F91FC] dark:text-[#38b6ff] font-black">App</span> ♦ One <span className="text-[#0F91FC] dark:text-[#38b6ff] font-black">Network</span></p>
+                                        <p>One <span className="text-[#0F91FC] dark:text-[#38b6ff] font-black">Platform</span> ♦ One <span className="text-[#0F91FC] dark:text-[#38b6ff] font-black">Screen</span></p>
                                     </div>
                                 </div>
 
