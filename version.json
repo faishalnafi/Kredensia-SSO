@@ -1,6 +1,6 @@
 {
-  "version": "1.5.5",
-  "name": "Pembaruan Portal SSO Sekolah v1.5.5",
-  "release_date": "2026-09-03",
-  "description": "Membuat tombol Setujui Semua (Approve All) tampil selalu di halaman Persetujuan Data dengan state disabled saat 0 pengajuan."
+  "version": "1.5.6",
+  "name": "Pembaruan Portal SSO Sekolah v1.5.6",
+  "release_date": "2026-09-05",
+  "description": "Perbaikan pemotongan ring fokus dan garis bingkai pada input formulir otentikasi (Surel, Kata Sandi, NIK, NISN, NIP, Tanggal Lahir)."
 }

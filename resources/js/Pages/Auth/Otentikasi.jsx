@@ -940,13 +940,13 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                     `}
                                 >
                                     <div className="overflow-hidden">
-                                        <form onSubmit={tanganiLogin} className="w-full space-y-5 text-left pt-1">
+                                        <form onSubmit={tanganiLogin} className="w-full space-y-5 text-left p-1">
                                             <div>
                                                 <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wider" htmlFor="email-login">
                                                     Surel
                                                 </label>
                                                 <input 
-                                                    className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#081242] py-3.5 px-4 text-sm transition-colors placeholder:text-slate-400"
+                                                    className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-inset focus:ring-[#0F91FC] dark:focus:ring-[#0F91FC] focus:border-[#0F91FC] py-3.5 px-4 text-sm transition-all placeholder:text-slate-400 outline-none"
                                                     id="email-login" 
                                                     type="email"
                                                     placeholder="Gunakan surel yang terdaftar di sekolah" 
@@ -963,7 +963,7 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                                 </label>
                                                 <div className="relative">
                                                     <input 
-                                                        className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#081242] py-3.5 pl-4 pr-11 text-sm transition-colors placeholder:text-slate-400"
+                                                        className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-inset focus:ring-[#0F91FC] dark:focus:ring-[#0F91FC] focus:border-[#0F91FC] py-3.5 pl-4 pr-11 text-sm transition-all placeholder:text-slate-400 outline-none"
                                                         id="password-login" 
                                                         placeholder="••••••••" 
                                                         type={tampilkanSandi ? "text" : "password"}
@@ -1110,7 +1110,7 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                                 Nomor Induk Kependudukan (NIK)
                                             </label>
                                             <input 
-                                                className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#081242] py-3 px-4 transition-colors placeholder:text-slate-400"
+                                                className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-inset focus:ring-[#0F91FC] dark:focus:ring-[#0F91FC] focus:border-[#0F91FC] py-3 px-4 transition-all placeholder:text-slate-400 outline-none"
                                                 id="nik" 
                                                 placeholder="Masukkan 16 digit NIK" 
                                                 type="text"
@@ -1130,7 +1130,7 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                                 {dataKlaim.jenis_pengguna === 'Guru' ? 'Nomor Induk Pegawai (NIP)' : 'Nomor Induk Siswa Nasional (NISN)'}
                                             </label>
                                             <input 
-                                                className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#081242] py-3 px-4 transition-colors placeholder:text-slate-400"
+                                                className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-inset focus:ring-[#0F91FC] dark:focus:ring-[#0F91FC] focus:border-[#0F91FC] py-3 px-4 transition-all placeholder:text-slate-400 outline-none"
                                                 id="nip_nis" 
                                                 placeholder={dataKlaim.jenis_pengguna === 'Guru' ? "Masukkan NIP (18 digit)" : "Masukkan NISN (10 digit)"} 
                                                 type="text"
@@ -1150,7 +1150,7 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                                 Tanggal Lahir
                                             </label>
                                             <input 
-                                                className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#081242] py-3 px-4 transition-colors placeholder:text-slate-400"
+                                                className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-inset focus:ring-[#0F91FC] dark:focus:ring-[#0F91FC] focus:border-[#0F91FC] py-3 px-4 transition-all placeholder:text-slate-400 outline-none"
                                                 id="tgl_lahir" 
                                                 type="date"
                                                 value={dataKlaim.tgl_lahir}
