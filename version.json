@@ -1,6 +1,6 @@
 {
-  "version": "1.5.8",
-  "name": "Pembaruan Portal SSO Sekolah v1.5.8",
+  "version": "1.5.9",
+  "name": "Pembaruan Portal SSO Sekolah v1.5.9",
   "release_date": "2026-09-05",
-  "description": "Perbaikan fitur edit pengguna: mengatasi error variabel peran tidak terdefinisi, email opsional untuk siswa, dan sanitasi input nullable."
+  "description": "Perbaikan modal edit pengguna agar tidak terpotong header: pembatasan tinggi max-h-[90vh], header dialog sticky, form scrollable, dan penyesuaian z-index."
 }

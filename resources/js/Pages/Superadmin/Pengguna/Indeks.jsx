@@ -699,22 +699,29 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
 
             {/* Modal Dialog Form */}
             {modalBuka && (
-                <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-                    <div className="bg-white dark:bg-slate-800 rounded-3xl max-w-2xl w-full p-6 lg:p-8 shadow-2xl border border-slate-100 dark:border-slate-700/50 relative my-8">
+                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[999] flex items-center justify-center p-3 sm:p-4 overflow-hidden">
+                    <div className="bg-white dark:bg-slate-800 rounded-3xl max-w-2xl w-full shadow-2xl border border-slate-100 dark:border-slate-700/50 flex flex-col max-h-[90vh] my-auto overflow-hidden animate-in fade-in zoom-in-95 duration-200">
                         
-                        <div className="flex items-center justify-between mb-6 border-b border-slate-100 dark:border-slate-700/50 pb-4">
-                            <h3 className="text-lg font-bold text-slate-800 dark:text-white">
+                        {/* Header Dialog (Sticky di Atas) */}
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700/50 shrink-0 bg-white dark:bg-slate-800">
+                            <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                <span className="material-symbols-rounded text-[#0F91FC]">
+                                    {editMode ? 'manage_accounts' : 'person_add'}
+                                </span>
                                 {editMode ? 'Edit Pengguna' : 'Tambah Pengguna Baru'}
                             </h3>
                             <button 
+                                type="button"
                                 onClick={() => setModalBuka(false)}
-                                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                                className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center justify-center transition-colors cursor-pointer"
                             >
-                                <span className="material-symbols-rounded">close</span>
+                                <span className="material-symbols-rounded text-lg">close</span>
                             </button>
                         </div>
 
-                        <form onSubmit={tanganiSubmit} className="space-y-6">
+                        {/* Form Body (Scrollable Mandiri) */}
+                        <form onSubmit={tanganiSubmit} className="flex flex-col flex-1 overflow-hidden">
+                            <div className="p-6 space-y-6 overflow-y-auto flex-1 scrollbar-minimalis text-left">
                             
                             {/* Grid Data Diri */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -912,20 +919,21 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                                     </label>
                                 </div>
                             )}
+                            </div>
 
-                            {/* Footer Tombol */}
-                            <div className="flex justify-end gap-2 pt-4 border-t border-slate-100 dark:border-slate-700/50">
+                            {/* Footer Tombol (Sticky di Bawah) */}
+                            <div className="flex justify-end gap-2 px-6 py-4 border-t border-slate-100 dark:border-slate-700/50 bg-slate-50 dark:bg-slate-850 shrink-0">
                                 <button 
                                     type="button"
                                     onClick={() => setModalBuka(false)}
-                                    className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                                    className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                                 >
                                     Batal
                                 </button>
                                 <button 
                                     type="submit"
                                     disabled={processing}
-                                    className="px-5 py-2.5 rounded-xl bg-[#0F91FC] hover:bg-[#0a78d6] text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-lg shadow-[#0F91FC]/20 disabled:opacity-50"
+                                    className="px-5 py-2.5 rounded-xl bg-[#0F91FC] hover:bg-[#0a78d6] text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-lg shadow-[#0F91FC]/20 disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
                                 >
                                     {processing ? 'Menyimpan...' : 'Simpan'}
                                 </button>
@@ -937,7 +945,7 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
 
             {/* Modal Import Pengguna (CSV / XLSX) */}
             {modalImportBuka && (
-                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[999] flex items-center justify-center p-4">
                     <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 dark:border-slate-800 relative text-left max-h-[90vh] overflow-y-auto">
                         <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
                             <div>

@@ -287,7 +287,7 @@ export default function TataLetakUtama({ children, title }) {
     return (
         <div className="h-screen bg-[#0F91FC] text-white flex flex-col font-sans overflow-hidden transition-colors duration-300">
             {/* Top Unified Header */}
-            <header className="h-16 bg-[#0F91FC] text-white flex items-center justify-between px-4 lg:px-6 shrink-0 z-40">
+            <header className="h-16 bg-[#0F91FC] text-white flex items-center justify-between px-4 lg:px-6 shrink-0 z-20">
                 <div className="flex items-center gap-3">
                     {/* Tombol Hamburger / Collapse */}
                     <button
@@ -338,7 +338,7 @@ export default function TataLetakUtama({ children, title }) {
             </header>
 
             {/* Layout Body: Sidebar + Main Content */}
-            <div className="flex-1 flex relative overflow-hidden bg-[#0F91FC]">
+            <div className="flex-1 flex relative overflow-hidden bg-[#0F91FC] z-30">
                 {/* Overlay Mobile */}
                 {sidebarBuka && (
                     <div 
