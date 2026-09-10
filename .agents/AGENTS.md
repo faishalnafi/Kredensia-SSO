@@ -71,3 +71,10 @@ class PenggunaController extends Controller
   - Menggunakan Aspect Ratios tetap (misal: `aspect-square`, `aspect-video`) pada pembungkus media/gambar.
   - Menentukan dimensi pasti (`h-4`, `w-32`, `w-full`) pada komponen Skeleton agar sama persis dengan tinggi dan lebar tipografi/elemen asli saat di-render.
   - Sertakan instruksi bahasa Indonesia pada komentar komponen yang menjelaskan bahwa struktur pembungkus dipertahankan demi mencegah Layout Shift.
+
+---
+
+## 3. STANDAR GIT COMMIT & CO-AUTHORING
+- Setiap commit yang dibuat oleh atau bersama Agen Antigravity di workspace IDE ini WAJIB menyertakan trailer Co-Author berikut secara otomatis di bagian paling bawah pesan commit:
+  `Co-authored-by: Google Antigravity <antigravity-ai@users.noreply.github.com>`
+- Pengecualian hanya berlaku jika pengguna secara eksplisit meminta commit murni atas nama akun lokal pengguna tanpa menyertakan Co-Author.
