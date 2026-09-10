@@ -184,20 +184,41 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                     onClick={() => tanganiUrutan(namaKolom)}
                     className={`group inline-flex items-center gap-1.5 uppercase tracking-wider text-xs transition-colors cursor-pointer select-none ${
                         isAktif 
-                            ? 'text-[#0F91FC] dark:text-[#0F91FC] font-extrabold' 
-                            : 'text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                            ? 'text-slate-900 dark:text-white font-black' 
+                            : 'text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-bold'
                     }`}
                     title={`Urutkan / Filter berdasarkan ${label} (${isAktif ? (arahAktif === 'asc' ? 'Sedang A-Z / Naik' : 'Sedang Z-A / Turun') : 'Klik untuk urutkan'})`}
                 >
                     <span>{label}</span>
-                    <span className={`material-symbols-rounded text-base leading-none transition-transform ${
-                        isAktif ? 'scale-110 text-[#0F91FC]' : 'opacity-40 group-hover:opacity-80'
-                    }`}>
-                        {isAktif ? (
-                            arahAktif === 'asc' ? 'arrow_upward' : 'arrow_downward'
-                        ) : (
-                            'unfold_more'
-                        )}
+                    <span className="inline-flex flex-col items-center justify-center gap-[2px] ml-0.5 shrink-0">
+                        {/* Segitiga Penuh Atas (Naik / ASC) */}
+                        <svg 
+                            className={`w-2 h-[5px] transition-all ${
+                                isAktif && arahAktif === 'asc'
+                                    ? 'text-slate-900 dark:text-white scale-125' 
+                                    : isAktif 
+                                        ? 'text-slate-300/40 dark:text-slate-600/40' 
+                                        : 'text-slate-300 dark:text-slate-600 group-hover:text-slate-400'
+                            }`} 
+                            viewBox="0 0 8 5" 
+                            fill="currentColor"
+                        >
+                            <path d="M4 0L8 5H0Z" />
+                        </svg>
+                        {/* Segitiga Penuh Bawah (Turun / DESC) */}
+                        <svg 
+                            className={`w-2 h-[5px] transition-all ${
+                                isAktif && arahAktif === 'desc'
+                                    ? 'text-slate-900 dark:text-white scale-125' 
+                                    : isAktif 
+                                        ? 'text-slate-300/40 dark:text-slate-600/40' 
+                                        : 'text-slate-300 dark:text-slate-600 group-hover:text-slate-400'
+                            }`} 
+                            viewBox="0 0 8 5" 
+                            fill="currentColor"
+                        >
+                            <path d="M0 0H8L4 5Z" />
+                        </svg>
                     </span>
                 </button>
             </th>
