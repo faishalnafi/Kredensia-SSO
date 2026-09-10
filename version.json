@@ -1,6 +1,6 @@
 {
-  "version": "1.6.0",
-  "name": "Pembaruan Portal SSO Sekolah v1.6.0",
+  "version": "1.6.1",
+  "name": "Pembaruan Portal SSO Sekolah v1.6.1",
   "release_date": "2026-09-10",
-  "description": "Fitur Beta Verifikasi Wajah Siswa berbasis Google MediaPipe AI dengan deteksi orientasi presisi (Yaw, Pitch, Roll), auto-capture, kompresi JPEG client-side, dan integrasi foto profil identitas siswa."
+  "description": "Fitur Reset Status Verifikasi Akun Pengguna (kembali ke kondisi awal belum terverifikasi) dan Beta Verifikasi Wajah Siswa berbasis Google MediaPipe AI."
 }

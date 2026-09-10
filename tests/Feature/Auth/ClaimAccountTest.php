@@ -111,4 +111,54 @@ class ClaimAccountTest extends TestCase
         // Pastikan avatar_url menggunakan foto_identitas
         $this->assertStringContainsString('storage/verifikasi-wajah/', $user->avatar_url);
     }
+
+    /**
+     * Uji superadmin dapat mereset status verifikasi pengguna kembali ke belum terverifikasi.
+     */
+    public function test_superadmin_dapat_mereset_status_verifikasi_pengguna(): void
+    {
+        Storage::fake('public');
+
+        $roleSuperadmin = \App\Models\Role::create(['nama_role' => 'Super Admin', 'is_active' => true]);
+        $roleSiswa = \App\Models\Role::create(['nama_role' => 'Siswa', 'is_active' => true]);
+
+        $admin = User::factory()->create([
+            'email' => 'superadmin@sekolah.sch.id',
+            'is_active' => true,
+        ]);
+        $admin->roles()->attach($roleSuperadmin->id);
+
+        $fotoFakePath = 'verifikasi-wajah/fake_face_test.jpg';
+        Storage::disk('public')->put($fotoFakePath, 'konten-foto-palsu');
+
+        $siswa = User::factory()->create([
+            'nama_lengkap' => 'Siswa Teladan',
+            'nik' => '3201018888880001',
+            'nip_nis' => '8877665544',
+            'tgl_lahir' => '2008-07-07',
+            'email' => 'siswa.teladan@sekolah.sch.id',
+            'password' => bcrypt('PasswordLama123!'),
+            'claimed_at' => now(),
+            'foto_identitas' => $fotoFakePath,
+            'is_active' => true,
+        ]);
+        $siswa->roles()->attach($roleSiswa->id);
+
+        // Superadmin memanggil endpoint reset verifikasi
+        $respons = $this->actingAs($admin)->post(route('superadmin.pengguna.reset-verifikasi', $siswa->id));
+
+        $respons->assertRedirect();
+        $respons->assertSessionHas('success');
+
+        $siswa->refresh();
+
+        // Status verifikasi harus kembali null (Belum terverifikasi)
+        $this->assertNull($siswa->claimed_at);
+        $this->assertNull($siswa->password);
+        $this->assertNull($siswa->foto_identitas);
+        $this->assertNull($siswa->email);
+
+        // Berkas foto harus terhapus dari storage
+        Storage::disk('public')->assertMissing($fotoFakePath);
+    }
 }

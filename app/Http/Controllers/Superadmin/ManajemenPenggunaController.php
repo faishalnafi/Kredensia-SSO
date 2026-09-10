@@ -242,6 +242,58 @@ class ManajemenPenggunaController extends Controller
     }
 
     /**
+     * Reset status verifikasi akun agar kembali seperti kondisi awal belum diklaim/diverifikasi.
+     */
+    public function resetVerifikasi(Request $request, string $id): RedirectResponse
+    {
+        // Proteksi: Tidak boleh mereset akun diri sendiri
+        if ($id === auth()->id()) {
+            return redirect()->back()->with('error', 'Gagal: Anda tidak diperbolehkan mereset status verifikasi akun Anda sendiri.');
+        }
+
+        $user = User::findOrFail($id);
+
+        DB::transaction(function () use ($user) {
+            $updateData = [
+                'claimed_at' => null,
+                'password' => null,
+                'google_id' => null,
+                'google_email' => null,
+                'google_name' => null,
+                'google_avatar' => null,
+                'biodata_dilengkapi_pada' => null,
+            ];
+
+            // Hapus berkas foto identitas biometrik jika ada
+            if (!empty($user->foto_identitas)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->foto_identitas);
+                $updateData['foto_identitas'] = null;
+            }
+
+            // Jika pengguna adalah siswa, kosongkan email agar kembali seperti data awal sebelum klaim mandiri
+            if ($user->hasRole('Siswa')) {
+                $updateData['email'] = null;
+            }
+
+            $user->update($updateData);
+
+            // Bersihkan sesi login aktif untuk pengguna ini
+            DB::table('sessions')->where('user_id', $user->id)->delete();
+        });
+
+        // Hapus cache agar data terbaru langsung muncul
+        Cache::forget('superadmin:daftar-pengguna');
+        Cache::forget('superadmin:statistik');
+        Cache::forget('superadmin:pengguna-terbaru');
+
+        \App\Services\LayananLogAktivitas::catat('Mereset status verifikasi pengguna: ' . $user->nama_lengkap);
+
+        $this->kirimEventBroadcast();
+
+        return redirect()->back()->with('success', "Status verifikasi {$user->nama_lengkap} berhasil direset ke kondisi awal.");
+    }
+
+    /**
      * Otentikasi / Masuk sebagai pengguna lain (Impersonation).
      */
     public function loginSebagaiPengguna(Request $request, string $id): RedirectResponse

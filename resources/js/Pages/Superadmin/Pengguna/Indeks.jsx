@@ -298,6 +298,57 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
         }
     };
 
+    const tanganiResetVerifikasi = async (user) => {
+        if (user.id === auth.user.id) {
+            Swal.fire({
+                title: 'Aksi Ditolak',
+                text: 'Anda tidak dapat mereset status akun Anda sendiri.',
+                icon: 'warning',
+                confirmButtonColor: '#0F91FC',
+                customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl font-bold px-5 py-2.5' }
+            });
+            return;
+        }
+
+        const res = await Swal.fire({
+            title: 'Reset Verifikasi Akun?',
+            html: `
+                <div class="text-left text-xs space-y-2 pt-1 text-slate-600 dark:text-slate-300">
+                    <p>Status verifikasi untuk <b>${user.nama_lengkap}</b> akan dikembalikan ke kondisi awal (belum terverifikasi).</p>
+                    <div class="p-3 bg-amber-50 dark:bg-amber-950/40 rounded-xl border border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-300 space-y-1">
+                        <p class="font-bold flex items-center gap-1">
+                            <span class="material-symbols-rounded text-sm">warning</span>
+                            Konsekuensi Reset:
+                        </p>
+                        <ul class="list-disc list-inside space-y-0.5 text-[11px]">
+                            <li>Status berubah kembali menjadi <b>BELUM</b> terverifikasi.</li>
+                            <li>Kata sandi & seluruh sesi login pengguna dinonaktifkan.</li>
+                            <li>Foto verifikasi wajah AI (jika ada) akan dihapus.</li>
+                            <li>Pengguna dapat melakukan verifikasi/klaim akun kembali dari awal.</li>
+                        </ul>
+                    </div>
+                </div>
+            `,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Reset Verifikasi',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#f59e0b',
+            cancelButtonColor: '#6b7280',
+            customClass: { 
+                popup: 'rounded-3xl max-w-md', 
+                confirmButton: 'rounded-xl font-bold px-5 py-2.5', 
+                cancelButton: 'rounded-xl font-bold px-5 py-2.5' 
+            }
+        });
+
+        if (res.isConfirmed) {
+            router.post(route(`${pathPrefix}.pengguna.reset-verifikasi`, user.id), {}, {
+                preserveScroll: true
+            });
+        }
+    };
+
 
     const toggleRoleSelection = (roleId) => {
         const currentSelection = [...data.selected_roles];
@@ -623,7 +674,22 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                                                     </span>
                                                 )}
                                             </td>
-                                             <td className="px-6 py-4 text-right space-x-1.5">
+                                             <td className="px-6 py-4 text-right space-x-1.5 whitespace-nowrap">
+                                                {/* Tombol Reset Verifikasi Akun */}
+                                                {user.id !== auth.user.id && (
+                                                    <button 
+                                                        onClick={() => tanganiResetVerifikasi(user)}
+                                                        disabled={!user.claimed_at}
+                                                        className={`p-2 rounded-xl transition-colors ${
+                                                            user.claimed_at 
+                                                                ? 'text-amber-500 hover:text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10 cursor-pointer' 
+                                                                : 'text-slate-300 dark:text-slate-600 cursor-not-allowed opacity-40'
+                                                        }`}
+                                                        title={user.claimed_at ? "Reset Status Verifikasi (Kembalikan ke Belum Terverifikasi)" : "Akun belum diverifikasi"}
+                                                    >
+                                                        <span className="material-symbols-rounded text-lg">restart_alt</span>
+                                                    </button>
+                                                )}
                                                 {user.id !== auth.user.id && (
                                                     <button 
                                                         onClick={() => tanganiLoginSebagai(user)}
