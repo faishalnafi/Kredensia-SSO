@@ -4,6 +4,7 @@ import InputError from '@/Components/InputError';
 import Checkbox from '@/Components/Checkbox';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import VerifikasiWajahSiswa from '@/Components/VerifikasiWajahSiswa';
 
 /**
  * Komponen Partikel Sintesa Canvas
@@ -167,6 +168,8 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
     const [modeAktif, setModeAktif] = useState(ambilModeAwal);
     const [logoGagal, setLogoGagal] = useState(false);
     const [tahapKlaim, setTahapKlaim] = useState(1);
+    const [namaSiswaKlaim, setNamaSiswaKlaim] = useState('');
+    const [previewFotoWajah, setPreviewFotoWajah] = useState(null);
     const [tampilkanSandi, setTampilkanSandi] = useState(false);
     const [tampilkanSandiKlaim, setTampilkanSandiKlaim] = useState(false);
     const [tampilkanKonfirmasi, setTampilkanKonfirmasi] = useState(false);
@@ -384,6 +387,8 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                 setTahapKlaim(1);
                 setStatusValidasi({ nik: null, nip_nis: null, tgl_lahir: null });
                 setPesanTerklaim(null);
+                setDataKlaim('foto_wajah', null);
+                setPreviewFotoWajah(null);
             }
         }
     }, [modeProp]);
@@ -425,6 +430,8 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
             setTahapKlaim(1);
             setStatusValidasi({ nik: null, nip_nis: null, tgl_lahir: null });
             setPesanTerklaim(null);
+            setDataKlaim('foto_wajah', null);
+            setPreviewFotoWajah(null);
         }
         setTimeout(() => setSedangTransisi(false), 800);
     };
@@ -514,6 +521,7 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
         email: '',
         password: '',
         password_confirmation: '',
+        foto_wajah: null,
     });
 
     // Handlers input kontrol angka & panjang digit
@@ -537,9 +545,10 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
     };
 
     const ubahJenisPengguna = (jenis) => {
-        setDataKlaim(prev => ({ ...prev, jenis_pengguna: jenis, nip_nis: '' }));
+        setDataKlaim(prev => ({ ...prev, jenis_pengguna: jenis, nip_nis: '', foto_wajah: null }));
         setStatusValidasi({ nik: null, nip_nis: null, tgl_lahir: null });
         setPesanTerklaim(null);
+        setPreviewFotoWajah(null);
     };
 
     const tanganiPerubahanTglLahir = (e) => {
@@ -604,10 +613,17 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                 });
                 // Isi otomatis email ke form data
                 setDataKlaim('email', response.data.email);
+                if (response.data.nama_lengkap) {
+                    setNamaSiswaKlaim(response.data.nama_lengkap);
+                }
                 
-                // Lanjut ke tahap 2 dengan delay transisi mulus
+                // Lanjut ke tahap verifikasi wajah jika Siswa, atau langsung ke tahap 2 jika Guru
                 setTimeout(() => {
-                    setTahapKlaim(2);
+                    if (dataKlaim.jenis_pengguna === 'Siswa' || response.data.wajib_verifikasi_wajah) {
+                        setTahapKlaim('wajah');
+                    } else {
+                        setTahapKlaim(2);
+                    }
                 }, 800);
             }
         })
@@ -651,6 +667,20 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
             return;
         }
 
+        // Khusus Siswa: pastikan foto verifikasi wajah sudah ada
+        if (dataKlaim.jenis_pengguna === 'Siswa' && !dataKlaim.foto_wajah) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Verifikasi Wajah Diperlukan',
+                text: 'Akun siswa wajib menyelesaikan verifikasi pemindaian wajah sebelum mengatur kata sandi.',
+                confirmButtonColor: '#0F91FC',
+                customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl font-bold px-5 py-2.5' }
+            }).then(() => {
+                setTahapKlaim('wajah');
+            });
+            return;
+        }
+
         // Pastikan password memenuhi kriteria sebelum submit
         const sandi = dataKlaim.password || '';
         const kriteriaSandi = {
@@ -675,6 +705,8 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
             onError: (errors) => {
                 if (errors.nik || errors.nip_nis || errors.tgl_lahir) {
                     setTahapKlaim(1);
+                } else if (errors.foto_wajah) {
+                    setTahapKlaim('wajah');
                 }
             }
         });
@@ -1193,6 +1225,23 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                 </>
                             )}
 
+                            {/* ===== TAHAP WAJAH (KHUSUS SISWA): Verifikasi Wajah AI Google MediaPipe ===== */}
+                            {tahapKlaim === 'wajah' && (
+                                <VerifikasiWajahSiswa
+                                    namaSiswa={namaSiswaKlaim}
+                                    fotoSebelumnya={dataKlaim.foto_wajah && previewFotoWajah ? {
+                                        file: dataKlaim.foto_wajah,
+                                        url: previewFotoWajah
+                                    } : null}
+                                    onFotoTerverifikasi={(fileFoto, previewUrl) => {
+                                        setDataKlaim('foto_wajah', fileFoto);
+                                        setPreviewFotoWajah(previewUrl);
+                                        setTahapKlaim(2);
+                                    }}
+                                    onKembali={() => setTahapKlaim(1)}
+                                />
+                            )}
+
                             {/* ===== TAHAP 2: Pengaturan Email & Kata Sandi ===== */}
                             {tahapKlaim === 2 && (() => {
                                 const sandi = dataKlaim.password || '';
@@ -1224,6 +1273,37 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                         <p className="text-slate-500 dark:text-slate-400 text-sm mb-6 leading-relaxed">
                                             Masukkan surel terdaftar Anda untuk mengatur kata sandi baru dan mengaktifkan akun Anda.
                                         </p>
+
+                                        {/* Kartu Informasi Wajah Terverifikasi (Khusus Siswa) */}
+                                        {dataKlaim.foto_wajah && previewFotoWajah && (
+                                            <div className="w-full flex items-center justify-between p-3.5 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/40 rounded-2xl mb-6 text-left">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-12 h-12 rounded-xl overflow-hidden border-2 border-emerald-400 shrink-0 bg-slate-900 shadow-sm">
+                                                        <img 
+                                                            src={previewFotoWajah} 
+                                                            alt="Foto Wajah Terverifikasi" 
+                                                            className="w-full h-full object-cover" 
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-xs font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1">
+                                                            <span className="material-symbols-rounded text-sm text-emerald-600 dark:text-emerald-400">verified</span>
+                                                            Wajah Terverifikasi (MediaPipe AI)
+                                                        </p>
+                                                        <p className="text-[10px] text-emerald-700 dark:text-emerald-400/90 font-medium">
+                                                            Foto profil biometrik siap disimpan
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <button 
+                                                    type="button" 
+                                                    onClick={() => setTahapKlaim('wajah')}
+                                                    className="text-xs font-bold text-[#0F91FC] hover:underline px-2 py-1 rounded-lg"
+                                                >
+                                                    Pindai Ulang
+                                                </button>
+                                            </div>
+                                        )}
 
                                         <form onSubmit={tanganiKlaim} className="w-full space-y-5">
                                             <div>
@@ -1338,7 +1418,7 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                             <div className="pt-2 flex gap-3">
                                                 <button 
                                                     type="button"
-                                                    onClick={() => setTahapKlaim(1)}
+                                                    onClick={() => setTahapKlaim(dataKlaim.jenis_pengguna === 'Siswa' ? 'wajah' : 1)}
                                                     className="flex-1 py-4 px-6 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-all text-sm shadow-sm flex items-center justify-center gap-2"
                                                 >
                                                     <span className="material-symbols-rounded text-lg">arrow_back</span>

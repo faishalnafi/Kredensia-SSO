@@ -1,6 +1,6 @@
 {
-  "version": "1.5.9",
-  "name": "Pembaruan Portal SSO Sekolah v1.5.9",
-  "release_date": "2026-09-05",
-  "description": "Perbaikan modal edit pengguna agar tidak terpotong header: pembatasan tinggi max-h-[90vh], header dialog sticky, form scrollable, dan penyesuaian z-index."
+  "version": "1.6.0",
+  "name": "Pembaruan Portal SSO Sekolah v1.6.0",
+  "release_date": "2026-09-10",
+  "description": "Fitur Beta Verifikasi Wajah Siswa berbasis Google MediaPipe AI dengan deteksi orientasi presisi (Yaw, Pitch, Roll), auto-capture, kompresi JPEG client-side, dan integrasi foto profil identitas siswa."
 }

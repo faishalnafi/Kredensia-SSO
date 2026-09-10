@@ -51,6 +51,7 @@ class ClaimAccountController extends Controller
             'tgl_lahir' => ['required', 'date'],
             'email' => ['required', 'string', 'email:rfc,dns', 'max:255'],
             'password' => ['required', 'string', 'confirmed', \Illuminate\Validation\Rules\Password::min(8)->mixedCase()->numbers()->symbols()],
+            'foto_wajah' => ['nullable', 'image', 'mimes:jpeg,jpg,png', 'max:5120'],
         ], [
             'nik.required' => 'NIK wajib diisi.',
             'nik.size' => 'NIK harus tepat 16 digit.',
@@ -65,6 +66,9 @@ class ClaimAccountController extends Controller
             'password.required' => 'Kata sandi baru wajib diisi.',
             'password.confirmed' => 'Konfirmasi kata sandi tidak cocok.',
             'password.min' => 'Kata sandi minimal harus 8 karakter.',
+            'foto_wajah.image' => 'Berkas foto wajah harus berupa gambar.',
+            'foto_wajah.mimes' => 'Format foto wajah harus berupa JPEG, JPG, atau PNG.',
+            'foto_wajah.max' => 'Ukuran berkas foto wajah maksimal 5MB.',
         ]);
 
         // Verifikasi Identitas
@@ -102,12 +106,20 @@ class ClaimAccountController extends Controller
             ]);
         }
 
-        // Perbarui kata sandi dan status klaim
-        $user->update([
+        $updateData = [
             'password' => Hash::make($request->password),
             'email' => $request->email,
             'claimed_at' => now(),
-        ]);
+        ];
+
+        // Simpan foto verifikasi wajah jika diunggah (khusus akun siswa)
+        if ($request->hasFile('foto_wajah')) {
+            $fotoPath = $request->file('foto_wajah')->store('verifikasi-wajah', 'public');
+            $updateData['foto_identitas'] = $fotoPath;
+        }
+
+        // Perbarui data dan status klaim
+        $user->update($updateData);
 
         \App\Services\LayananLogAktivitas::catat('Berhasil melakukan klaim/verifikasi akun mandiri: ' . $user->nama_lengkap, $user->email, $user->id);
 
@@ -211,7 +223,10 @@ class ClaimAccountController extends Controller
 
         return response()->json([
             'success' => true,
-            'email' => $user->email
+            'email' => $user->email,
+            'nama_lengkap' => $user->nama_lengkap,
+            'jenis_pengguna' => $request->jenis_pengguna,
+            'wajib_verifikasi_wajah' => ($request->jenis_pengguna === 'Siswa'),
         ]);
     }
 }

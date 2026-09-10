@@ -32,6 +32,7 @@ class User extends Authenticatable
         'google_avatar',
         'is_active',
         'claimed_at',
+        'foto_identitas',
         'biodata_dilengkapi_pada',
         'kelas_id',
     ];
@@ -109,10 +110,17 @@ class User extends Authenticatable
     }
 
     /**
-     * Dapatkan URL avatar pengguna. Jika google_avatar bernilai null, gunakan Gravatar.
+     * Dapatkan URL avatar pengguna. Jika foto_identitas ada, gunakan foto verifikasi wajah.
+     * Jika google_avatar bernilai null, gunakan Gravatar.
      */
     public function getAvatarUrlAttribute(): string
     {
+        if (!empty($this->foto_identitas)) {
+            return str_starts_with($this->foto_identitas, 'http')
+                ? $this->foto_identitas
+                : \Illuminate\Support\Facades\Storage::url($this->foto_identitas);
+        }
+
         if (!empty($this->google_avatar)) {
             return $this->google_avatar;
         }
