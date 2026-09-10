@@ -128,9 +128,64 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
         selected_roles: []
     });
 
+    const urutAktif = filters.urut || 'created_at';
+    const arahAktif = filters.arah || 'desc';
+
+    const tanganiUrutan = (kolom) => {
+        let arahBaru = 'asc';
+        if (urutAktif === kolom) {
+            arahBaru = arahAktif === 'asc' ? 'desc' : 'asc';
+        } else if (kolom === 'verifikasi' || kolom === 'foto_wajah' || kolom === 'status') {
+            arahBaru = 'desc';
+        }
+
+        router.get(route(route().current()), {
+            ...filters,
+            cari,
+            urut: kolom,
+            arah: arahBaru,
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        });
+    };
+
+    const renderHeaderKolom = (label, namaKolom, lebarClass, align = 'text-left') => {
+        const isAktif = urutAktif === namaKolom;
+        return (
+            <th className={`px-6 py-4 font-bold ${lebarClass} ${align}`}>
+                <button
+                    type="button"
+                    onClick={() => tanganiUrutan(namaKolom)}
+                    className={`group inline-flex items-center gap-1.5 uppercase tracking-wider text-xs transition-colors cursor-pointer select-none ${
+                        isAktif 
+                            ? 'text-[#0F91FC] dark:text-[#0F91FC] font-extrabold' 
+                            : 'text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                    }`}
+                    title={`Urutkan / Filter berdasarkan ${label} (${isAktif ? (arahAktif === 'asc' ? 'Sedang A-Z / Naik' : 'Sedang Z-A / Turun') : 'Klik untuk urutkan'})`}
+                >
+                    <span>{label}</span>
+                    <span className={`material-symbols-rounded text-base leading-none transition-transform ${
+                        isAktif ? 'scale-110 text-[#0F91FC]' : 'opacity-40 group-hover:opacity-80'
+                    }`}>
+                        {isAktif ? (
+                            arahAktif === 'asc' ? 'arrow_upward' : 'arrow_downward'
+                        ) : (
+                            'unfold_more'
+                        )}
+                    </span>
+                </button>
+            </th>
+        );
+    };
+
     const tanganiCari = (e) => {
         e.preventDefault();
-        router.get(route(route().current()), { cari }, {
+        router.get(route(route().current()), { 
+            ...filters,
+            cari 
+        }, {
             preserveState: true,
             replace: true
         });
@@ -592,15 +647,15 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                 <div className="bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-3xl p-6 border border-slate-100 dark:border-slate-700/50 shadow-sm overflow-hidden">
                     <div className="overflow-x-auto rounded-2xl border border-slate-100 dark:border-slate-700/50">
                         <table className="w-full text-left text-sm whitespace-nowrap table-fixed">
-                            <thead className="text-xs text-slate-400 dark:text-slate-500 uppercase tracking-wider bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700/50">
+                            <thead className="text-xs uppercase tracking-wider bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700/50">
                                 <tr>
-                                    <th className="px-6 py-4 font-bold w-[23%]">Nama Lengkap</th>
-                                    <th className="px-6 py-4 font-bold w-[18%]">Email</th>
-                                    <th className="px-6 py-4 font-bold w-[15%]">Peran</th>
-                                    <th className="px-6 py-4 font-bold w-[110px]">Verifikasi</th>
-                                    <th className="px-6 py-4 font-bold w-[115px]">Foto Wajah</th>
-                                    <th className="px-6 py-4 font-bold w-[90px]">Status</th>
-                                    <th className="px-6 py-4 font-bold w-[160px] text-right">Aksi</th>
+                                    {renderHeaderKolom('Nama Lengkap', 'nama_lengkap', 'w-[23%]')}
+                                    {renderHeaderKolom('Email', 'email', 'w-[18%]')}
+                                    {renderHeaderKolom('Peran', 'peran', 'w-[15%]')}
+                                    {renderHeaderKolom('Verifikasi', 'verifikasi', 'w-[110px]')}
+                                    {renderHeaderKolom('Foto Wajah', 'foto_wajah', 'w-[115px]')}
+                                    {renderHeaderKolom('Status', 'status', 'w-[90px]')}
+                                    <th className="px-6 py-4 font-bold w-[160px] text-right text-slate-400 dark:text-slate-500 uppercase tracking-wider text-xs">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">

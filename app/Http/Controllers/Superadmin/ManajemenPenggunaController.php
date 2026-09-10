@@ -25,7 +25,7 @@ class ManajemenPenggunaController extends Controller
      */
     public function indeks(Request $request): Response
     {
-        $query = User::with(['roles', 'kelas.tahunPelajaran'])->orderBy('created_at', 'desc');
+        $query = User::with(['roles', 'kelas.tahunPelajaran']);
 
         // Filter pencarian
         if ($request->filled('cari')) {
@@ -36,6 +36,50 @@ class ManajemenPenggunaController extends Controller
                   ->orWhere('nik', 'like', "%{$cari}%")
                   ->orWhere('nip_nis', 'like', "%{$cari}%");
             });
+        }
+
+        // Filter pengurutan kolom (Sorting)
+        $kolomUrut = (string)$request->input('urut', 'created_at');
+        $arahUrut = strtolower((string)$request->input('arah', 'desc')) === 'asc' ? 'asc' : 'desc';
+
+        switch ($kolomUrut) {
+            case 'nama_lengkap':
+            case 'email':
+                $query->orderBy($kolomUrut, $arahUrut);
+                break;
+            case 'verifikasi':
+                if ($arahUrut === 'asc') {
+                    // Belum terverifikasi lebih dulu
+                    $query->orderByRaw('claimed_at IS NOT NULL ASC, claimed_at ASC');
+                } else {
+                    // Terverifikasi lebih dulu
+                    $query->orderByRaw('claimed_at IS NULL ASC, claimed_at DESC');
+                }
+                break;
+            case 'foto_wajah':
+                if ($arahUrut === 'asc') {
+                    // Belum ada foto lebih dulu
+                    $query->orderByRaw('foto_identitas IS NOT NULL ASC');
+                } else {
+                    // Memiliki foto lebih dulu
+                    $query->orderByRaw('foto_identitas IS NULL ASC');
+                }
+                break;
+            case 'status':
+                $query->orderBy('is_active', $arahUrut);
+                break;
+            case 'peran':
+                $query->orderBy(
+                    Role::select('nama_role')
+                        ->join('user_roles', 'roles.id', '=', 'user_roles.role_id')
+                        ->whereColumn('user_roles.user_id', 'users.id')
+                        ->limit(1),
+                    $arahUrut
+                );
+                break;
+            default:
+                $query->orderBy('created_at', 'desc');
+                break;
         }
 
         // Paginasi dengan query string dipertahankan
@@ -57,7 +101,11 @@ class ManajemenPenggunaController extends Controller
             'daftarPengguna' => $daftarPengguna,
             'daftarPeran' => $daftarPeran,
             'daftarKelas' => $daftarKelas,
-            'filters' => $request->only(['cari']),
+            'filters' => [
+                'cari' => $request->cari ?? '',
+                'urut' => $kolomUrut,
+                'arah' => $arahUrut,
+            ],
             'adaTahunPelajaranAktif' => (bool)$tpAktif,
             'tahunPelajaranAktif' => $tpAktif ? "{$tpAktif->tahun_mulai}/{$tpAktif->tahun_selesai}" : null,
         ]);
