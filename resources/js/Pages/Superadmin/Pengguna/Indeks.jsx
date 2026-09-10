@@ -177,49 +177,18 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
 
     const renderHeaderKolom = (label, namaKolom, lebarClass, align = 'text-left') => {
         const isAktif = urutAktif === namaKolom;
+        const sortClass = isAktif ? (arahAktif === 'asc' ? 'sort-active-asc' : 'sort-active-desc') : '';
+
         return (
-            <th className={`px-6 py-4 font-bold ${lebarClass} ${align}`}>
+            <th className={`px-6 py-4 text-[11px] font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-200 select-none ${lebarClass} ${align} ${sortClass}`}>
                 <button
                     type="button"
                     onClick={() => tanganiUrutan(namaKolom)}
-                    className={`group inline-flex items-center gap-1.5 uppercase tracking-wider text-xs transition-colors cursor-pointer select-none ${
-                        isAktif 
-                            ? 'text-slate-900 dark:text-white font-black' 
-                            : 'text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-bold'
-                    }`}
-                    title={`Urutkan / Filter berdasarkan ${label} (${isAktif ? (arahAktif === 'asc' ? 'Sedang A-Z / Naik' : 'Sedang Z-A / Turun') : 'Klik untuk urutkan'})`}
+                    className={`group inline-flex items-center gap-1 transition-colors cursor-pointer select-none text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white ${align === 'text-right' ? 'justify-end' : ''} ${sortClass}`}
+                    title={`Urutkan berdasarkan ${label} (${isAktif ? (arahAktif === 'asc' ? 'Sedang Naik (A-Z)' : 'Sedang Turun (Z-A)') : 'Klik untuk urutkan'})`}
                 >
-                    <span>{label}</span>
-                    <span className="inline-flex flex-col items-center justify-center gap-[2px] ml-0.5 shrink-0">
-                        {/* Segitiga Penuh Atas (Naik / ASC) */}
-                        <svg 
-                            className={`w-2 h-[5px] transition-all ${
-                                isAktif && arahAktif === 'asc'
-                                    ? 'text-slate-900 dark:text-white scale-125' 
-                                    : isAktif 
-                                        ? 'text-slate-300/40 dark:text-slate-600/40' 
-                                        : 'text-slate-300 dark:text-slate-600 group-hover:text-slate-400'
-                            }`} 
-                            viewBox="0 0 8 5" 
-                            fill="currentColor"
-                        >
-                            <path d="M4 0L8 5H0Z" />
-                        </svg>
-                        {/* Segitiga Penuh Bawah (Turun / DESC) */}
-                        <svg 
-                            className={`w-2 h-[5px] transition-all ${
-                                isAktif && arahAktif === 'desc'
-                                    ? 'text-slate-900 dark:text-white scale-125' 
-                                    : isAktif 
-                                        ? 'text-slate-300/40 dark:text-slate-600/40' 
-                                        : 'text-slate-300 dark:text-slate-600 group-hover:text-slate-400'
-                            }`} 
-                            viewBox="0 0 8 5" 
-                            fill="currentColor"
-                        >
-                            <path d="M0 0H8L4 5Z" />
-                        </svg>
-                    </span>
+                    <span className="whitespace-nowrap">{label}</span>
+                    <span className={`sort-icon-container ${sortClass}`} aria-hidden="true" />
                 </button>
             </th>
         );
@@ -705,7 +674,7 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                 <div className="bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-3xl p-6 border border-slate-100 dark:border-slate-700/50 shadow-sm overflow-hidden">
                     <div className="overflow-x-auto rounded-2xl border border-slate-100 dark:border-slate-700/50">
                         <table className="w-full text-left text-sm whitespace-nowrap table-fixed">
-                            <thead className="text-xs uppercase tracking-wider bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700/50">
+                            <thead className="text-[11px] font-extrabold uppercase tracking-wider bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700/50">
                                 <tr>
                                     {renderHeaderKolom('Nama Lengkap', 'nama_lengkap', 'w-[23%]')}
                                     {renderHeaderKolom('Email', 'email', 'w-[18%]')}
@@ -713,7 +682,7 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                                     {renderHeaderKolom('Verifikasi', 'verifikasi', 'w-[110px]')}
                                     {renderHeaderKolom('Foto Wajah', 'foto_wajah', 'w-[115px]')}
                                     {renderHeaderKolom('Status', 'status', 'w-[90px]')}
-                                    <th className="px-6 py-4 font-bold w-[160px] text-right text-slate-400 dark:text-slate-500 uppercase tracking-wider text-xs">Aksi</th>
+                                    <th className="px-6 py-4 text-[11px] font-extrabold w-[160px] text-right text-slate-700 dark:text-slate-200 uppercase tracking-wider select-none">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">

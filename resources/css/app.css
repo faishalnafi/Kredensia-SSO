@@ -109,3 +109,93 @@
 }
 
 
+
+/* Standardized Table Sort Indicator (Persis seperti proyek siCare) */
+.sort-icon-container {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    vertical-align: middle;
+    margin-left: 6px;
+    width: 10px;
+    height: 14px;
+    justify-content: center;
+    line-height: 1;
+    font-size: 8px;
+    gap: 1px;
+    opacity: 0.6;
+    user-select: none;
+}
+.sort-icon-container::before {
+    content: '▲';
+    font-size: 7px;
+    color: #b0b2c3;
+    transition: all 0.2s ease;
+}
+.sort-icon-container::after {
+    content: '▼';
+    font-size: 7px;
+    color: #b0b2c3;
+    transition: all 0.2s ease;
+}
+
+th:hover .sort-icon-container,
+button:hover .sort-icon-container,
+.group:hover .sort-icon-container {
+    opacity: 1;
+}
+th:hover .sort-icon-container::before,
+th:hover .sort-icon-container::after,
+button:hover .sort-icon-container::before,
+button:hover .sort-icon-container::after,
+.group:hover .sort-icon-container::before,
+.group:hover .sort-icon-container::after {
+    color: #82859f;
+}
+
+.sort-active-asc .sort-icon-container,
+.sort-icon-container.sort-active-asc {
+    opacity: 1 !important;
+}
+.sort-active-asc .sort-icon-container::before,
+.sort-icon-container.sort-active-asc::before {
+    color: #000666 !important;
+    font-weight: 900 !important;
+}
+.dark .sort-active-asc .sort-icon-container::before,
+.dark .sort-icon-container.sort-active-asc::before {
+    color: #60a5fa !important;
+}
+.sort-active-asc .sort-icon-container::after,
+.sort-icon-container.sort-active-asc::after {
+    color: #b0b2c3 !important;
+}
+.dark .sort-active-asc .sort-icon-container::after,
+.dark .sort-icon-container.sort-active-asc::after {
+    color: #475569 !important;
+}
+
+.sort-active-desc .sort-icon-container,
+.sort-icon-container.sort-active-desc {
+    opacity: 1 !important;
+}
+.sort-active-desc .sort-icon-container::after,
+.sort-icon-container.sort-active-desc::after {
+    color: #000666 !important;
+    font-weight: 900 !important;
+}
+.dark .sort-active-desc .sort-icon-container::after,
+.dark .sort-icon-container.sort-active-desc::after {
+    color: #60a5fa !important;
+}
+.sort-active-desc .sort-icon-container::before,
+.sort-icon-container.sort-active-desc::before {
+    color: #b0b2c3 !important;
+}
+.dark .sort-active-desc .sort-icon-container::before,
+.dark .sort-icon-container.sort-active-desc::before {
+    color: #475569 !important;
+}
+
+
+
