@@ -76,5 +76,6 @@ class PenggunaController extends Controller
 
 ## 3. STANDAR GIT COMMIT & CO-AUTHORING
 - Setiap commit yang dibuat oleh atau bersama Agen Antigravity di workspace IDE ini WAJIB menyertakan trailer Co-Author berikut secara otomatis di bagian paling bawah pesan commit:
-  `Co-authored-by: Google Antigravity <antigravity-ai@users.noreply.github.com>`
+  `Co-authored-by: Google Antigravity <256725992+antigravity-ai@users.noreply.github.com>`
 - Pengecualian hanya berlaku jika pengguna secara eksplisit meminta commit murni atas nama akun lokal pengguna tanpa menyertakan Co-Author.
+
