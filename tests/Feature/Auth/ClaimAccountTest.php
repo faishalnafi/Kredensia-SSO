@@ -161,4 +161,34 @@ class ClaimAccountTest extends TestCase
         // Berkas foto harus terhapus dari storage
         Storage::disk('public')->assertMissing($fotoFakePath);
     }
+
+    /**
+     * Uji superadmin dapat mengakses daftar pengguna yang memuat data foto identitas.
+     */
+    public function test_superadmin_dapat_melihat_foto_identitas_pengguna_pada_daftar_pengguna(): void
+    {
+        Storage::fake('public');
+
+        $roleSuperadmin = \App\Models\Role::create(['nama_role' => 'Super Admin', 'is_active' => true]);
+        $admin = User::factory()->create(['is_active' => true]);
+        $admin->roles()->attach($roleSuperadmin->id);
+
+        $fotoPath = 'verifikasi-wajah/siswa_terverifikasi.jpg';
+        Storage::disk('public')->put($fotoPath, 'gambar-wajah');
+
+        $siswa = User::factory()->create([
+            'nama_lengkap' => 'Budi Verifikasi',
+            'foto_identitas' => $fotoPath,
+            'claimed_at' => now(),
+            'is_active' => true,
+        ]);
+
+        $respons = $this->actingAs($admin)->get(route('superadmin.pengguna.indeks'));
+
+        $respons->assertOk();
+        $respons->assertInertia(fn (\Inertia\Testing\AssertableInertia $page) => $page
+            ->component('Superadmin/Pengguna/Indeks')
+            ->has('daftarPengguna.data')
+        );
+    }
 }

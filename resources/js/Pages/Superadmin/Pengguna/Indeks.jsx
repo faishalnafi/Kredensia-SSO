@@ -49,10 +49,18 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
         });
     };
 
+    const [modalFotoBuka, setModalFotoBuka] = useState(false);
+    const [userPilihanFoto, setUserPilihanFoto] = useState(null);
+
+    const bukaModalLihatFoto = (user) => {
+        setUserPilihanFoto(user);
+        setModalFotoBuka(true);
+    };
+
     const modalBukaRef = useRef(false);
     useEffect(() => {
-        modalBukaRef.current = modalBuka || modalImportBuka;
-    }, [modalBuka, modalImportBuka]);
+        modalBukaRef.current = modalBuka || modalImportBuka || modalFotoBuka;
+    }, [modalBuka, modalImportBuka, modalFotoBuka]);
 
     // Dengarkan event broadcast real-time (Laravel Reverb/Pusher) dengan Fallback ke Polling
     useEffect(() => {
@@ -586,12 +594,13 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                         <table className="w-full text-left text-sm whitespace-nowrap table-fixed">
                             <thead className="text-xs text-slate-400 dark:text-slate-500 uppercase tracking-wider bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700/50">
                                 <tr>
-                                    <th className="px-6 py-4 font-bold w-1/4">Nama Lengkap</th>
-                                    <th className="px-6 py-4 font-bold w-1/5">Email</th>
-                                    <th className="px-6 py-4 font-bold w-1/6">Peran</th>
+                                    <th className="px-6 py-4 font-bold w-[23%]">Nama Lengkap</th>
+                                    <th className="px-6 py-4 font-bold w-[18%]">Email</th>
+                                    <th className="px-6 py-4 font-bold w-[15%]">Peran</th>
                                     <th className="px-6 py-4 font-bold w-[110px]">Verifikasi</th>
+                                    <th className="px-6 py-4 font-bold w-[115px]">Foto Wajah</th>
                                     <th className="px-6 py-4 font-bold w-[90px]">Status</th>
-                                    <th className="px-6 py-4 font-bold w-[100px] text-right">Aksi</th>
+                                    <th className="px-6 py-4 font-bold w-[160px] text-right">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
@@ -605,10 +614,14 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                                                         alt={user.nama_lengkap} 
                                                         referrerPolicy="no-referrer"
                                                         onError={(e) => {
-                                                            e.currentTarget.onerror = null;
+                                                             e.currentTarget.onerror = null;
                                                             e.currentTarget.src = 'https://www.gravatar.com/avatar/?s=256&d=identicon';
                                                         }}
-                                                        className="w-9 h-9 rounded-full object-cover border border-slate-100 dark:border-slate-700 bg-slate-100 dark:bg-slate-800"
+                                                        onClick={() => user.foto_identitas && bukaModalLihatFoto(user)}
+                                                        className={`w-9 h-9 rounded-full object-cover border border-slate-100 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 ${
+                                                            user.foto_identitas ? 'cursor-pointer ring-2 ring-sky-400/50 hover:ring-sky-500 hover:scale-105 transition-all' : ''
+                                                        }`}
+                                                        title={user.foto_identitas ? "Klik untuk melihat foto verifikasi wajah" : user.nama_lengkap}
                                                     />
                                                     <div className="flex flex-col truncate">
                                                         <span className="font-bold text-slate-700 dark:text-slate-200 truncate">
@@ -664,6 +677,29 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                                                 )}
                                             </td>
                                             <td className="px-6 py-4">
+                                                {/* Kolom Pratinjau Foto Verifikasi Wajah */}
+                                                {user.foto_identitas ? (
+                                                    <button 
+                                                        type="button"
+                                                        onClick={() => bukaModalLihatFoto(user)}
+                                                        className="group inline-flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 dark:bg-sky-950/40 dark:hover:bg-sky-900/50 border border-sky-200/70 dark:border-sky-800/70 transition-all cursor-pointer text-left"
+                                                        title="Klik untuk melihat foto hasil verifikasi wajah"
+                                                    >
+                                                        <img 
+                                                            src={user.avatar_url} 
+                                                            alt={user.nama_lengkap}
+                                                            className="w-6 h-6 rounded-lg object-cover border border-sky-200 dark:border-sky-700 shadow-xs group-hover:scale-110 transition-transform" 
+                                                        />
+                                                        <span className="text-[11px] font-bold text-sky-600 dark:text-sky-400 flex items-center gap-0.5">
+                                                            <span className="material-symbols-rounded text-sm">visibility</span>
+                                                            View
+                                                        </span>
+                                                    </button>
+                                                ) : (
+                                                    <span className="text-slate-300 dark:text-slate-600 text-xs font-mono">-</span>
+                                                )}
+                                            </td>
+                                            <td className="px-6 py-4">
                                                 {user.is_active ? (
                                                     <span className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
                                                         Aktif
@@ -675,6 +711,17 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                                                 )}
                                             </td>
                                              <td className="px-6 py-4 text-right space-x-1.5 whitespace-nowrap">
+                                                {/* Tombol Lihat Foto Wajah (Aksi Cepat) */}
+                                                {user.foto_identitas && (
+                                                    <button 
+                                                        type="button"
+                                                        onClick={() => bukaModalLihatFoto(user)}
+                                                        className="text-sky-500 hover:text-sky-700 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-500/10 p-2 rounded-xl transition-colors cursor-pointer"
+                                                        title="Lihat Foto Verifikasi Wajah"
+                                                    >
+                                                        <span className="material-symbols-rounded text-lg">visibility</span>
+                                                    </button>
+                                                )}
                                                 {/* Tombol Reset Verifikasi Akun */}
                                                 {user.id !== auth.user.id && (
                                                     <button 
@@ -720,7 +767,7 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="6" className="text-center py-12 text-slate-400">
+                                        <td colSpan="7" className="text-center py-12 text-slate-400">
                                             <div className="flex flex-col items-center gap-2">
                                                 <span className="material-symbols-rounded text-3xl">people</span>
                                                 <span>Tidak ada data pengguna yang ditemukan.</span>
@@ -1216,6 +1263,148 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                             >
                                 <span className="material-symbols-rounded text-sm">rocket_launch</span>
                                 {sedangMemprosesImport ? 'Mengimpor...' : 'Mulai Import'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal Pratinjau Foto Verifikasi Wajah */}
+            {modalFotoBuka && userPilihanFoto && (
+                <div 
+                    className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[999] flex items-center justify-center p-3 sm:p-4 overflow-hidden animate-in fade-in duration-200"
+                    onClick={(e) => {
+                        if (e.target === e.currentTarget) {
+                            setModalFotoBuka(false);
+                            setUserPilihanFoto(null);
+                        }
+                    }}
+                >
+                    <div className="bg-white dark:bg-slate-800 rounded-3xl max-w-lg w-full shadow-2xl border border-slate-100 dark:border-slate-700/50 flex flex-col max-h-[92vh] my-auto overflow-hidden animate-in zoom-in-95 duration-200">
+                        {/* Header Modal */}
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700/50 shrink-0 bg-white dark:bg-slate-800">
+                            <div className="flex items-center gap-2.5">
+                                <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 flex items-center justify-center text-[#0F91FC]">
+                                    <span className="material-symbols-rounded text-xl">face</span>
+                                </div>
+                                <div>
+                                    <h3 className="text-base font-bold text-slate-800 dark:text-white leading-tight">
+                                        Foto Verifikasi Wajah
+                                    </h3>
+                                    <p className="text-[11px] text-slate-400 dark:text-slate-500">
+                                        Hasil pemindaian biometrik Google MediaPipe AI
+                                    </p>
+                                </div>
+                            </div>
+                            <button 
+                                type="button"
+                                onClick={() => {
+                                    setModalFotoBuka(false);
+                                    setUserPilihanFoto(null);
+                                }}
+                                className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center justify-center transition-colors cursor-pointer"
+                            >
+                                <span className="material-symbols-rounded text-lg">close</span>
+                            </button>
+                        </div>
+
+                        {/* Isi Modal (Scrollable) */}
+                        <div className="p-6 overflow-y-auto space-y-5 text-left scrollbar-minimalis">
+                            {/* Area Foto */}
+                            <div className="relative rounded-2xl overflow-hidden bg-slate-900/5 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-700/60 flex items-center justify-center p-3 group">
+                                <img 
+                                    src={userPilihanFoto.avatar_url} 
+                                    alt={userPilihanFoto.nama_lengkap} 
+                                    className="max-h-72 w-auto object-contain rounded-xl shadow-md transition-transform duration-300 group-hover:scale-[1.02]"
+                                />
+                                <div className="absolute top-4 right-4 bg-emerald-500/90 text-white backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-extrabold flex items-center gap-1 shadow-md">
+                                    <span className="material-symbols-rounded text-xs">verified</span>
+                                    <span>MediaPipe Verified</span>
+                                </div>
+                            </div>
+
+                            {/* Kartu Informasi Siswa */}
+                            <div className="bg-slate-50 dark:bg-slate-900/60 rounded-2xl p-4 border border-slate-100 dark:border-slate-800 space-y-3">
+                                <div className="flex items-center justify-between pb-2 border-b border-slate-200/60 dark:border-slate-800">
+                                    <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Nama Lengkap</span>
+                                    <span className="text-sm font-extrabold text-slate-800 dark:text-white">{userPilihanFoto.nama_lengkap}</span>
+                                </div>
+                                <div className="grid grid-cols-2 gap-3 text-xs">
+                                    <div>
+                                        <span className="block text-slate-400 dark:text-slate-500 font-medium">NISN / NIP</span>
+                                        <span className="font-bold text-slate-700 dark:text-slate-200 font-mono mt-0.5 block">
+                                            {userPilihanFoto.nip_nis || '-'}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <span className="block text-slate-400 dark:text-slate-500 font-medium">Kelas</span>
+                                        <span className="font-bold text-blue-600 dark:text-blue-400 mt-0.5 block">
+                                            {userPilihanFoto.kelas?.nama_kelas || '-'}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <span className="block text-slate-400 dark:text-slate-500 font-medium">Waktu Verifikasi</span>
+                                        <span className="font-bold text-slate-700 dark:text-slate-200 mt-0.5 block text-[11px]">
+                                            {userPilihanFoto.claimed_at 
+                                                ? new Date(userPilihanFoto.claimed_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) 
+                                                : '-'}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <span className="block text-slate-400 dark:text-slate-500 font-medium">Status Akun</span>
+                                        <span className="inline-block mt-0.5">
+                                            {userPilihanFoto.is_active ? (
+                                                <span className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 px-2 py-0.5 rounded-full text-[10px] font-bold">
+                                                    Aktif
+                                                </span>
+                                            ) : (
+                                                <span className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 px-2 py-0.5 rounded-full text-[10px] font-bold">
+                                                    Nonaktif
+                                                </span>
+                                            )}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Footer Modal */}
+                        <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50 flex flex-wrap items-center justify-between gap-2 shrink-0">
+                            <div className="flex items-center gap-2">
+                                <a
+                                    href={userPilihanFoto.avatar_url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl text-blue-600 hover:text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/50 border border-blue-200/80 dark:border-blue-800 transition-colors"
+                                >
+                                    <span className="material-symbols-rounded text-sm">open_in_new</span>
+                                    Ukuran Asli
+                                </a>
+                                {userPilihanFoto.claimed_at && userPilihanFoto.id !== auth.user.id && (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const targetUser = userPilihanFoto;
+                                            setModalFotoBuka(false);
+                                            setUserPilihanFoto(null);
+                                            tanganiResetVerifikasi(targetUser);
+                                        }}
+                                        className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl text-amber-600 hover:text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/50 border border-amber-200/80 dark:border-amber-800 transition-colors cursor-pointer"
+                                    >
+                                        <span className="material-symbols-rounded text-sm">restart_alt</span>
+                                        Reset Verifikasi
+                                    </button>
+                                )}
+                            </div>
+                            <button 
+                                type="button"
+                                onClick={() => {
+                                    setModalFotoBuka(false);
+                                    setUserPilihanFoto(null);
+                                }}
+                                className="px-4 py-2 text-xs font-bold rounded-xl bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition-colors cursor-pointer"
+                            >
+                                Tutup
                             </button>
                         </div>
                     </div>
