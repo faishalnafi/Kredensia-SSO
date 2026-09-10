@@ -2,9 +2,15 @@ import React from 'react';
 import { Head, useForm, router } from '@inertiajs/react';
 import TataLetakUtama from '@/Layouts/TataLetakUtama';
 import InputError from '@/Components/InputError';
+import InputTanggal from '@/Components/InputTanggal';
 import Swal from 'sweetalert2';
 
 export default function KeamananAkun({ daftarSesi = [], pengguna = {}, pendingCorrection = null }) {
+    const isGuru = (pengguna.peran || []).some(p => p === 'Guru' || p === 'guru');
+    const maxDigitNipNis = isGuru ? 18 : 10;
+    const labelNipNis = isGuru ? 'Nomor Induk Pegawai (NIP)' : 'Nomor Induk Siswa Nasional (NISN)';
+    const placeholderNipNis = isGuru ? 'Masukkan NIP (18 digit)' : 'Masukkan NISN (10 digit)';
+
     // Form untuk Ganti Kata Sandi
     const formSandi = useForm({
         current_password: '',
@@ -181,26 +187,46 @@ export default function KeamananAkun({ daftarSesi = [], pengguna = {}, pendingCo
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold text-slate-455 dark:text-slate-500 uppercase tracking-wider mb-2">NIK (KTP)</label>
+                                <div className="flex items-center justify-between mb-2">
+                                    <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">NIK (KTP)</label>
+                                    <span className={`text-[11px] font-mono ${formProfil.data.nik?.length === 16 ? 'text-emerald-500 font-bold' : 'text-slate-400'}`}>
+                                        {formProfil.data.nik?.length || 0}/16
+                                    </span>
+                                </div>
                                 <input 
                                     type="text" 
+                                    inputMode="numeric"
+                                    maxLength={16}
                                     value={formProfil.data.nik}
-                                    onChange={e => formProfil.setData('nik', e.target.value)}
-                                    placeholder="Masukkan NIK"
+                                    onChange={e => {
+                                        const val = e.target.value.replace(/\D/g, '').slice(0, 16);
+                                        formProfil.setData('nik', val);
+                                    }}
+                                    placeholder="Maksimal 16 digit angka NIK"
                                     className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#0F91FC] dark:text-white"
                                 />
                                 <InputError message={formProfil.errors.nik} className="mt-1" />
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
-                                    {(pengguna.peran || []).some(p => p === 'Guru' || p === 'guru') ? 'Nomor Induk Pegawai (NIP)' : 'Nomor Induk Siswa Nasional (NISN)'}
-                                </label>
+                                <div className="flex items-center justify-between mb-2">
+                                    <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                        {labelNipNis}
+                                    </label>
+                                    <span className={`text-[11px] font-mono ${formProfil.data.nip_nis?.length === maxDigitNipNis ? 'text-emerald-500 font-bold' : 'text-slate-400'}`}>
+                                        {formProfil.data.nip_nis?.length || 0}/{maxDigitNipNis}
+                                    </span>
+                                </div>
                                 <input 
                                     type="text" 
+                                    inputMode="numeric"
+                                    maxLength={maxDigitNipNis}
                                     value={formProfil.data.nip_nis}
-                                    onChange={e => formProfil.setData('nip_nis', e.target.value)}
-                                    placeholder={(pengguna.peran || []).some(p => p === 'Guru' || p === 'guru') ? "Masukkan NIP (18 digit)" : "Masukkan NISN (10 digit)"}
+                                    onChange={e => {
+                                        const val = e.target.value.replace(/\D/g, '').slice(0, maxDigitNipNis);
+                                        formProfil.setData('nip_nis', val);
+                                    }}
+                                    placeholder={placeholderNipNis}
                                     className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#0F91FC] dark:text-white"
                                 />
                                 <InputError message={formProfil.errors.nip_nis} className="mt-1" />
@@ -233,9 +259,10 @@ export default function KeamananAkun({ daftarSesi = [], pengguna = {}, pendingCo
                             </div>
 
                             <div className="md:col-span-2">
-                                <label className="block text-xs font-bold text-slate-455 dark:text-slate-500 uppercase tracking-wider mb-2">Tanggal Lahir</label>
-                                <input 
-                                    type="date" 
+                                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Tanggal Lahir</label>
+                                <InputTanggal 
+                                    id="tgl_lahir" 
+                                    name="tgl_lahir"
                                     value={formProfil.data.tgl_lahir}
                                     onChange={e => formProfil.setData('tgl_lahir', e.target.value)}
                                     className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#0F91FC] dark:text-white"

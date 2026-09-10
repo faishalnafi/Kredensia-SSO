@@ -64,7 +64,7 @@ class BiodataWajibController extends Controller
             'jk'           => ['required', 'string', 'in:L,P'],
             'tgl_lahir'    => ['required', 'date', 'before:today'],
             'nik'          => ['required', 'string', 'size:16', 'regex:/^[0-9]+$/'],
-            'nip_nis'      => ['required', 'string', 'regex:/^[0-9]+$/', 'max:20'],
+            'nip_nis'      => ['required', 'string', 'regex:/^[0-9]+$/', 'max:18'],
             'no_telp'      => ['required', 'string', 'regex:/^[0-9+\-\s\(\)]+$/', 'min:8', 'max:20'],
             'alamat'       => ['required', 'string', 'min:10', 'max:500'],
         ], [
@@ -78,6 +78,7 @@ class BiodataWajibController extends Controller
             'nik.size'              => 'NIK harus tepat 16 digit.',
             'nik.regex'             => 'NIK hanya boleh berisi angka.',
             'nip_nis.required'      => 'NIP/NISN wajib diisi.',
+            'nip_nis.max'           => 'NIP/NISN maksimal 18 digit angka.',
             'nip_nis.regex'         => 'NIP/NISN hanya boleh berisi angka.',
             'no_telp.required'      => 'Nomor telepon wajib diisi.',
             'no_telp.min'           => 'Nomor telepon minimal 8 digit.',

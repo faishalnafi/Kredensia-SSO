@@ -4,6 +4,7 @@ import TataLetakUtama from '@/Layouts/TataLetakUtama';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
+import InputTanggal from '@/Components/InputTanggal';
 
 export default function IndeksBiodataWajib({ user, peran = [] }) {
     const { data, setData, post, processing, errors } = useForm({
@@ -21,7 +22,9 @@ export default function IndeksBiodataWajib({ user, peran = [] }) {
         post(route('biodata.simpan'));
     };
 
-    const labelNipNis = peran.includes('Guru') ? 'NIP' : 'NISN';
+    const isGuru = peran.includes('Guru');
+    const labelNipNis = isGuru ? 'Nomor Induk Pegawai (NIP)' : 'Nomor Induk Siswa Nasional (NISN)';
+    const maxDigitNipNis = isGuru ? 18 : 10;
 
     return (
         <>
@@ -102,14 +105,20 @@ export default function IndeksBiodataWajib({ user, peran = [] }) {
 
                         {/* NIK */}
                         <div>
-                            <InputLabel htmlFor="nik" value="NIK (Nomor Induk Kependudukan) *" />
+                            <div className="flex items-center justify-between mb-1">
+                                <InputLabel htmlFor="nik" value="NIK (Nomor Induk Kependudukan) *" />
+                                <span className={`text-xs font-mono ${data.nik?.length === 16 ? 'text-emerald-500 font-bold' : 'text-slate-400'}`}>
+                                    {data.nik?.length || 0}/16
+                                </span>
+                            </div>
                             <TextInput
                                 id="nik"
                                 type="text"
+                                inputMode="numeric"
                                 maxLength={16}
-                                className="mt-1 block w-full"
+                                className="block w-full"
                                 value={data.nik}
-                                onChange={(e) => setData('nik', e.target.value)}
+                                onChange={(e) => setData('nik', e.target.value.replace(/\D/g, '').slice(0, 16))}
                                 required
                                 placeholder="16 digit NIK..."
                             />
@@ -118,15 +127,22 @@ export default function IndeksBiodataWajib({ user, peran = [] }) {
 
                         {/* NIP / NISN */}
                         <div>
-                            <InputLabel htmlFor="nip_nis" value={`${labelNipNis} *`} />
+                            <div className="flex items-center justify-between mb-1">
+                                <InputLabel htmlFor="nip_nis" value={`${labelNipNis} *`} />
+                                <span className={`text-xs font-mono ${data.nip_nis?.length === maxDigitNipNis ? 'text-emerald-500 font-bold' : 'text-slate-400'}`}>
+                                    {data.nip_nis?.length || 0}/{maxDigitNipNis}
+                                </span>
+                            </div>
                             <TextInput
                                 id="nip_nis"
                                 type="text"
-                                className="mt-1 block w-full"
+                                inputMode="numeric"
+                                maxLength={maxDigitNipNis}
+                                className="block w-full"
                                 value={data.nip_nis}
-                                onChange={(e) => setData('nip_nis', e.target.value)}
+                                onChange={(e) => setData('nip_nis', e.target.value.replace(/\D/g, '').slice(0, maxDigitNipNis))}
                                 required
-                                placeholder={`Masukkan ${labelNipNis}...`}
+                                placeholder={`Maksimal ${maxDigitNipNis} digit ${labelNipNis}...`}
                             />
                             <InputError message={errors.nip_nis} className="mt-1" />
                         </div>
@@ -150,14 +166,14 @@ export default function IndeksBiodataWajib({ user, peran = [] }) {
 
                         {/* Tanggal Lahir */}
                         <div>
-                            <InputLabel htmlFor="tgl_lahir" value="Tanggal Lahir *" />
-                            <TextInput
+                            <InputLabel htmlFor="tgl_lahir" value="Tanggal Lahir *" className="mb-1" />
+                            <InputTanggal
                                 id="tgl_lahir"
-                                type="date"
-                                className="mt-1 block w-full"
+                                name="tgl_lahir"
                                 value={data.tgl_lahir}
                                 onChange={(e) => setData('tgl_lahir', e.target.value)}
                                 required
+                                className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-300 rounded-md shadow-sm text-sm focus:border-[#0F91FC] focus:ring-[#0F91FC] py-2 px-3"
                             />
                             <InputError message={errors.tgl_lahir} className="mt-1" />
                         </div>

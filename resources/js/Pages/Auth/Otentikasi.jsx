@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Head, Link, useForm, router, usePage } from '@inertiajs/react';
 import InputError from '@/Components/InputError';
 import Checkbox from '@/Components/Checkbox';
+import InputTanggal from '@/Components/InputTanggal';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import VerifikasiWajahSiswa from '@/Components/VerifikasiWajahSiswa';
@@ -1146,11 +1147,13 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                                 id="nik" 
                                                 placeholder="Masukkan 16 digit NIK" 
                                                 type="text"
+                                                inputMode="numeric"
+                                                maxLength={16}
                                                 value={dataKlaim.nik}
                                                 onChange={tanganiPerubahanNik}
                                             />
                                             {statusValidasi.nik === 'valid' && (
-                                                <span className="text-xs text-emerald-600 dark:text-emerald-400 font-bold mt-1 block">✓ Data NIK terverifikasi</span>
+                                                 <span className="text-xs text-emerald-600 dark:text-emerald-400 font-bold mt-1 block">✓ Data NIK terverifikasi</span>
                                             )}
                                             {statusValidasi.nik && statusValidasi.nik !== 'valid' && (
                                                 <span className="text-xs text-rose-600 dark:text-rose-400 font-bold mt-1 block">{statusValidasi.nik}</span>
@@ -1166,6 +1169,8 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                                 id="nip_nis" 
                                                 placeholder={dataKlaim.jenis_pengguna === 'Guru' ? "Masukkan NIP (18 digit)" : "Masukkan NISN (10 digit)"} 
                                                 type="text"
+                                                inputMode="numeric"
+                                                maxLength={dataKlaim.jenis_pengguna === 'Guru' ? 18 : 10}
                                                 value={dataKlaim.nip_nis}
                                                 onChange={tanganiPerubahanNipNis}
                                             />
@@ -1181,12 +1186,12 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider" htmlFor="tgl_lahir">
                                                 Tanggal Lahir
                                             </label>
-                                            <input 
-                                                className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-inset focus:ring-[#0F91FC] dark:focus:ring-[#0F91FC] focus:border-[#0F91FC] py-3 px-4 transition-all placeholder:text-slate-400 outline-none"
+                                            <InputTanggal 
                                                 id="tgl_lahir" 
-                                                type="date"
+                                                name="tgl_lahir"
                                                 value={dataKlaim.tgl_lahir}
                                                 onChange={tanganiPerubahanTglLahir}
+                                                className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-inset focus:ring-[#0F91FC] dark:focus:ring-[#0F91FC] focus:border-[#0F91FC] py-3 px-4 transition-all placeholder:text-slate-400 outline-none"
                                             />
                                             {statusValidasi.tgl_lahir === 'valid' && (
                                                 <span className="text-xs text-emerald-600 dark:text-emerald-400 font-bold mt-1 block">✓ Tanggal lahir cocok</span>

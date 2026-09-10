@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Head, useForm, router, usePage, Link } from '@inertiajs/react';
 import TataLetakUtama from '@/Layouts/TataLetakUtama';
 import InputError from '@/Components/InputError';
+import InputTanggal from '@/Components/InputTanggal';
 import Swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
 import axios from 'axios';
@@ -127,6 +128,29 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
         is_active: true,
         selected_roles: []
     });
+
+    // Deteksi peran yang dipilih pada formulir modal pengguna
+    const selectedRoleObjects = (daftarPeran || []).filter(r => (data.selected_roles || []).includes(r.id));
+    const adaPeranSiswa = selectedRoleObjects.some(r => r.nama_role?.toLowerCase()?.includes('siswa'));
+    const adaPeranGuru = selectedRoleObjects.some(r => r.nama_role?.toLowerCase()?.includes('guru'));
+
+    let labelNomorInduk = 'Nomor Induk (NIP / NISN)';
+    let placeholderNomorInduk = 'Maksimal 18 digit (atau 10 digit jika Siswa)';
+    let maxDigitNipNis = 18;
+
+    if (adaPeranSiswa && !adaPeranGuru) {
+        labelNomorInduk = 'NISN (Nomor Induk Siswa Nasional)';
+        placeholderNomorInduk = 'Masukkan 10 digit NISN';
+        maxDigitNipNis = 10;
+    } else if (adaPeranGuru && !adaPeranSiswa) {
+        labelNomorInduk = 'NIP (Nomor Induk Pegawai)';
+        placeholderNomorInduk = 'Masukkan 18 digit NIP';
+        maxDigitNipNis = 18;
+    } else if (editMode) {
+        labelNomorInduk = 'Nomor Induk (NIP / NISN)';
+        placeholderNomorInduk = 'Maksimal 18 digit angka';
+        maxDigitNipNis = 18;
+    }
 
     const urutAktif = filters.urut || 'created_at';
     const arahAktif = filters.arah || 'desc';
@@ -421,7 +445,20 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
         } else {
             currentSelection.push(roleId);
         }
-        setData('selected_roles', currentSelection);
+
+        const selectedObjs = (daftarPeran || []).filter(r => currentSelection.includes(r.id));
+        const isSiswaOnly = selectedObjs.some(r => r.nama_role?.toLowerCase()?.includes('siswa')) && 
+                            !selectedObjs.some(r => r.nama_role?.toLowerCase()?.includes('guru'));
+
+        if (isSiswaOnly && data.nip_nis && data.nip_nis.length > 10) {
+            setData(prev => ({
+                ...prev,
+                selected_roles: currentSelection,
+                nip_nis: prev.nip_nis.slice(0, 10)
+            }));
+        } else {
+            setData('selected_roles', currentSelection);
+        }
     };
 
     const tanganiPilihFileSiswa = (e) => {
@@ -962,8 +999,9 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
 
                                 <div>
                                     <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Tanggal Lahir</label>
-                                    <input 
-                                        type="date"
+                                    <InputTanggal 
+                                        id="tgl_lahir"
+                                        name="tgl_lahir"
                                         value={data.tgl_lahir}
                                         onChange={e => setData('tgl_lahir', e.target.value)}
                                         className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#0F91FC] dark:text-white"
@@ -983,27 +1021,46 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">NIK (KTP)</label>
+                                    <div className="flex items-center justify-between mb-2">
+                                        <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">NIK (KTP)</label>
+                                        <span className={`text-[11px] font-mono ${data.nik?.length === 16 ? 'text-emerald-500 font-bold' : 'text-slate-400'}`}>
+                                            {data.nik?.length || 0}/16
+                                        </span>
+                                    </div>
                                     <input 
                                         type="text"
+                                        inputMode="numeric"
+                                        maxLength={16}
+                                        placeholder="Maksimal 16 digit angka NIK"
                                         value={data.nik}
-                                        onChange={e => setData('nik', e.target.value)}
+                                        onChange={e => {
+                                            const val = e.target.value.replace(/\D/g, '').slice(0, 16);
+                                            setData('nik', val);
+                                        }}
                                         className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#0F91FC] dark:text-white"
                                     />
                                     <InputError message={errors.nik} className="mt-1" />
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">
-                                        {data.selected_roles && data.selected_roles.some(rId => {
-                                            const rObj = (daftarPeran || []).find(r => r.id === rId);
-                                            return rObj && (rObj.nama_role?.toLowerCase() === 'guru' || rObj.nama_role?.toLowerCase()?.includes('guru'));
-                                        }) ? 'NIP (Nomor Induk Pegawai)' : 'NISN (Nomor Induk Siswa Nasional)'}
-                                    </label>
+                                    <div className="flex items-center justify-between mb-2">
+                                        <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                                            {labelNomorInduk}
+                                        </label>
+                                        <span className={`text-[11px] font-mono ${data.nip_nis?.length === maxDigitNipNis ? 'text-emerald-500 font-bold' : 'text-slate-400'}`}>
+                                            {data.nip_nis?.length || 0}/{maxDigitNipNis}
+                                        </span>
+                                    </div>
                                     <input 
                                         type="text"
+                                        inputMode="numeric"
+                                        maxLength={maxDigitNipNis}
+                                        placeholder={placeholderNomorInduk}
                                         value={data.nip_nis}
-                                        onChange={e => setData('nip_nis', e.target.value)}
+                                        onChange={e => {
+                                            const val = e.target.value.replace(/\D/g, '').slice(0, maxDigitNipNis);
+                                            setData('nip_nis', val);
+                                        }}
                                         className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#0F91FC] dark:text-white"
                                     />
                                     <InputError message={errors.nip_nis} className="mt-1" />

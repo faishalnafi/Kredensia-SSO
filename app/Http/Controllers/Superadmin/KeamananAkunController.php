@@ -63,8 +63,8 @@ class KeamananAkunController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'jk' => ['nullable', 'string', 'in:L,P'],
             'tgl_lahir' => ['nullable', 'date'],
-            'nik' => ['nullable', 'string', 'max:20'],
-            'nip_nis' => ['nullable', 'string', 'max:30'],
+            'nik' => ['nullable', 'string', 'max:16', 'regex:/^[0-9]+$/'],
+            'nip_nis' => ['nullable', 'string', 'max:18', 'regex:/^[0-9]+$/'],
             'no_telp' => ['nullable', 'string', 'max:20'],
             'alamat' => ['nullable', 'string'],
         ], [
@@ -72,6 +72,10 @@ class KeamananAkunController extends Controller
             'email.required' => 'Email wajib diisi.',
             'email.email' => 'Format email tidak valid.',
             'email.unique' => 'Email sudah digunakan oleh pengguna lain.',
+            'nik.max' => 'NIK maksimal 16 digit angka.',
+            'nik.regex' => 'NIK harus berupa angka.',
+            'nip_nis.max' => 'Nomor Induk (NIP/NISN) maksimal 18 digit angka.',
+            'nip_nis.regex' => 'Nomor Induk (NIP/NISN) harus berupa angka.',
         ]);
 
         DB::transaction(function () use ($user, $request) {
