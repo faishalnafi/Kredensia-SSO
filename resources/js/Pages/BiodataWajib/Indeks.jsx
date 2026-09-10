@@ -23,7 +23,7 @@ export default function IndeksBiodataWajib({ user, peran = [] }) {
     };
 
     const isGuru = peran.includes('Guru');
-    const labelNipNis = isGuru ? 'Nomor Induk Pegawai (NIP)' : 'Nomor Induk Siswa Nasional (NISN)';
+    const labelNipNis = isGuru ? 'NIP' : 'NISN';
     const maxDigitNipNis = isGuru ? 18 : 10;
 
     return (
@@ -106,7 +106,7 @@ export default function IndeksBiodataWajib({ user, peran = [] }) {
                         {/* NIK */}
                         <div>
                             <div className="flex items-center justify-between mb-1">
-                                <InputLabel htmlFor="nik" value="NIK (Nomor Induk Kependudukan) *" />
+                                <InputLabel htmlFor="nik" value="NIK *" className="whitespace-nowrap" />
                                 <span className={`text-xs font-mono ${data.nik?.length === 16 ? 'text-emerald-500 font-bold' : 'text-slate-400'}`}>
                                     {data.nik?.length || 0}/16
                                 </span>
@@ -128,7 +128,7 @@ export default function IndeksBiodataWajib({ user, peran = [] }) {
                         {/* NIP / NISN */}
                         <div>
                             <div className="flex items-center justify-between mb-1">
-                                <InputLabel htmlFor="nip_nis" value={`${labelNipNis} *`} />
+                                <InputLabel htmlFor="nip_nis" value={`${labelNipNis} *`} className="whitespace-nowrap" />
                                 <span className={`text-xs font-mono ${data.nip_nis?.length === maxDigitNipNis ? 'text-emerald-500 font-bold' : 'text-slate-400'}`}>
                                     {data.nip_nis?.length || 0}/{maxDigitNipNis}
                                 </span>

@@ -1139,8 +1139,8 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                         </div>
 
                                         <div>
-                                            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider" htmlFor="nik">
-                                                Nomor Induk Kependudukan (NIK)
+                                            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider whitespace-nowrap" htmlFor="nik">
+                                                NIK
                                             </label>
                                             <input 
                                                 className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-inset focus:ring-[#0F91FC] dark:focus:ring-[#0F91FC] focus:border-[#0F91FC] py-3 px-4 transition-all placeholder:text-slate-400 outline-none"
@@ -1161,8 +1161,8 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                         </div>
 
                                         <div>
-                                            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider" htmlFor="nip_nis">
-                                                {dataKlaim.jenis_pengguna === 'Guru' ? 'Nomor Induk Pegawai (NIP)' : 'Nomor Induk Siswa Nasional (NISN)'}
+                                            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider whitespace-nowrap" htmlFor="nip_nis">
+                                                {dataKlaim.jenis_pengguna === 'Guru' ? 'NIP' : 'NISN'}
                                             </label>
                                             <input 
                                                 className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-inset focus:ring-[#0F91FC] dark:focus:ring-[#0F91FC] focus:border-[#0F91FC] py-3 px-4 transition-all placeholder:text-slate-400 outline-none"

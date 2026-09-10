@@ -134,20 +134,20 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
     const adaPeranSiswa = selectedRoleObjects.some(r => r.nama_role?.toLowerCase()?.includes('siswa'));
     const adaPeranGuru = selectedRoleObjects.some(r => r.nama_role?.toLowerCase()?.includes('guru'));
 
-    let labelNomorInduk = 'Nomor Induk (NIP / NISN)';
+    let labelNomorInduk = 'NIP / NISN';
     let placeholderNomorInduk = 'Maksimal 18 digit (atau 10 digit jika Siswa)';
     let maxDigitNipNis = 18;
 
     if (adaPeranSiswa && !adaPeranGuru) {
-        labelNomorInduk = 'NISN (Nomor Induk Siswa Nasional)';
+        labelNomorInduk = 'NISN';
         placeholderNomorInduk = 'Masukkan 10 digit NISN';
         maxDigitNipNis = 10;
     } else if (adaPeranGuru && !adaPeranSiswa) {
-        labelNomorInduk = 'NIP (Nomor Induk Pegawai)';
+        labelNomorInduk = 'NIP';
         placeholderNomorInduk = 'Masukkan 18 digit NIP';
         maxDigitNipNis = 18;
     } else if (editMode) {
-        labelNomorInduk = 'Nomor Induk (NIP / NISN)';
+        labelNomorInduk = 'NIP / NISN';
         placeholderNomorInduk = 'Maksimal 18 digit angka';
         maxDigitNipNis = 18;
     }
@@ -1043,7 +1043,7 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
 
                                 <div>
                                     <div className="flex items-center justify-between mb-2">
-                                        <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">NIK (KTP)</label>
+                                        <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest whitespace-nowrap">NIK</label>
                                         <span className={`text-[11px] font-mono ${data.nik?.length === 16 ? 'text-emerald-500 font-bold' : 'text-slate-400'}`}>
                                             {data.nik?.length || 0}/16
                                         </span>
@@ -1065,7 +1065,7 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
 
                                 <div>
                                     <div className="flex items-center justify-between mb-2">
-                                        <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                                        <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest whitespace-nowrap">
                                             {labelNomorInduk}
                                         </label>
                                         <span className={`text-[11px] font-mono ${data.nip_nis?.length === maxDigitNipNis ? 'text-emerald-500 font-bold' : 'text-slate-400'}`}>

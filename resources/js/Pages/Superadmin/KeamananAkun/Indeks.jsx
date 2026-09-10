@@ -8,8 +8,8 @@ import Swal from 'sweetalert2';
 export default function KeamananAkun({ daftarSesi = [], pengguna = {}, pendingCorrection = null }) {
     const isGuru = (pengguna.peran || []).some(p => p === 'Guru' || p === 'guru');
     const maxDigitNipNis = isGuru ? 18 : 10;
-    const labelNipNis = isGuru ? 'Nomor Induk Pegawai (NIP)' : 'Nomor Induk Siswa Nasional (NISN)';
-    const placeholderNipNis = isGuru ? 'Masukkan NIP (18 digit)' : 'Masukkan NISN (10 digit)';
+    const labelNipNis = isGuru ? 'NIP' : 'NISN';
+    const placeholderNipNis = isGuru ? 'Masukkan 18 digit NIP' : 'Masukkan 10 digit NISN';
 
     // Form untuk Ganti Kata Sandi
     const formSandi = useForm({
@@ -188,7 +188,7 @@ export default function KeamananAkun({ daftarSesi = [], pengguna = {}, pendingCo
 
                             <div>
                                 <div className="flex items-center justify-between mb-2">
-                                    <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">NIK (KTP)</label>
+                                    <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">NIK</label>
                                     <span className={`text-[11px] font-mono ${formProfil.data.nik?.length === 16 ? 'text-emerald-500 font-bold' : 'text-slate-400'}`}>
                                         {formProfil.data.nik?.length || 0}/16
                                     </span>
@@ -210,7 +210,7 @@ export default function KeamananAkun({ daftarSesi = [], pengguna = {}, pendingCo
 
                             <div>
                                 <div className="flex items-center justify-between mb-2">
-                                    <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                    <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
                                         {labelNipNis}
                                     </label>
                                     <span className={`text-[11px] font-mono ${formProfil.data.nip_nis?.length === maxDigitNipNis ? 'text-emerald-500 font-bold' : 'text-slate-400'}`}>
