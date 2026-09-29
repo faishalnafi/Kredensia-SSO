@@ -7,12 +7,12 @@ import Swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
 import axios from 'axios';
 
-export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPeran = [], daftarKelas = [], filters, adaTahunPelajaranAktif = true }) {
+export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPeran = [], daftarKelas = [], filters = {}, adaTahunPelajaranAktif = true }) {
     const { auth } = usePage().props;
     const [modalBuka, setModalBuka] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [selectedUserId, setSelectedUserId] = useState(null);
-    const [cari, setCari] = useState(filters.cari || '');
+    const [cari, setCari] = useState(filters?.cari || '');
     const [modalImportBuka, setModalImportBuka] = useState(false);
     const [tampilkanSandi, setTampilkanSandi] = useState(false);
 
@@ -152,8 +152,8 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
         maxDigitNipNis = 18;
     }
 
-    const urutAktif = filters.urut || 'created_at';
-    const arahAktif = filters.arah || 'desc';
+    const urutAktif = filters?.urut || 'created_at';
+    const arahAktif = filters?.arah || 'desc';
 
     const tanganiUrutan = (kolom) => {
         let arahBaru = 'asc';
@@ -164,7 +164,7 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
         }
 
         router.get(route(route().current()), {
-            ...filters,
+            ...(filters || {}),
             cari,
             urut: kolom,
             arah: arahBaru,
@@ -197,7 +197,7 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
     const tanganiCari = (e) => {
         e.preventDefault();
         router.get(route(route().current()), { 
-            ...filters,
+            ...(filters || {}),
             cari 
         }, {
             preserveState: true,
@@ -233,23 +233,24 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
     };
 
     const bukaModalEdit = (user) => {
+        if (!user) return;
         clearErrors();
         setTampilkanSandi(false);
         setEditMode(true);
         setSelectedUserId(user.id);
         setData({
-            nama_lengkap: user.nama_lengkap,
+            nama_lengkap: user.nama_lengkap || '',
             email: user.email || '',
             password: '', // Kosongkan saat edit kata sandi
             jk: user.jk || '',
-            tgl_lahir: user.tgl_lahir ? user.tgl_lahir.substring(0, 10) : '',
+            tgl_lahir: user.tgl_lahir ? String(user.tgl_lahir).substring(0, 10) : '',
             nik: user.nik || '',
             nip_nis: user.nip_nis || '',
             no_telp: user.no_telp || '',
             alamat: user.alamat || '',
             kelas_id: user.kelas_id || '',
-            is_active: user.is_active,
-            selected_roles: user.roles ? user.roles.map(r => r.id) : []
+            is_active: Boolean(user.is_active),
+            selected_roles: Array.isArray(user.roles) ? user.roles.map(r => r.id) : []
         });
         setModalBuka(true);
     };
