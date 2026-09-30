@@ -22,6 +22,9 @@ class LogAktivitasController extends Controller
      */
     public function indeks(Request $request): Response
     {
+        // Jalankan pemeriksaan arsip otomatis jika tanggal 1 atau ada log tertunggak dari bulan sebelumnya
+        \App\Services\LayananLogAktivitas::periksaDanArsipOtomatis(true);
+
         $query = LogAktivitas::with('user:id,nama_lengkap,email')
             ->orderBy('created_at', 'desc');
 
@@ -65,11 +68,14 @@ class LogAktivitasController extends Controller
 
                     // Ekstrak label bulan dari nama file (log_aktivitas_YYYY_MM.json)
                     $label = $namaFile;
-                    if (preg_match('/log_aktivitas_(\d{4})_(\d{2})\.json/', $namaFile, $matches)) {
+                    if (preg_match('/log_aktivitas_(\d{4})_(\d{2})/', $namaFile, $matches)) {
                         $tahun = $matches[1];
                         $bulan = (int)$matches[2];
                         $namaBulan = Carbon::createFromDate((int)$tahun, $bulan, 1)->locale('id')->translatedFormat('F Y');
                         $label = "Log " . ucfirst($namaBulan);
+                        if (preg_match('/log_aktivitas_\d{4}_\d{2}_(\d{8}_\d{6})/', $namaFile, $extra)) {
+                            $label .= " (Tambahan)";
+                        }
                     } else {
                         $label = str_replace(['log_aktivitas_', '.json', '_'], ['', '', ' '], $namaFile);
                     }
@@ -101,11 +107,12 @@ class LogAktivitasController extends Controller
             return redirect()->back()->with('error', 'Gagal: Tabel log aktivitas saat ini kosong.');
         }
 
-        Artisan::call('sso:bersihkan-log');
+        $hasil = \App\Services\LayananLogAktivitas::arsipkanLogBulanan(forceAll: true);
+        $total = array_sum(array_column($hasil, 'total'));
 
-        \App\Services\LayananLogAktivitas::catat('Melakukan pengarsipan manual log aktivitas ke berkas JSON');
+        \App\Services\LayananLogAktivitas::catat('Melakukan pengarsipan manual log aktivitas ke berkas JSON (' . $total . ' entri)');
 
-        return redirect()->back()->with('success', 'Berhasil mengarsipkan log aktivitas ke berkas JSON dan membersihkan tabel database.');
+        return redirect()->back()->with('success', "Berhasil mengarsipkan {$total} log aktivitas ke berkas JSON dan membersihkan tabel database.");
     }
 
     /**
