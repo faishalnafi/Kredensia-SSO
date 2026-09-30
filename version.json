@@ -1,7 +1,7 @@
 {
-  "version": "1.7.0",
-  "name": "Pembaruan Portal SSO Sekolah v1.7.0",
-  "release_date": "2026-09-29",
-  "description": "Standarisasi format input tanggal (DD/MM/YYYY), validasi batas NIK 16 digit & NIP/NISN dinamis, indikator sorting tabel presisi, pratinjau foto verifikasi wajah AI, dan reset verifikasi akun."
+  "version": "1.7.2",
+  "name": "Pembaruan Portal SSO Sekolah v1.7.2",
+  "release_date": "2026-09-30",
+  "description": "Perbaikan null-safety modal edit pengguna di production, integrasi aplikasi SIMAK, penyesuaian nama aplikasi SIAKAD & PASTi, serta pengarsipan otomatis log aktivitas bulanan setiap tanggal 1 (dual-layer auto archive)."
 }
 
