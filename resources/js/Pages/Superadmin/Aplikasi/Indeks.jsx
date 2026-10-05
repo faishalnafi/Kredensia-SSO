@@ -299,9 +299,9 @@ export default function IndeksAplikasi({ daftarAplikasi, daftarPeran }) {
                             </button>
                         </div>
 
-                        <div className="bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-3xl p-6 border border-slate-100 dark:border-slate-700/50 shadow-sm">
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left text-sm whitespace-nowrap">
+                        <div className="bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 border border-slate-100 dark:border-slate-700/50 shadow-sm overflow-hidden">
+                            <div className="overflow-x-auto rounded-2xl scrollbar-minimalis touch-pan-x">
+                                <table className="w-full min-w-[780px] text-left text-sm whitespace-nowrap">
                                     <thead className="text-xs text-slate-400 dark:text-slate-500 uppercase tracking-wider bg-slate-50 dark:bg-slate-900/50 rounded-xl">
                                         <tr>
                                             <th className="px-4 py-3.5 rounded-l-xl font-bold">Aplikasi</th>

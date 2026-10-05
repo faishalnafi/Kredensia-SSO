@@ -93,16 +93,16 @@ export default function PersetujuanData({ daftarKoreksi = [] }) {
                     </button>
                 </div>
 
-                <div className="bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-3xl p-6 border border-slate-100 dark:border-slate-700/50 shadow-sm overflow-hidden">
-                    <div className="overflow-x-auto rounded-2xl border border-slate-100 dark:border-slate-700/50">
-                        <table className="w-full text-left text-sm whitespace-nowrap table-fixed">
+                <div className="bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 border border-slate-100 dark:border-slate-700/50 shadow-sm overflow-hidden">
+                    <div className="overflow-x-auto rounded-2xl border border-slate-100 dark:border-slate-700/50 scrollbar-minimalis touch-pan-x">
+                        <table className="w-full min-w-[780px] text-left text-sm whitespace-nowrap">
                             <thead className="text-xs text-slate-400 dark:text-slate-500 uppercase tracking-wider bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700/50">
                                 <tr>
-                                    <th className="px-6 py-4 font-bold w-1/4">Nama Pengguna</th>
-                                    <th className="px-6 py-4 font-bold w-1/5">Kolom Data</th>
-                                    <th className="px-6 py-4 font-bold w-1/4">Nilai Lama</th>
-                                    <th className="px-6 py-4 font-bold w-1/4">Nilai Baru</th>
-                                    <th className="px-6 py-4 font-bold w-1/5 text-right">Aksi</th>
+                                    <th className="px-5 sm:px-6 py-4 font-bold min-w-[200px]">Nama Pengguna</th>
+                                    <th className="px-5 sm:px-6 py-4 font-bold min-w-[150px]">Kolom Data</th>
+                                    <th className="px-5 sm:px-6 py-4 font-bold min-w-[180px]">Nilai Lama</th>
+                                    <th className="px-5 sm:px-6 py-4 font-bold min-w-[180px]">Nilai Baru</th>
+                                    <th className="px-5 sm:px-6 py-4 font-bold min-w-[120px] text-right">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">

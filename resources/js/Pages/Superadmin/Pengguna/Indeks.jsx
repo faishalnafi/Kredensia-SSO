@@ -180,7 +180,7 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
         const sortClass = isAktif ? (arahAktif === 'asc' ? 'sort-active-asc' : 'sort-active-desc') : '';
 
         return (
-            <th className={`px-6 py-4 text-[11px] font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-200 select-none ${lebarClass} ${align} ${sortClass}`}>
+            <th className={`px-4 sm:px-6 py-3.5 sm:py-4 text-[11px] font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-200 select-none ${lebarClass} ${align} ${sortClass}`}>
                 <button
                     type="button"
                     onClick={() => tanganiUrutan(namaKolom)}
@@ -628,10 +628,10 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                         <p className="text-slate-500 dark:text-slate-400 text-sm">Kelola akun pengguna portal SSO, sinkronisasi peran, dan kelengkapan profil.</p>
                     </div>
                     
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full md:w-auto">
                         {/* Form Pencarian */}
-                        <form onSubmit={tanganiCari} className="flex gap-2">
-                            <div className="relative">
+                        <form onSubmit={tanganiCari} className="flex gap-2 flex-1 sm:flex-initial">
+                            <div className="relative flex-1 sm:w-60">
                                 <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                                     <span className="material-symbols-rounded text-lg">search</span>
                                 </span>
@@ -640,50 +640,52 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                                     placeholder="Cari nama, email, NIK..."
                                     value={cari}
                                     onChange={e => setCari(e.target.value)}
-                                    className="pl-10 pr-4 py-2.5 w-48 sm:w-60 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-[#0F91FC] dark:text-white transition-all shadow-sm"
+                                    className="pl-10 pr-4 py-2.5 w-full text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-[#0F91FC] dark:text-white transition-all shadow-sm"
                                 />
                             </div>
                             <button 
                                 type="submit"
-                                className="bg-slate-100 dark:bg-slate-850 border border-slate-200 dark:border-slate-700 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-800 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all"
+                                className="bg-slate-100 dark:bg-slate-850 border border-slate-200 dark:border-slate-700 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-800 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shrink-0 cursor-pointer"
                             >
                                 Cari
                             </button>
                         </form>
                         
-                        <button 
-                            type="button"
-                            onClick={() => setModalImportBuka(true)}
-                            className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-2"
-                        >
-                            <span className="material-symbols-rounded text-lg">upload_file</span>
-                            Import Excel
-                        </button>
+                        <div className="grid grid-cols-2 sm:flex sm:items-center gap-2">
+                            <button 
+                                type="button"
+                                onClick={() => setModalImportBuka(true)}
+                                className="bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98] text-white px-3 sm:px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm shadow-md shadow-emerald-500/20 transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer"
+                            >
+                                <span className="material-symbols-rounded text-lg">upload_file</span>
+                                <span className="truncate">Import Excel</span>
+                            </button>
 
-                        <button 
-                            type="button"
-                            onClick={bukaModalTambah}
-                            className="bg-[#0F91FC] hover:bg-[#0a78d6] text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-[#0F91FC]/20 transition-all flex items-center gap-2"
-                        >
-                            <span className="material-symbols-rounded text-lg">person_add</span>
-                            Tambah Pengguna
-                        </button>
+                            <button 
+                                type="button"
+                                onClick={bukaModalTambah}
+                                className="bg-[#0F91FC] hover:bg-[#0a78d6] active:scale-[0.98] text-white px-3 sm:px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm shadow-md shadow-[#0F91FC]/20 transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer"
+                            >
+                                <span className="material-symbols-rounded text-lg">person_add</span>
+                                <span className="truncate">Tambah Pengguna</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
                 {/* Table Area */}
-                <div className="bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-3xl p-6 border border-slate-100 dark:border-slate-700/50 shadow-sm overflow-hidden">
-                    <div className="overflow-x-auto rounded-2xl border border-slate-100 dark:border-slate-700/50">
-                        <table className="w-full text-left text-sm whitespace-nowrap table-fixed">
+                <div className="bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 border border-slate-100 dark:border-slate-700/50 shadow-sm overflow-hidden">
+                    <div className="overflow-x-auto rounded-2xl border border-slate-100 dark:border-slate-700/50 scrollbar-minimalis touch-pan-x">
+                        <table className="w-full min-w-[880px] text-left text-sm whitespace-nowrap">
                             <thead className="text-[11px] font-extrabold uppercase tracking-wider bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700/50">
                                 <tr>
-                                    {renderHeaderKolom('Nama Lengkap', 'nama_lengkap', 'w-[23%]')}
-                                    {renderHeaderKolom('Email', 'email', 'w-[18%]')}
-                                    {renderHeaderKolom('Peran', 'peran', 'w-[15%]')}
-                                    {renderHeaderKolom('Verifikasi', 'verifikasi', 'w-[110px]')}
-                                    {renderHeaderKolom('Foto Wajah', 'foto_wajah', 'w-[115px]')}
-                                    {renderHeaderKolom('Status', 'status', 'w-[90px]')}
-                                    <th className="px-6 py-4 text-[11px] font-extrabold w-[160px] text-right text-slate-700 dark:text-slate-200 uppercase tracking-wider select-none">Aksi</th>
+                                    {renderHeaderKolom('Nama Lengkap', 'nama_lengkap', 'min-w-[220px]')}
+                                    {renderHeaderKolom('Email', 'email', 'min-w-[180px]')}
+                                    {renderHeaderKolom('Peran', 'peran', 'min-w-[140px]')}
+                                    {renderHeaderKolom('Verifikasi', 'verifikasi', 'min-w-[120px]')}
+                                    {renderHeaderKolom('Foto Wajah', 'foto_wajah', 'min-w-[120px]')}
+                                    {renderHeaderKolom('Status', 'status', 'min-w-[100px]')}
+                                    <th className="px-5 sm:px-6 py-4 text-[11px] font-extrabold min-w-[150px] text-right text-slate-700 dark:text-slate-200 uppercase tracking-wider select-none">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">

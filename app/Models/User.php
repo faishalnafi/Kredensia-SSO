@@ -40,6 +40,12 @@ class User extends Authenticatable
         'foto_identitas',
         'biodata_dilengkapi_pada',
         'kelas_id',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
+        'two_factor_confirmed_at',
+        'two_factor_type',
+        'two_factor_email_code',
+        'two_factor_email_expires_at',
     ];
 
     protected $appends = [
@@ -49,17 +55,32 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
+        'two_factor_email_code',
     ];
 
     protected function casts(): array
     {
         return [
-            'password'                => 'hashed',
-            'is_active'               => 'boolean',
-            'tgl_lahir'               => 'date',
-            'claimed_at'              => 'datetime',
-            'biodata_dilengkapi_pada' => 'datetime',
+            'password'                     => 'hashed',
+            'is_active'                    => 'boolean',
+            'tgl_lahir'                    => 'date',
+            'claimed_at'                   => 'datetime',
+            'biodata_dilengkapi_pada'      => 'datetime',
+            'two_factor_confirmed_at'      => 'datetime',
+            'two_factor_email_expires_at'  => 'datetime',
+            'two_factor_secret'            => 'encrypted',
+            'two_factor_recovery_codes'    => 'encrypted:array',
         ];
+    }
+
+    /**
+     * Cek apakah pengguna telah aktif mengonfigurasi 2FA.
+     */
+    public function hasEnabledTwoFactor(): bool
+    {
+        return !is_null($this->two_factor_confirmed_at);
     }
 
     /**

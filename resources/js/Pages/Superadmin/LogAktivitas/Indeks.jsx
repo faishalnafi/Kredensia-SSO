@@ -181,7 +181,7 @@ export default function LogAktivitas({ daftarLog = { data: [], links: [] }, daft
                 </div>
 
                 {/* Table Area */}
-                <div className="bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-3xl p-6 border border-slate-100 dark:border-slate-700/50 shadow-sm space-y-4">
+                <div className="bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 border border-slate-100 dark:border-slate-700/50 shadow-sm space-y-4">
                     
                     {/* Internal Table Header Bar (Filter & Search) */}
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -195,8 +195,8 @@ export default function LogAktivitas({ daftarLog = { data: [], links: [] }, daft
                         </div>
 
                         {/* Form Pencarian */}
-                        <form onSubmit={tanganiCari} className="flex gap-2">
-                            <div className="relative">
+                        <form onSubmit={tanganiCari} className="flex gap-2 w-full sm:w-auto">
+                            <div className="relative flex-1 sm:w-64">
                                 <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                                     <span className="material-symbols-rounded text-lg">search</span>
                                 </span>
@@ -205,20 +205,20 @@ export default function LogAktivitas({ daftarLog = { data: [], links: [] }, daft
                                     placeholder="Cari log atau pengguna..."
                                     value={cari}
                                     onChange={e => setCari(e.target.value)}
-                                    className="pl-10 pr-4 py-2 w-64 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-[#0F91FC] dark:text-white transition-all"
+                                    className="pl-10 pr-4 py-2 w-full text-sm bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-[#0F91FC] dark:text-white transition-all"
                                 />
                             </div>
                             <button 
                                 type="submit"
-                                className="bg-[#0F91FC] hover:bg-[#0a78d6] text-white px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-md shadow-[#0F91FC]/10"
+                                className="bg-[#0F91FC] hover:bg-[#0a78d6] active:scale-[0.98] text-white px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-md shadow-[#0F91FC]/10 shrink-0 cursor-pointer"
                             >
                                 Cari
                             </button>
                         </form>
                     </div>
 
-                    <div className="overflow-x-auto rounded-2xl border border-slate-100 dark:border-slate-700/50">
-                        <table className="w-full text-left text-sm">
+                    <div className="overflow-x-auto rounded-2xl border border-slate-100 dark:border-slate-700/50 scrollbar-minimalis touch-pan-x">
+                        <table className="w-full min-w-[850px] text-left text-sm whitespace-nowrap">
                             <thead className="text-xs text-slate-400 dark:text-slate-500 uppercase tracking-wider bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700/50">
                                 <tr>
                                     <th className="px-5 py-4 font-bold min-w-[140px]">Waktu</th>

@@ -1,67 +1,67 @@
 {
-  "_AuthenticatedLayout-DtjnjZou.js": {
-    "file": "assets/AuthenticatedLayout-DtjnjZou.js",
+  "_AuthenticatedLayout-jzY0iMdn.js": {
+    "file": "assets/AuthenticatedLayout-jzY0iMdn.js",
     "name": "AuthenticatedLayout",
     "imports": [
       "resources/js/app.jsx",
-      "_transition-C-_9V1t1.js",
-      "_ThemeToggle-DiZYWlAv.js"
+      "_transition-KuQvsTzE.js",
+      "_ThemeToggle-pl_5wExS.js"
     ]
   },
-  "_GuestLayout-DT87J6_R.js": {
-    "file": "assets/GuestLayout-DT87J6_R.js",
+  "_GuestLayout-DZdHE9x_.js": {
+    "file": "assets/GuestLayout-DZdHE9x_.js",
     "name": "GuestLayout",
     "imports": [
       "resources/js/app.jsx",
-      "_ThemeToggle-DiZYWlAv.js"
+      "_ThemeToggle-pl_5wExS.js"
     ]
   },
-  "_InputError-DFBKjtPg.js": {
-    "file": "assets/InputError-DFBKjtPg.js",
+  "_InputError-yIb2Mldy.js": {
+    "file": "assets/InputError-yIb2Mldy.js",
     "name": "InputError",
     "imports": [
       "resources/js/app.jsx"
     ]
   },
-  "_InputLabel-BqWm7u15.js": {
-    "file": "assets/InputLabel-BqWm7u15.js",
+  "_InputLabel-DYRdQhsq.js": {
+    "file": "assets/InputLabel-DYRdQhsq.js",
     "name": "InputLabel",
     "imports": [
       "resources/js/app.jsx"
     ]
   },
-  "_InputTanggal-DjgVtdPX.js": {
-    "file": "assets/InputTanggal-DjgVtdPX.js",
+  "_InputTanggal-1dLbds-Q.js": {
+    "file": "assets/InputTanggal-1dLbds-Q.js",
     "name": "InputTanggal",
     "imports": [
       "resources/js/app.jsx"
     ]
   },
-  "_PrimaryButton-Bqd7-o7G.js": {
-    "file": "assets/PrimaryButton-Bqd7-o7G.js",
+  "_PrimaryButton-B-Nqtclj.js": {
+    "file": "assets/PrimaryButton-B-Nqtclj.js",
     "name": "PrimaryButton",
     "imports": [
       "resources/js/app.jsx"
     ]
   },
-  "_TataLetakUtama-B29bbkCG.js": {
-    "file": "assets/TataLetakUtama-B29bbkCG.js",
+  "_TataLetakUtama-INHsolH6.js": {
+    "file": "assets/TataLetakUtama-INHsolH6.js",
     "name": "TataLetakUtama",
     "imports": [
       "resources/js/app.jsx",
-      "_ThemeToggle-DiZYWlAv.js",
+      "_ThemeToggle-pl_5wExS.js",
       "_sweetalert2.esm.all-DE6NlnlT.js"
     ]
   },
-  "_TextInput-DnH5E5uR.js": {
-    "file": "assets/TextInput-DnH5E5uR.js",
+  "_TextInput-C0wMyZg5.js": {
+    "file": "assets/TextInput-C0wMyZg5.js",
     "name": "TextInput",
     "imports": [
       "resources/js/app.jsx"
     ]
   },
-  "_ThemeToggle-DiZYWlAv.js": {
-    "file": "assets/ThemeToggle-DiZYWlAv.js",
+  "_ThemeToggle-pl_5wExS.js": {
+    "file": "assets/ThemeToggle-pl_5wExS.js",
     "name": "ThemeToggle",
     "imports": [
       "resources/js/app.jsx"
@@ -71,8 +71,8 @@
     "file": "assets/sweetalert2.esm.all-DE6NlnlT.js",
     "name": "sweetalert2.esm.all"
   },
-  "_transition-C-_9V1t1.js": {
-    "file": "assets/transition-C-_9V1t1.js",
+  "_transition-KuQvsTzE.js": {
+    "file": "assets/transition-KuQvsTzE.js",
     "name": "transition",
     "imports": [
       "resources/js/app.jsx"
@@ -381,60 +381,60 @@
     "isDynamicEntry": true
   },
   "resources/js/Pages/Admin/Dasbor.jsx": {
-    "file": "assets/Dasbor-CHQJYItM.js",
+    "file": "assets/Dasbor-_BAUzW6v.js",
     "name": "Dasbor",
     "src": "resources/js/Pages/Admin/Dasbor.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_TataLetakUtama-B29bbkCG.js",
-      "_ThemeToggle-DiZYWlAv.js",
+      "_TataLetakUtama-INHsolH6.js",
+      "_ThemeToggle-pl_5wExS.js",
       "_sweetalert2.esm.all-DE6NlnlT.js"
     ]
   },
   "resources/js/Pages/Auth/ConfirmPassword.jsx": {
-    "file": "assets/ConfirmPassword-TRqfMFGQ.js",
+    "file": "assets/ConfirmPassword-C1Nr374U.js",
     "name": "ConfirmPassword",
     "src": "resources/js/Pages/Auth/ConfirmPassword.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_InputError-DFBKjtPg.js",
-      "_InputLabel-BqWm7u15.js",
-      "_PrimaryButton-Bqd7-o7G.js",
-      "_TextInput-DnH5E5uR.js",
-      "_GuestLayout-DT87J6_R.js",
-      "_ThemeToggle-DiZYWlAv.js"
+      "_InputError-yIb2Mldy.js",
+      "_InputLabel-DYRdQhsq.js",
+      "_PrimaryButton-B-Nqtclj.js",
+      "_TextInput-C0wMyZg5.js",
+      "_GuestLayout-DZdHE9x_.js",
+      "_ThemeToggle-pl_5wExS.js"
     ]
   },
   "resources/js/Pages/Auth/ForgotPassword.jsx": {
-    "file": "assets/ForgotPassword-CipL9Pme.js",
+    "file": "assets/ForgotPassword-DWxZQAfk.js",
     "name": "ForgotPassword",
     "src": "resources/js/Pages/Auth/ForgotPassword.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_InputError-DFBKjtPg.js",
-      "_PrimaryButton-Bqd7-o7G.js",
-      "_TextInput-DnH5E5uR.js",
-      "_GuestLayout-DT87J6_R.js",
-      "_ThemeToggle-DiZYWlAv.js"
+      "_InputError-yIb2Mldy.js",
+      "_PrimaryButton-B-Nqtclj.js",
+      "_TextInput-C0wMyZg5.js",
+      "_GuestLayout-DZdHE9x_.js",
+      "_ThemeToggle-pl_5wExS.js"
     ]
   },
   "resources/js/Pages/Auth/Otentikasi.jsx": {
-    "file": "assets/Otentikasi-CUHoDsu4.js",
+    "file": "assets/Otentikasi-DgyJMeIX.js",
     "name": "Otentikasi",
     "src": "resources/js/Pages/Auth/Otentikasi.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_InputError-DFBKjtPg.js",
-      "_InputTanggal-DjgVtdPX.js",
+      "_InputError-yIb2Mldy.js",
+      "_InputTanggal-1dLbds-Q.js",
       "_sweetalert2.esm.all-DE6NlnlT.js"
     ]
   },
   "resources/js/Pages/Auth/Redirect.jsx": {
-    "file": "assets/Redirect-Bqn8dFDK.js",
+    "file": "assets/Redirect-zOkvOB5-.js",
     "name": "Redirect",
     "src": "resources/js/Pages/Auth/Redirect.jsx",
     "isDynamicEntry": true,
@@ -443,282 +443,295 @@
     ]
   },
   "resources/js/Pages/Auth/Register.jsx": {
-    "file": "assets/Register-BtKe-BjJ.js",
+    "file": "assets/Register-Dgl1GfRG.js",
     "name": "Register",
     "src": "resources/js/Pages/Auth/Register.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_InputError-DFBKjtPg.js",
-      "_InputLabel-BqWm7u15.js",
-      "_PrimaryButton-Bqd7-o7G.js",
-      "_TextInput-DnH5E5uR.js",
-      "_GuestLayout-DT87J6_R.js",
-      "_ThemeToggle-DiZYWlAv.js"
+      "_InputError-yIb2Mldy.js",
+      "_InputLabel-DYRdQhsq.js",
+      "_PrimaryButton-B-Nqtclj.js",
+      "_TextInput-C0wMyZg5.js",
+      "_GuestLayout-DZdHE9x_.js",
+      "_ThemeToggle-pl_5wExS.js"
     ]
   },
   "resources/js/Pages/Auth/ResetPassword.jsx": {
-    "file": "assets/ResetPassword-gI60Bpfr.js",
+    "file": "assets/ResetPassword-BzjmFF_A.js",
     "name": "ResetPassword",
     "src": "resources/js/Pages/Auth/ResetPassword.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_InputError-DFBKjtPg.js",
-      "_InputLabel-BqWm7u15.js",
-      "_PrimaryButton-Bqd7-o7G.js",
-      "_TextInput-DnH5E5uR.js",
-      "_GuestLayout-DT87J6_R.js",
-      "_ThemeToggle-DiZYWlAv.js"
+      "_InputError-yIb2Mldy.js",
+      "_InputLabel-DYRdQhsq.js",
+      "_PrimaryButton-B-Nqtclj.js",
+      "_TextInput-C0wMyZg5.js",
+      "_GuestLayout-DZdHE9x_.js",
+      "_ThemeToggle-pl_5wExS.js"
     ]
   },
   "resources/js/Pages/BiodataWajib/Indeks.jsx": {
-    "file": "assets/Indeks-BfvCW1cc.js",
+    "file": "assets/Indeks-MK3-SH8h.js",
     "name": "Indeks",
     "src": "resources/js/Pages/BiodataWajib/Indeks.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_TataLetakUtama-B29bbkCG.js",
-      "_InputLabel-BqWm7u15.js",
-      "_TextInput-DnH5E5uR.js",
-      "_InputError-DFBKjtPg.js",
-      "_InputTanggal-DjgVtdPX.js",
-      "_ThemeToggle-DiZYWlAv.js",
+      "_TataLetakUtama-INHsolH6.js",
+      "_InputLabel-DYRdQhsq.js",
+      "_TextInput-C0wMyZg5.js",
+      "_InputError-yIb2Mldy.js",
+      "_InputTanggal-1dLbds-Q.js",
+      "_ThemeToggle-pl_5wExS.js",
       "_sweetalert2.esm.all-DE6NlnlT.js"
     ]
   },
   "resources/js/Pages/ComingSoon.jsx": {
-    "file": "assets/ComingSoon-BbuQuqX1.js",
+    "file": "assets/ComingSoon-DaRzhAsX.js",
     "name": "ComingSoon",
     "src": "resources/js/Pages/ComingSoon.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_TataLetakUtama-B29bbkCG.js",
-      "_ThemeToggle-DiZYWlAv.js",
+      "_TataLetakUtama-INHsolH6.js",
+      "_ThemeToggle-pl_5wExS.js",
       "_sweetalert2.esm.all-DE6NlnlT.js"
     ]
   },
   "resources/js/Pages/Dashboard.jsx": {
-    "file": "assets/Dashboard-SJy0GpZ_.js",
+    "file": "assets/Dashboard-BRA3-qEG.js",
     "name": "Dashboard",
     "src": "resources/js/Pages/Dashboard.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_AuthenticatedLayout-DtjnjZou.js",
-      "_transition-C-_9V1t1.js",
-      "_ThemeToggle-DiZYWlAv.js"
+      "_AuthenticatedLayout-jzY0iMdn.js",
+      "_transition-KuQvsTzE.js",
+      "_ThemeToggle-pl_5wExS.js"
     ]
   },
   "resources/js/Pages/Dashboard/Katalog.jsx": {
-    "file": "assets/Katalog-DoAuQ2kE.js",
+    "file": "assets/Katalog-C_GItvJL.js",
     "name": "Katalog",
     "src": "resources/js/Pages/Dashboard/Katalog.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_TataLetakUtama-B29bbkCG.js",
-      "_ThemeToggle-DiZYWlAv.js",
+      "_TataLetakUtama-INHsolH6.js",
+      "_ThemeToggle-pl_5wExS.js",
       "_sweetalert2.esm.all-DE6NlnlT.js"
     ]
   },
   "resources/js/Pages/Errors/ServerDown.jsx": {
-    "file": "assets/ServerDown-95S4RgY1.js",
+    "file": "assets/ServerDown-ChqXISi7.js",
     "name": "ServerDown",
     "src": "resources/js/Pages/Errors/ServerDown.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_TataLetakUtama-B29bbkCG.js",
+      "_TataLetakUtama-INHsolH6.js",
       "_sweetalert2.esm.all-DE6NlnlT.js",
-      "_ThemeToggle-DiZYWlAv.js"
+      "_ThemeToggle-pl_5wExS.js"
     ]
   },
   "resources/js/Pages/Kelas/Indeks.jsx": {
-    "file": "assets/Indeks-CmZE-hCh.js",
+    "file": "assets/Indeks-Di_fDRja.js",
     "name": "Indeks",
     "src": "resources/js/Pages/Kelas/Indeks.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_TataLetakUtama-B29bbkCG.js",
-      "_InputError-DFBKjtPg.js",
+      "_TataLetakUtama-INHsolH6.js",
+      "_InputError-yIb2Mldy.js",
       "_sweetalert2.esm.all-DE6NlnlT.js",
-      "_ThemeToggle-DiZYWlAv.js"
+      "_ThemeToggle-pl_5wExS.js"
     ]
   },
   "resources/js/Pages/Profile/Edit.jsx": {
-    "file": "assets/Edit-Bo01tCBH.js",
+    "file": "assets/Edit-OEVFoPEx.js",
     "name": "Edit",
     "src": "resources/js/Pages/Profile/Edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_AuthenticatedLayout-DtjnjZou.js",
+      "_AuthenticatedLayout-jzY0iMdn.js",
       "resources/js/Pages/Profile/Partials/DeleteUserForm.jsx",
       "resources/js/Pages/Profile/Partials/UpdatePasswordForm.jsx",
       "resources/js/Pages/Profile/Partials/UpdateProfileInformationForm.jsx",
-      "_transition-C-_9V1t1.js",
-      "_ThemeToggle-DiZYWlAv.js",
-      "_InputError-DFBKjtPg.js",
-      "_InputLabel-BqWm7u15.js",
-      "_TextInput-DnH5E5uR.js",
-      "_PrimaryButton-Bqd7-o7G.js"
+      "_transition-KuQvsTzE.js",
+      "_ThemeToggle-pl_5wExS.js",
+      "_InputError-yIb2Mldy.js",
+      "_InputLabel-DYRdQhsq.js",
+      "_TextInput-C0wMyZg5.js",
+      "_PrimaryButton-B-Nqtclj.js"
     ]
   },
   "resources/js/Pages/Profile/Partials/DeleteUserForm.jsx": {
-    "file": "assets/DeleteUserForm-bwayu0sp.js",
+    "file": "assets/DeleteUserForm-BwDlWRyU.js",
     "name": "DeleteUserForm",
     "src": "resources/js/Pages/Profile/Partials/DeleteUserForm.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_InputError-DFBKjtPg.js",
-      "_InputLabel-BqWm7u15.js",
-      "_transition-C-_9V1t1.js",
-      "_TextInput-DnH5E5uR.js"
+      "_InputError-yIb2Mldy.js",
+      "_InputLabel-DYRdQhsq.js",
+      "_transition-KuQvsTzE.js",
+      "_TextInput-C0wMyZg5.js"
     ]
   },
   "resources/js/Pages/Profile/Partials/UpdatePasswordForm.jsx": {
-    "file": "assets/UpdatePasswordForm-C46f6DmK.js",
+    "file": "assets/UpdatePasswordForm-BBBdu7wV.js",
     "name": "UpdatePasswordForm",
     "src": "resources/js/Pages/Profile/Partials/UpdatePasswordForm.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_InputError-DFBKjtPg.js",
-      "_InputLabel-BqWm7u15.js",
-      "_PrimaryButton-Bqd7-o7G.js",
-      "_TextInput-DnH5E5uR.js",
-      "_transition-C-_9V1t1.js"
+      "_InputError-yIb2Mldy.js",
+      "_InputLabel-DYRdQhsq.js",
+      "_PrimaryButton-B-Nqtclj.js",
+      "_TextInput-C0wMyZg5.js",
+      "_transition-KuQvsTzE.js"
     ]
   },
   "resources/js/Pages/Profile/Partials/UpdateProfileInformationForm.jsx": {
-    "file": "assets/UpdateProfileInformationForm-_34MxIxE.js",
+    "file": "assets/UpdateProfileInformationForm-C-Rinjhp.js",
     "name": "UpdateProfileInformationForm",
     "src": "resources/js/Pages/Profile/Partials/UpdateProfileInformationForm.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_InputError-DFBKjtPg.js",
-      "_InputLabel-BqWm7u15.js",
-      "_PrimaryButton-Bqd7-o7G.js",
-      "_TextInput-DnH5E5uR.js",
-      "_transition-C-_9V1t1.js"
+      "_InputError-yIb2Mldy.js",
+      "_InputLabel-DYRdQhsq.js",
+      "_PrimaryButton-B-Nqtclj.js",
+      "_TextInput-C0wMyZg5.js",
+      "_transition-KuQvsTzE.js"
     ]
   },
   "resources/js/Pages/Superadmin/Aplikasi/Indeks.jsx": {
-    "file": "assets/Indeks-NBuOFRTF.js",
+    "file": "assets/Indeks-3iPiwoL7.js",
     "name": "Indeks",
     "src": "resources/js/Pages/Superadmin/Aplikasi/Indeks.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_TataLetakUtama-B29bbkCG.js",
-      "_InputError-DFBKjtPg.js",
+      "_TataLetakUtama-INHsolH6.js",
+      "_InputError-yIb2Mldy.js",
       "_sweetalert2.esm.all-DE6NlnlT.js",
-      "_ThemeToggle-DiZYWlAv.js"
+      "_ThemeToggle-pl_5wExS.js"
     ]
   },
   "resources/js/Pages/Superadmin/BackupRestore/Indeks.jsx": {
-    "file": "assets/Indeks-DWm8585l.js",
+    "file": "assets/Indeks-BMktMdPr.js",
     "name": "Indeks",
     "src": "resources/js/Pages/Superadmin/BackupRestore/Indeks.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_TataLetakUtama-B29bbkCG.js",
+      "_TataLetakUtama-INHsolH6.js",
       "_sweetalert2.esm.all-DE6NlnlT.js",
-      "_ThemeToggle-DiZYWlAv.js"
+      "_ThemeToggle-pl_5wExS.js"
     ]
   },
   "resources/js/Pages/Superadmin/Beranda.jsx": {
-    "file": "assets/Beranda-DM1i7kHF.js",
+    "file": "assets/Beranda-BKtB1BXi.js",
     "name": "Beranda",
     "src": "resources/js/Pages/Superadmin/Beranda.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_TataLetakUtama-B29bbkCG.js",
-      "_ThemeToggle-DiZYWlAv.js",
+      "_TataLetakUtama-INHsolH6.js",
+      "_ThemeToggle-pl_5wExS.js",
       "_sweetalert2.esm.all-DE6NlnlT.js"
     ]
   },
   "resources/js/Pages/Superadmin/DokumentasiApi.jsx": {
-    "file": "assets/DokumentasiApi-DIt-hIok.js",
+    "file": "assets/DokumentasiApi-Bd1fG3Ek.js",
     "name": "DokumentasiApi",
     "src": "resources/js/Pages/Superadmin/DokumentasiApi.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_TataLetakUtama-B29bbkCG.js",
-      "_ThemeToggle-DiZYWlAv.js",
+      "_TataLetakUtama-INHsolH6.js",
+      "_ThemeToggle-pl_5wExS.js",
       "_sweetalert2.esm.all-DE6NlnlT.js"
     ]
   },
   "resources/js/Pages/Superadmin/HapusData/Indeks.jsx": {
-    "file": "assets/Indeks-CXAxKoUq.js",
+    "file": "assets/Indeks-NrVqaDfg.js",
     "name": "Indeks",
     "src": "resources/js/Pages/Superadmin/HapusData/Indeks.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_TataLetakUtama-B29bbkCG.js",
+      "_TataLetakUtama-INHsolH6.js",
       "_sweetalert2.esm.all-DE6NlnlT.js",
-      "_ThemeToggle-DiZYWlAv.js"
+      "_ThemeToggle-pl_5wExS.js"
     ]
   },
   "resources/js/Pages/Superadmin/KatalogAplikasi/Indeks.jsx": {
-    "file": "assets/Indeks-DZDYJwX-.js",
+    "file": "assets/Indeks-D1EqPkmp.js",
     "name": "Indeks",
     "src": "resources/js/Pages/Superadmin/KatalogAplikasi/Indeks.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_TataLetakUtama-B29bbkCG.js",
-      "_ThemeToggle-DiZYWlAv.js",
+      "_TataLetakUtama-INHsolH6.js",
+      "_ThemeToggle-pl_5wExS.js",
       "_sweetalert2.esm.all-DE6NlnlT.js"
     ]
   },
   "resources/js/Pages/Superadmin/KeamananAkun/Indeks.jsx": {
-    "file": "assets/Indeks-O21orRvH.js",
+    "file": "assets/Indeks-mrX51n0y.js",
     "name": "Indeks",
     "src": "resources/js/Pages/Superadmin/KeamananAkun/Indeks.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_TataLetakUtama-B29bbkCG.js",
-      "_InputError-DFBKjtPg.js",
-      "_InputTanggal-DjgVtdPX.js",
+      "_TataLetakUtama-INHsolH6.js",
+      "_InputError-yIb2Mldy.js",
+      "_InputTanggal-1dLbds-Q.js",
       "_sweetalert2.esm.all-DE6NlnlT.js",
-      "_ThemeToggle-DiZYWlAv.js"
+      "_ThemeToggle-pl_5wExS.js"
+    ]
+  },
+  "resources/js/Pages/Superadmin/Konfigurasi2FA/Indeks.jsx": {
+    "file": "assets/Indeks-CUD6B6Ah.js",
+    "name": "Indeks",
+    "src": "resources/js/Pages/Superadmin/Konfigurasi2FA/Indeks.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.jsx",
+      "_TataLetakUtama-INHsolH6.js",
+      "_InputError-yIb2Mldy.js",
+      "_sweetalert2.esm.all-DE6NlnlT.js",
+      "_ThemeToggle-pl_5wExS.js"
     ]
   },
   "resources/js/Pages/Superadmin/KunciApi/Indeks.jsx": {
-    "file": "assets/Indeks-BFbbUI1r.js",
+    "file": "assets/Indeks-CCHjBysP.js",
     "name": "Indeks",
     "src": "resources/js/Pages/Superadmin/KunciApi/Indeks.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_TataLetakUtama-B29bbkCG.js",
-      "_InputError-DFBKjtPg.js",
+      "_TataLetakUtama-INHsolH6.js",
+      "_InputError-yIb2Mldy.js",
       "_sweetalert2.esm.all-DE6NlnlT.js",
-      "_ThemeToggle-DiZYWlAv.js"
+      "_ThemeToggle-pl_5wExS.js"
     ]
   },
   "resources/js/Pages/Superadmin/LogAktivitas/Indeks.jsx": {
-    "file": "assets/Indeks-Bv1OTNcx.js",
+    "file": "assets/Indeks-B65Hzi7X.js",
     "name": "Indeks",
     "src": "resources/js/Pages/Superadmin/LogAktivitas/Indeks.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_TataLetakUtama-B29bbkCG.js",
+      "_TataLetakUtama-INHsolH6.js",
       "_sweetalert2.esm.all-DE6NlnlT.js",
-      "_ThemeToggle-DiZYWlAv.js"
+      "_ThemeToggle-pl_5wExS.js"
     ],
     "css": [
       "assets/Indeks-CG6DamIu.css"
@@ -730,110 +743,110 @@
     ]
   },
   "resources/js/Pages/Superadmin/ManajemenAplikasi.jsx": {
-    "file": "assets/ManajemenAplikasi-DM7QnEbx.js",
+    "file": "assets/ManajemenAplikasi-BKlB_ip6.js",
     "name": "ManajemenAplikasi",
     "src": "resources/js/Pages/Superadmin/ManajemenAplikasi.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_TataLetakUtama-B29bbkCG.js",
-      "_InputError-DFBKjtPg.js",
+      "_TataLetakUtama-INHsolH6.js",
+      "_InputError-yIb2Mldy.js",
       "_sweetalert2.esm.all-DE6NlnlT.js",
-      "_ThemeToggle-DiZYWlAv.js"
+      "_ThemeToggle-pl_5wExS.js"
     ]
   },
   "resources/js/Pages/Superadmin/PembaruanSistem/Indeks.jsx": {
-    "file": "assets/Indeks-BvliLMKH.js",
+    "file": "assets/Indeks-BRkfQCVr.js",
     "name": "Indeks",
     "src": "resources/js/Pages/Superadmin/PembaruanSistem/Indeks.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_TataLetakUtama-B29bbkCG.js",
-      "_InputError-DFBKjtPg.js",
+      "_TataLetakUtama-INHsolH6.js",
+      "_InputError-yIb2Mldy.js",
       "_sweetalert2.esm.all-DE6NlnlT.js",
-      "_ThemeToggle-DiZYWlAv.js"
+      "_ThemeToggle-pl_5wExS.js"
     ]
   },
   "resources/js/Pages/Superadmin/PengaturanSistem/Indeks.jsx": {
-    "file": "assets/Indeks-C5eyjdme.js",
+    "file": "assets/Indeks-DlYV98c5.js",
     "name": "Indeks",
     "src": "resources/js/Pages/Superadmin/PengaturanSistem/Indeks.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_TataLetakUtama-B29bbkCG.js",
-      "_InputError-DFBKjtPg.js",
-      "_ThemeToggle-DiZYWlAv.js",
+      "_TataLetakUtama-INHsolH6.js",
+      "_InputError-yIb2Mldy.js",
+      "_ThemeToggle-pl_5wExS.js",
       "_sweetalert2.esm.all-DE6NlnlT.js"
     ]
   },
   "resources/js/Pages/Superadmin/Pengguna/Indeks.jsx": {
-    "file": "assets/Indeks-Do_Qb8Ti.js",
+    "file": "assets/Indeks-DAoua0yN.js",
     "name": "Indeks",
     "src": "resources/js/Pages/Superadmin/Pengguna/Indeks.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_TataLetakUtama-B29bbkCG.js",
-      "_InputError-DFBKjtPg.js",
-      "_InputTanggal-DjgVtdPX.js",
+      "_TataLetakUtama-INHsolH6.js",
+      "_InputError-yIb2Mldy.js",
+      "_InputTanggal-1dLbds-Q.js",
       "_sweetalert2.esm.all-DE6NlnlT.js",
-      "_ThemeToggle-DiZYWlAv.js"
+      "_ThemeToggle-pl_5wExS.js"
     ]
   },
   "resources/js/Pages/Superadmin/Peran/Indeks.jsx": {
-    "file": "assets/Indeks-BSCYFJ6q.js",
+    "file": "assets/Indeks-CTGkGYsW.js",
     "name": "Indeks",
     "src": "resources/js/Pages/Superadmin/Peran/Indeks.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_TataLetakUtama-B29bbkCG.js",
-      "_InputError-DFBKjtPg.js",
+      "_TataLetakUtama-INHsolH6.js",
+      "_InputError-yIb2Mldy.js",
       "_sweetalert2.esm.all-DE6NlnlT.js",
-      "_ThemeToggle-DiZYWlAv.js"
+      "_ThemeToggle-pl_5wExS.js"
     ]
   },
   "resources/js/Pages/Superadmin/PersetujuanData/Indeks.jsx": {
-    "file": "assets/Indeks-7MxG4ooc.js",
+    "file": "assets/Indeks-BoY1KnWo.js",
     "name": "Indeks",
     "src": "resources/js/Pages/Superadmin/PersetujuanData/Indeks.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_TataLetakUtama-B29bbkCG.js",
+      "_TataLetakUtama-INHsolH6.js",
       "_sweetalert2.esm.all-DE6NlnlT.js",
-      "_ThemeToggle-DiZYWlAv.js"
+      "_ThemeToggle-pl_5wExS.js"
     ]
   },
   "resources/js/Pages/Superadmin/ProfilSaya/Indeks.jsx": {
-    "file": "assets/Indeks-CTAoNnlo.js",
+    "file": "assets/Indeks-Bc_WE-_e.js",
     "name": "Indeks",
     "src": "resources/js/Pages/Superadmin/ProfilSaya/Indeks.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_TataLetakUtama-B29bbkCG.js",
-      "_ThemeToggle-DiZYWlAv.js",
+      "_TataLetakUtama-INHsolH6.js",
+      "_ThemeToggle-pl_5wExS.js",
       "_sweetalert2.esm.all-DE6NlnlT.js"
     ]
   },
   "resources/js/Pages/TahunPelajaran/Indeks.jsx": {
-    "file": "assets/Indeks-S1WGaHeZ.js",
+    "file": "assets/Indeks-D0Idhd0e.js",
     "name": "Indeks",
     "src": "resources/js/Pages/TahunPelajaran/Indeks.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_TataLetakUtama-B29bbkCG.js",
-      "_InputError-DFBKjtPg.js",
+      "_TataLetakUtama-INHsolH6.js",
+      "_InputError-yIb2Mldy.js",
       "_sweetalert2.esm.all-DE6NlnlT.js",
-      "_ThemeToggle-DiZYWlAv.js"
+      "_ThemeToggle-pl_5wExS.js"
     ]
   },
   "resources/js/Pages/Welcome.jsx": {
-    "file": "assets/Welcome-4eJU-iGc.js",
+    "file": "assets/Welcome-Dz-aGh1e.js",
     "name": "Welcome",
     "src": "resources/js/Pages/Welcome.jsx",
     "isDynamicEntry": true,
@@ -842,7 +855,7 @@
     ]
   },
   "resources/js/app.jsx": {
-    "file": "assets/app-va3qPvFA.js",
+    "file": "assets/app-CH40QJ62.js",
     "name": "app",
     "src": "resources/js/app.jsx",
     "isEntry": true,
@@ -872,6 +885,7 @@
       "resources/js/Pages/Superadmin/HapusData/Indeks.jsx",
       "resources/js/Pages/Superadmin/KatalogAplikasi/Indeks.jsx",
       "resources/js/Pages/Superadmin/KeamananAkun/Indeks.jsx",
+      "resources/js/Pages/Superadmin/Konfigurasi2FA/Indeks.jsx",
       "resources/js/Pages/Superadmin/KunciApi/Indeks.jsx",
       "resources/js/Pages/Superadmin/LogAktivitas/Indeks.jsx",
       "resources/js/Pages/Superadmin/ManajemenAplikasi.jsx",
@@ -885,7 +899,7 @@
       "resources/js/Pages/Welcome.jsx"
     ],
     "css": [
-      "assets/app-D6Nzw8UJ.css"
+      "assets/app-BkyRahiP.css"
     ],
     "assets": [
       "assets/inter-cyrillic-ext-400-normal-BQZuk6qB.woff2",

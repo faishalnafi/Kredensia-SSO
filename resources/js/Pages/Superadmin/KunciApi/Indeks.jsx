@@ -153,8 +153,8 @@ export default function IndeksKunciApi({ daftarKunci = [], kunciBaru = null }) {
                         <p className="text-slate-500 dark:text-slate-400 text-sm">Kelola kunci API untuk integrasi data oleh aplikasi pihak ketiga.</p>
                     </div>
 
-                    <div className="flex gap-2">
-                        <div className="relative">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
+                        <div className="relative flex-1 sm:w-60">
                             <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                                 <span className="material-symbols-rounded text-lg">search</span>
                             </span>
@@ -163,12 +163,13 @@ export default function IndeksKunciApi({ daftarKunci = [], kunciBaru = null }) {
                                 placeholder="Cari kunci API..."
                                 value={cari}
                                 onChange={e => setCari(e.target.value)}
-                                className="pl-10 pr-4 py-2.5 w-48 sm:w-60 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-[#0F91FC] dark:text-white transition-all shadow-sm"
+                                className="pl-10 pr-4 py-2.5 w-full text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-[#0F91FC] dark:text-white transition-all shadow-sm"
                             />
                         </div>
                         <button
+                            type="button"
                             onClick={bukaModalTambah}
-                            className="bg-[#0F91FC] hover:bg-[#0a78d6] text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-[#0F91FC]/20 transition-all flex items-center gap-2"
+                            className="bg-[#0F91FC] hover:bg-[#0a78d6] active:scale-[0.98] text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-[#0F91FC]/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
                         >
                             <span className="material-symbols-rounded text-lg">add</span>
                             Buat Kunci
@@ -214,9 +215,9 @@ export default function IndeksKunciApi({ daftarKunci = [], kunciBaru = null }) {
                 </div>
 
                 {/* Tabel Daftar Kunci API */}
-                <div className="bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-3xl p-6 border border-slate-100 dark:border-slate-700/50 shadow-sm overflow-hidden">
-                    <div className="overflow-x-auto rounded-2xl border border-slate-100 dark:border-slate-700/50">
-                        <table className="w-full text-left text-sm whitespace-nowrap">
+                <div className="bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 border border-slate-100 dark:border-slate-700/50 shadow-sm overflow-hidden">
+                    <div className="overflow-x-auto rounded-2xl border border-slate-100 dark:border-slate-700/50 scrollbar-minimalis touch-pan-x">
+                        <table className="w-full min-w-[850px] text-left text-sm whitespace-nowrap">
                             <thead className="text-xs text-slate-400 dark:text-slate-500 uppercase tracking-wider bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700/50">
                                 <tr>
                                     <th className="px-6 py-4 font-bold">Nama Aplikasi</th>

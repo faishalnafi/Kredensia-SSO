@@ -216,6 +216,7 @@ export default function TataLetakUtama({ children, title }) {
                 kategori: 'Pengaturan Sistem (Superadmin)',
                 items: [
                     { nama: 'Pengaturan Sistem', rute: route('superadmin.pengaturan.indeks'), ikon: 'settings', aktif: url.startsWith('/superadmin/pengaturan-sistem') },
+                    { nama: 'Konfigurasi 2FA', rute: route('superadmin.two-factor.indeks'), ikon: 'phonelink_lock', aktif: url.startsWith('/superadmin/konfigurasi-2fa') },
                     { nama: 'Pembaruan Sistem', rute: route('superadmin.pembaruan.indeks'), ikon: 'system_update', aktif: url.startsWith('/superadmin/pembaruan-sistem') },
                     { nama: 'Log Aktivitas', rute: route('superadmin.log.indeks'), ikon: 'history', aktif: url.startsWith('/superadmin/log-aktivitas') },
                     { nama: 'Backup & Restore', rute: route('superadmin.backup-restore.indeks'), ikon: 'cloud_sync', aktif: url.startsWith('/superadmin/backup-restore') },
@@ -285,10 +286,10 @@ export default function TataLetakUtama({ children, title }) {
     }
 
     return (
-        <div className="h-screen bg-[#0F91FC] text-white flex flex-col font-sans overflow-hidden transition-colors duration-300">
+        <div className="h-[100dvh] bg-[#0F91FC] text-white flex flex-col font-sans overflow-hidden transition-colors duration-300">
             {/* Top Unified Header */}
-            <header className="h-16 bg-[#0F91FC] text-white flex items-center justify-between px-4 lg:px-6 shrink-0 z-20">
-                <div className="flex items-center gap-3">
+            <header className="h-16 bg-[#0F91FC] text-white flex items-center justify-between px-3 sm:px-4 lg:px-6 shrink-0 z-20">
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                     {/* Tombol Hamburger / Collapse */}
                     <button
                         type="button"
@@ -300,28 +301,32 @@ export default function TataLetakUtama({ children, title }) {
                             }
                         }}
                         aria-label="Menu navigasi"
-                        className="w-10 h-10 rounded-full hover:bg-white/15 active:bg-white/25 flex items-center justify-center text-white transition-colors cursor-pointer"
+                        className="w-10 h-10 rounded-full hover:bg-white/15 active:bg-white/25 flex items-center justify-center text-white transition-colors cursor-pointer shrink-0"
                     >
                         <span className="material-symbols-rounded text-2xl">menu</span>
                     </button>
 
-                    <Link href={route('dasbor')} className="flex items-center gap-2.5 group">
+                    <Link href={route('dasbor')} className="flex items-center gap-2 sm:gap-2.5 group min-w-0">
                         <img
                             src={(!logoGagal && settings?.logo_primer_url) ? settings.logo_primer_url : 'https://support.nafii.my.id/icon/domains.png'}
                             alt={settings?.nama_aplikasi || 'Logo'}
                             className="w-8 h-8 rounded-xl object-contain bg-white/15 p-0.5 shadow-sm shrink-0"
                             onError={() => setLogoGagal(true)}
                         />
-                        <span className="font-extrabold text-base lg:text-lg tracking-tight text-white group-hover:opacity-90 transition-opacity">
+                        <span className="font-extrabold text-sm sm:text-base lg:text-lg tracking-tight text-white group-hover:opacity-90 transition-opacity truncate max-w-[125px] sm:max-w-none">
                             {settings?.nama_aplikasi || 'SingleSignOn'}
                         </span>
                     </Link>
                 </div>
 
                 {/* Kanan Header: ThemeToggle & User Profile */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                     <ThemeToggle />
-                    <div className="flex items-center gap-2.5 pl-2 pr-3 py-1 bg-white/15 hover:bg-white/20 transition-colors rounded-full border border-white/20">
+                    <Link
+                        href={route('profil.indeks')}
+                        title={`Profil ${auth.user?.nama_lengkap || 'Saya'}`}
+                        className="flex items-center gap-2 pl-1.5 pr-2 sm:pl-2 sm:pr-3 py-1 bg-white/15 hover:bg-white/20 active:bg-white/25 transition-colors rounded-full border border-white/20 shrink-0"
+                    >
                         <img 
                             src={auth.user?.avatar_url || 'https://www.gravatar.com/avatar/?s=256&d=identicon'} 
                             alt={auth.user?.nama_lengkap} 
@@ -330,10 +335,10 @@ export default function TataLetakUtama({ children, title }) {
                                 e.currentTarget.onerror = null;
                                 e.currentTarget.src = 'https://www.gravatar.com/avatar/?s=256&d=identicon';
                             }}
-                            className="w-7 h-7 rounded-full object-cover shadow-sm border border-white/40 bg-white/20"
+                            className="w-7 h-7 rounded-full object-cover shadow-sm border border-white/40 bg-white/20 shrink-0"
                         />
                         <span className="text-xs font-bold text-white hidden md:block capitalize">{roleUtama}</span>
-                    </div>
+                    </Link>
                 </div>
             </header>
 
@@ -349,7 +354,7 @@ export default function TataLetakUtama({ children, title }) {
 
                 {/* Sidebar Navigasi (Full height dari paling atas di mode mobile, h-full di bawah header di mode desktop) */}
                 <aside className={`
-                    fixed lg:static top-0 left-0 z-50 lg:z-10 h-screen lg:h-full flex flex-col shrink-0
+                    fixed lg:static top-0 left-0 z-50 lg:z-10 h-[100dvh] lg:h-full flex flex-col shrink-0
                     bg-[#0F91FC] text-white shadow-2xl lg:shadow-none
                     rounded-r-[28px] lg:rounded-none
                     transition-all duration-300 ease-in-out
@@ -482,7 +487,7 @@ export default function TataLetakUtama({ children, title }) {
                         ))}
                     </div>
 
-                    <div className="p-3 border-t border-white/15">
+                    <div className="p-3 pb-8 lg:pb-3 pb-[max(2rem,env(safe-area-inset-bottom))] border-t border-white/15 shrink-0">
                         <Link
                             href={route('logout')}
                             method="post"
@@ -498,7 +503,7 @@ export default function TataLetakUtama({ children, title }) {
                                 });
                             }}
                             onMouseLeave={() => setFloatingTooltip({ show: false, text: '', top: 0, left: 0 })}
-                            className={`flex rounded-xl bg-white/10 text-white font-bold hover:bg-white/20 transition-colors text-sm
+                            className={`flex rounded-xl bg-white/10 text-white font-bold hover:bg-white/20 active:bg-white/30 transition-colors text-sm
                                 ${sidebarMengecil
                                     ? 'lg:flex-col lg:items-center lg:justify-center lg:w-full lg:py-2.5 lg:px-1.5 lg:gap-1 lg:rounded-2xl w-full px-4 py-3 items-center gap-3'
                                     : 'w-full px-4 py-3 items-center gap-3'
@@ -522,13 +527,13 @@ export default function TataLetakUtama({ children, title }) {
                     </div>
 
                     {/* Page Content */}
-                    <div className="p-6 lg:p-8 flex-1 relative z-10">
+                    <div className="p-4 sm:p-6 lg:p-8 flex-1 relative z-10">
                         {children}
                     </div>
 
                     {/* Banner Floating Notifikasi Izin Akses Lokasi (GPS) */}
                     {bannerLokasiBuka && (
-                        <div className="fixed bottom-5 right-5 z-50 max-w-md w-full p-4 bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl border border-blue-200/80 dark:border-blue-800/80 shadow-2xl rounded-3xl space-y-3 transition-all">
+                        <div className="fixed bottom-4 sm:bottom-5 right-4 sm:right-5 left-4 sm:left-auto z-50 max-w-md p-4 bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl border border-blue-200/80 dark:border-blue-800/80 shadow-2xl rounded-3xl space-y-3 transition-all">
                             <div className="flex items-start justify-between gap-3">
                                 <div className="flex items-center gap-2.5">
                                     <div className="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-950/50 text-[#0F91FC] flex items-center justify-center shrink-0">

@@ -44,6 +44,7 @@ use App\Http\Controllers\Superadmin\KunciApiController;
 use App\Http\Controllers\Superadmin\BackupRestoreController;
 use App\Http\Controllers\Superadmin\HapusDataController;
 use App\Http\Controllers\Superadmin\PembaruanSistemController;
+use App\Http\Controllers\Superadmin\Konfigurasi2FAController;
 use App\Http\Controllers\Admin\DasborAdminController;
 use App\Http\Controllers\Admin\HapusDataAdminController;
 use App\Http\Controllers\ImportPenggunaController;
@@ -190,6 +191,12 @@ Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmi
 
     Route::get('/pengaturan-sistem', [PengaturanSistemController::class, 'indeks'])->name('pengaturan.indeks');
     Route::post('/pengaturan-sistem', [PengaturanSistemController::class, 'perbarui'])->name('pengaturan.perbarui');
+    
+    # Konfigurasi Autentikasi 2FA
+    Route::get('/konfigurasi-2fa', [Konfigurasi2FAController::class, 'indeks'])->name('two-factor.indeks');
+    Route::post('/konfigurasi-2fa', [Konfigurasi2FAController::class, 'perbarui'])->name('two-factor.perbarui');
+    Route::post('/konfigurasi-2fa/reset/{userId}', [Konfigurasi2FAController::class, 'resetPengguna2FA'])->name('two-factor.reset');
+    Route::post('/konfigurasi-2fa/reset-semua', [Konfigurasi2FAController::class, 'resetSemua2FA'])->name('two-factor.reset-semua');
     
     # Pembaruan Sistem (Live Update via ZIP Upload)
     Route::get('/pembaruan-sistem', [PembaruanSistemController::class, 'indeks'])->name('pembaruan.indeks');

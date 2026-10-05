@@ -185,7 +185,7 @@ export default function IndeksKelas({ daftarKelas, daftarTahunPelajaran }) {
                 </div>
 
                 {/* Kontainer Utama Tabel */}
-                <div className="bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/50 rounded-3xl overflow-hidden shadow-xl p-6 space-y-4">
+                <div className="bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/50 rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl p-3.5 sm:p-6 space-y-4">
                     {/* Kontrol filter atas */}
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-xs font-bold text-slate-500 dark:text-slate-400">
                         <div className="flex items-center gap-2">
@@ -221,8 +221,8 @@ export default function IndeksKelas({ daftarKelas, daftarTahunPelajaran }) {
                     </div>
 
                     {/* Tabel Data */}
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
+                    <div className="overflow-x-auto rounded-xl scrollbar-minimalis touch-pan-x">
+                        <table className="w-full min-w-[700px] text-left border-collapse">
                             <thead>
                                 <tr className="border-b border-slate-200/50 dark:border-slate-800/50 text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-wider">
                                     <th className="px-6 py-4 w-16">NO</th>

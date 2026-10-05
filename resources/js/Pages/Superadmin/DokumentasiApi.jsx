@@ -110,8 +110,8 @@ export default function DokumentasiApi() {
 
     /* ─── Komponen Tabel Parameter ─── */
     const TabelParam = ({ params }) => (
-        <div className="overflow-x-auto rounded-2xl border border-slate-100 dark:border-slate-700/50">
-            <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
+        <div className="overflow-x-auto rounded-2xl border border-slate-100 dark:border-slate-700/50 scrollbar-minimalis touch-pan-x">
+            <table className="w-full min-w-[550px] text-left text-xs text-slate-600 dark:text-slate-300">
                 <thead className="bg-slate-50 dark:bg-slate-900/50 text-slate-400 dark:text-slate-500 border-b border-slate-100 dark:border-slate-700/50 font-bold uppercase tracking-wider">
                     <tr>
                         <th className="px-4 py-3">Parameter</th>
@@ -195,8 +195,8 @@ export default function DokumentasiApi() {
                             Kunci API diperoleh dari halaman <strong>Kunci API</strong> pada panel admin.
                         </p>
 
-                        <div className="overflow-x-auto rounded-2xl border border-slate-100 dark:border-slate-700/50">
-                            <table className="w-full text-left text-sm text-slate-600 dark:text-slate-300">
+                        <div className="overflow-x-auto rounded-2xl border border-slate-100 dark:border-slate-700/50 scrollbar-minimalis touch-pan-x">
+                            <table className="w-full min-w-[550px] text-left text-sm text-slate-600 dark:text-slate-300">
                                 <thead className="text-xs uppercase bg-slate-50 dark:bg-slate-900/50 text-slate-400 font-bold border-b border-slate-100 dark:border-slate-700/50">
                                     <tr>
                                         <th className="px-6 py-3">Header</th>

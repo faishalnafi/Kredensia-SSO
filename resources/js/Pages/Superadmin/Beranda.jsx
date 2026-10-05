@@ -10,9 +10,9 @@ export default function Beranda({ statistik, penggunaTerbaru }) {
             <div className="w-full max-w-6xl mx-auto space-y-6">
                 
                 {/* Welcome Banner */}
-                <div className="relative overflow-hidden bg-[#0F91FC] rounded-3xl p-8 lg:p-10 text-white shadow-xl shadow-[#0F91FC]/30">
+                <div className="relative overflow-hidden bg-[#0F91FC] rounded-2xl sm:rounded-3xl p-5 sm:p-8 lg:p-10 text-white shadow-xl shadow-[#0F91FC]/30">
                     <div className="relative z-10 max-w-2xl">
-                        <h2 className="text-3xl lg:text-4xl font-extrabold mb-4 tracking-tight">Selamat Datang di Pusat Kendali!</h2>
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold mb-3 sm:mb-4 tracking-tight">Selamat Datang di Pusat Kendali!</h2>
                         <p className="text-white/80 text-sm leading-relaxed">
                             Pantau aktivitas sistem Single Sign-On, kelola akses pengguna, peran, dan aplikasi yang terhubung secara terpusat.
                         </p>
@@ -67,7 +67,7 @@ export default function Beranda({ statistik, penggunaTerbaru }) {
                 </div>
 
                 {/* Bottom Section - Recent Users */}
-                <div className="bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-3xl p-6 lg:p-8 border border-slate-100 dark:border-slate-700/50 shadow-sm">
+                <div className="bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 border border-slate-100 dark:border-slate-700/50 shadow-sm overflow-hidden">
                     <div className="flex items-center justify-between mb-6">
                         <h3 className="text-lg font-bold text-slate-800 dark:text-white">Pengguna Terdaftar Terbaru</h3>
                         <Link href={route('superadmin.pengguna.indeks')} className="text-sm font-bold text-[#0F91FC] hover:text-[#0a78d6] flex items-center gap-1 group">
@@ -76,8 +76,8 @@ export default function Beranda({ statistik, penggunaTerbaru }) {
                         </Link>
                     </div>
                     
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left text-sm whitespace-nowrap">
+                    <div className="overflow-x-auto rounded-xl scrollbar-minimalis touch-pan-x">
+                        <table className="w-full min-w-[550px] text-left text-sm whitespace-nowrap">
                             <thead className="text-xs text-slate-400 dark:text-slate-500 uppercase tracking-wider bg-slate-50 dark:bg-slate-900/50 rounded-xl">
                                 <tr>
                                     <th className="px-4 py-3 rounded-l-xl font-bold">Nama Lengkap</th>
