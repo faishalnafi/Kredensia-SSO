@@ -43,6 +43,14 @@ Route::get('auth/google/callback', [\App\Http\Controllers\Auth\GoogleAuthControl
 Route::middleware('guest')->group(function () {
     Route::post('otentikasi', [AuthenticatedSessionController::class, 'store']);
 
+    // Verifikasi Tantangan Autentikasi Dua Faktor (2FA) saat Login
+    Route::get('two-factor-challenge', [\App\Http\Controllers\Auth\TwoFactorChallengeController::class, 'create'])
+        ->name('2fa.challenge');
+    Route::post('two-factor-challenge', [\App\Http\Controllers\Auth\TwoFactorChallengeController::class, 'store'])
+        ->name('2fa.verify');
+    Route::post('two-factor-challenge/cancel', [\App\Http\Controllers\Auth\TwoFactorChallengeController::class, 'cancel'])
+        ->name('2fa.cancel');
+
     Route::post('otentikasi/verifikasi', [ClaimAccountController::class, 'prosesKlaim'])
         ->name('claim.process');
 

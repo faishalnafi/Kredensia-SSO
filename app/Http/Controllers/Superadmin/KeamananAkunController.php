@@ -44,11 +44,108 @@ class KeamananAkunController extends Controller
             ->where('status_correction', 'pending')
             ->first();
 
+        // Data konfigurasi 2FA pengguna & sistem
+        $twoFactorPengaturan = \App\Services\Layanan2FA::dapatkanPengaturan();
+        $twoFactorInfo = [
+            'enabled' => $user->hasEnabledTwoFactor(),
+            'type' => $user->two_factor_type ?: 'totp',
+            'confirmed_at' => $user->two_factor_confirmed_at ? $user->two_factor_confirmed_at->format('d/m/Y H:i') : null,
+            'is_required' => \App\Services\Layanan2FA::apakahUserWajib2FA($user, $twoFactorPengaturan),
+            'system_enabled' => (bool) $twoFactorPengaturan->two_factor_enabled,
+            'allowed_methods' => (array) ($twoFactorPengaturan->two_factor_allowed_methods ?: ['totp', 'email']),
+            'has_recovery_codes' => !empty($user->two_factor_recovery_codes),
+        ];
+
         return Inertia::render('Superadmin/KeamananAkun/Indeks', [
             'daftarSesi' => $sessions,
             'pengguna' => $user,
             'pendingCorrection' => $pendingCorrection,
+            'twoFactor' => $twoFactorInfo,
         ]);
+    }
+
+    /**
+     * Inisiasi pembuatan secret 2FA & QR Code untuk pengguna.
+     */
+    public function generate2FA(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $user = Auth::user();
+        $secret = \App\Services\Layanan2FA::generateSecret();
+        $recoveryCodes = \App\Services\Layanan2FA::generateRecoveryCodes();
+        $appName = config('app.name', 'SSO Sekolah');
+        $provisioningUri = \App\Services\Layanan2FA::getProvisioningUri($user->email, $secret, $appName);
+        $qrCodeUrl = \App\Services\Layanan2FA::getQrCodeImageUrl($provisioningUri);
+
+        session([
+            'temp_2fa_secret' => $secret,
+            'temp_2fa_recovery' => $recoveryCodes,
+        ]);
+
+        return response()->json([
+            'secret' => $secret,
+            'qr_code_url' => $qrCodeUrl,
+            'provisioning_uri' => $provisioningUri,
+            'recovery_codes' => $recoveryCodes,
+        ]);
+    }
+
+    /**
+     * Konfirmasi kode OTP dan simpan status aktif 2FA pengguna.
+     */
+    public function confirm2FA(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'code' => ['required', 'string', 'size:6'],
+        ], [
+            'code.required' => 'Kode verifikasi OTP wajib diisi.',
+            'code.size' => 'Kode OTP harus terdiri dari 6 digit.',
+        ]);
+
+        $secret = (string) session('temp_2fa_secret');
+        $recoveryCodes = (array) session('temp_2fa_recovery', []);
+
+        if (empty($secret)) {
+            return redirect()->back()->with('error', 'Sesi inisiasi 2FA telah kadaluarsa. Silakan klik tombol Aktifkan kembali.');
+        }
+
+        if (!\App\Services\Layanan2FA::verifyTotpCode($secret, $request->code)) {
+            return redirect()->back()->withErrors([
+                'code' => 'Kode verifikasi OTP salah atau kadaluarsa. Pastikan jam di HP/perangkat Anda sudah akurat/otomatis.',
+            ]);
+        }
+
+        $user = Auth::user();
+        $user->update([
+            'two_factor_secret' => $secret,
+            'two_factor_recovery_codes' => $recoveryCodes,
+            'two_factor_confirmed_at' => now(),
+            'two_factor_type' => 'totp',
+        ]);
+
+        session()->forget(['temp_2fa_secret', 'temp_2fa_recovery']);
+        \App\Services\LayananLogAktivitas::catat('Berhasil mengaktifkan autentikasi dua faktor (2FA) mandiri');
+
+        return redirect()->back()->with('success', 'Autentikasi Dua Faktor (2FA) berhasil diaktifkan! Akun Anda kini terlindungi.');
+    }
+
+    /**
+     * Nonaktifkan 2FA pengguna secara mandiri.
+     */
+    public function disable2FA(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'current_password' => ['required', 'current_password'],
+        ], [
+            'current_password.required' => 'Kata sandi akun wajib diisi untuk konfirmasi.',
+            'current_password.current_password' => 'Kata sandi yang Anda masukkan salah.',
+        ]);
+
+        $user = Auth::user();
+        \App\Services\Layanan2FA::resetUser2FA($user);
+
+        \App\Services\LayananLogAktivitas::catat('Menonaktifkan autentikasi dua faktor (2FA) mandiri');
+
+        return redirect()->back()->with('success', 'Autentikasi Dua Faktor (2FA) telah berhasil dinonaktifkan.');
     }
 
     /**

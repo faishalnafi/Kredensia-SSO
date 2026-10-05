@@ -102,6 +102,11 @@ Route::middleware('auth')->group(function () {
         Route::delete('/keamanan-akun/sesi/{id}', [KeamananAkunController::class, 'hapusSesi'])->name('keamanan.sesi.hapus');
         Route::post('/keamanan-akun/sesi/hapus-lainnya', [KeamananAkunController::class, 'hapusSesiLainnya'])->name('keamanan.sesi.hapus_lainnya');
         
+        # Pengaturan 2FA Mandiri Pengguna
+        Route::post('/keamanan-akun/2fa/generate', [KeamananAkunController::class, 'generate2FA'])->name('keamanan.2fa.generate');
+        Route::post('/keamanan-akun/2fa/konfirmasi', [KeamananAkunController::class, 'confirm2FA'])->name('keamanan.2fa.confirm');
+        Route::post('/keamanan-akun/2fa/nonaktifkan', [KeamananAkunController::class, 'disable2FA'])->name('keamanan.2fa.disable');
+        
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

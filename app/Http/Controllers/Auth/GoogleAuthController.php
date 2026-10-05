@@ -119,6 +119,41 @@ class GoogleAuthController extends Controller
         $request = request();
         $request->session()->regenerate();
 
+        // Cek apakah pengguna mengaktifkan Autentikasi Dua Faktor (2FA)
+        if ($user->hasEnabledTwoFactor()) {
+            $rememberCookieName = 'sso_2fa_remember_' . $user->id;
+            $cookieValue = $request->cookie($rememberCookieName);
+            $isBrowserRemembered = false;
+
+            if ($cookieValue && !empty($user->remember_token)) {
+                if (hash_equals(hash('sha256', (string) $user->remember_token), (string) $cookieValue)) {
+                    $isBrowserRemembered = true;
+                }
+            }
+
+            if (!$isBrowserRemembered) {
+                $appId = $request->session()->get('sso_app_id');
+                $redirectUri = $request->session()->get('sso_redirect_uri');
+
+                $request->session()->put([
+                    'login.2fa.user_id' => $user->id,
+                    'login.2fa.remember' => (bool) $ingatSaya,
+                    'login.2fa.app_id' => $appId,
+                    'login.2fa.redirect_uri' => $redirectUri,
+                ]);
+
+                Auth::guard('web')->logout();
+
+                if ($user->two_factor_type === 'email') {
+                    \App\Services\Layanan2FA::kirimOtpEmail($user);
+                }
+
+                \App\Services\LayananLogAktivitas::catat('Meminta verifikasi kode 2FA saat login Google SSO', $user->email, $user->id);
+
+                return redirect()->route('2fa.challenge');
+            }
+        }
+
         // Cek apakah ada proses login SSO untuk aplikasi tertentu
         if ($request->session()->has('sso_app_id')) {
             $appId = $request->session()->get('sso_app_id');

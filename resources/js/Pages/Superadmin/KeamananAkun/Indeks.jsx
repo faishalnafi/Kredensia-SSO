@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Head, useForm, router } from '@inertiajs/react';
 import TataLetakUtama from '@/Layouts/TataLetakUtama';
 import InputError from '@/Components/InputError';
 import InputTanggal from '@/Components/InputTanggal';
 import Swal from 'sweetalert2';
+import axios from 'axios';
 
-export default function KeamananAkun({ daftarSesi = [], pengguna = {}, pendingCorrection = null }) {
+export default function KeamananAkun({ daftarSesi = [], pengguna = {}, pendingCorrection = null, twoFactor = {} }) {
     const isGuru = (pengguna.peran || []).some(p => p === 'Guru' || p === 'guru');
     const maxDigitNipNis = isGuru ? 18 : 10;
     const labelNipNis = isGuru ? 'NIP' : 'NISN';
@@ -90,6 +91,116 @@ export default function KeamananAkun({ daftarSesi = [], pengguna = {}, pendingCo
                 preserveScroll: true
             });
         }
+    };
+
+    // State & Form untuk Autentikasi Dua Faktor (2FA)
+    const [modal2FAOpen, setModal2FAOpen] = useState(false);
+    const [setup2FAData, setSetup2FAData] = useState(null);
+    const [loadingSetup, setLoadingSetup] = useState(false);
+    const [salinSecretSukses, setSalinSecretSukses] = useState(false);
+    const [salinRecoverySukses, setSalinRecoverySukses] = useState(false);
+
+    const formKonfirmasi2FA = useForm({
+        code: '',
+    });
+
+    const mulaiSetup2FA = async () => {
+        setLoadingSetup(true);
+        try {
+            const res = await axios.post(route('keamanan.2fa.generate'));
+            setSetup2FAData(res.data);
+            formKonfirmasi2FA.reset();
+            setSalinSecretSukses(false);
+            setSalinRecoverySukses(false);
+            setModal2FAOpen(true);
+        } catch (err) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal Memulai 2FA',
+                text: 'Terjadi kesalahan saat menyiapkan kode QR 2FA. Silakan coba lagi.',
+                customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl font-bold px-5 py-2.5' }
+            });
+        } finally {
+            setLoadingSetup(false);
+        }
+    };
+
+    const kirimKonfirmasi2FA = (e) => {
+        e.preventDefault();
+        formKonfirmasi2FA.post(route('keamanan.2fa.confirm'), {
+            preserveScroll: true,
+            onSuccess: () => {
+                setModal2FAOpen(false);
+                setSetup2FAData(null);
+                Swal.fire({
+                    icon: 'success',
+                    title: '2FA Berhasil Aktif!',
+                    text: 'Autentikasi Dua Faktor (2FA) telah berhasil diaktifkan. Akun Anda kini terlindungi.',
+                    customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl font-bold px-5 py-2.5' }
+                });
+            }
+        });
+    };
+
+    const konfirmasiNonaktifkan2FA = async () => {
+        const { value: password } = await Swal.fire({
+            title: 'Nonaktifkan 2FA?',
+            text: 'Masukkan kata sandi akun Anda untuk mengonfirmasi penonaktifan Autentikasi Dua Faktor.',
+            input: 'password',
+            inputPlaceholder: 'Kata sandi akun Anda saat ini',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: '🔓 Nonaktifkan 2FA',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            customClass: {
+                popup: 'rounded-3xl',
+                input: 'rounded-xl text-center',
+                confirmButton: 'rounded-xl font-bold px-5 py-2.5',
+                cancelButton: 'rounded-xl font-bold px-5 py-2.5',
+            }
+        });
+
+        if (password) {
+            router.post(route('keamanan.2fa.disable'), {
+                current_password: password,
+            }, {
+                preserveScroll: true,
+                onSuccess: () => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '2FA Dinonaktifkan',
+                        text: 'Autentikasi Dua Faktor telah berhasil dinonaktifkan.',
+                        customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl font-bold px-5 py-2.5' }
+                    });
+                },
+                onError: (err) => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal Menonaktifkan',
+                        text: err.current_password || 'Kata sandi salah. Silakan coba kembali.',
+                        customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl font-bold px-5 py-2.5' }
+                    });
+                }
+            });
+        }
+    };
+
+    const unduhRecoveryCodes = (codes) => {
+        if (!codes || codes.length === 0) return;
+        const text = "KODE PEMULIHAN 2FA CADANGAN (SSO SEKOLAH)\n" +
+            "Email: " + (pengguna?.email || '') + "\n" +
+            "Waktu: " + new Date().toLocaleString('id-ID') + "\n\n" +
+            "PERINGATAN: Simpan kode ini di tempat aman. Setiap kode hanya dapat dipakai 1 kali untuk login saat ponsel Anda hilang:\n" +
+            codes.map((c, i) => `${i + 1}. ${c}`).join("\n");
+        const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `sso-recovery-codes-${pengguna?.email || 'backup'}.txt`;
+        a.click();
+        URL.revokeObjectURL(url);
     };
 
 
@@ -353,7 +464,276 @@ export default function KeamananAkun({ daftarSesi = [], pengguna = {}, pendingCo
                     </form>
                 </div>
 
-                {/* 3. Panel Sesi Perangkat Aktif */}
+                {/* 3. Panel Autentikasi Dua Faktor (2FA) */}
+                <div className="bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-3xl p-6 lg:p-8 border border-slate-100 dark:border-slate-700/50 shadow-sm space-y-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-2xl bg-[#0F91FC]/10 text-[#0F91FC] flex items-center justify-center flex-shrink-0">
+                                <span className="material-symbols-rounded text-2xl">security</span>
+                            </div>
+                            <div>
+                                <div className="flex items-center gap-2">
+                                    <h2 className="text-xl font-bold text-slate-800 dark:text-white">Autentikasi Dua Faktor (2FA)</h2>
+                                    {twoFactor?.enabled ? (
+                                        <span className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                            Aktif
+                                        </span>
+                                    ) : (
+                                        <span className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+                                            Belum Aktif
+                                        </span>
+                                    )}
+                                </div>
+                                <p className="text-xs text-slate-400 mt-0.5">
+                                    Lindungi akun Anda dengan lapisan keamanan ganda menggunakan kode 6-digit dari aplikasi authenticator ponsel.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {twoFactor?.is_required && !twoFactor?.enabled && (
+                        <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex gap-3 text-amber-700 dark:text-amber-400">
+                            <span className="material-symbols-rounded text-2xl flex-shrink-0">warning</span>
+                            <div className="text-xs leading-relaxed">
+                                <span className="font-bold block">Kebijakan Keamanan Sekolah Mewajibkan 2FA</span>
+                                <span className="block mt-0.5">
+                                    Peran akun Anda diwajibkan untuk mengaktifkan Autentikasi Dua Faktor demi menjaga kerahasiaan dan integritas data institusi. Silakan klik tombol di bawah untuk mengaktifkannya sekarang.
+                                </span>
+                            </div>
+                        </div>
+                    )}
+
+                    {twoFactor?.enabled ? (
+                        <div className="bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-800/40 rounded-2xl p-5 space-y-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div className="space-y-1">
+                                    <p className="text-sm font-bold text-emerald-900 dark:text-emerald-200 flex items-center gap-1.5">
+                                        <span className="material-symbols-rounded text-lg text-emerald-600 dark:text-emerald-400">check_circle</span>
+                                        2FA Sedang Aktif & Melindungi Akun Anda
+                                    </p>
+                                    <p className="text-xs text-emerald-700 dark:text-emerald-400">
+                                        Metode: <strong className="font-semibold">Aplikasi Authenticator (Google Authenticator / Authy)</strong>
+                                        {twoFactor?.confirmed_at && <span> • Dikonfirmasi sejak: {twoFactor.confirmed_at}</span>}
+                                    </p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={konfirmasiNonaktifkan2FA}
+                                    className="text-xs bg-white dark:bg-slate-900 hover:bg-red-50 dark:hover:bg-red-950/30 text-red-600 dark:text-red-400 font-bold px-4 py-2.5 rounded-xl border border-red-200 dark:border-red-800 transition-all flex items-center gap-1.5 self-start sm:self-center shadow-sm"
+                                >
+                                    <span className="material-symbols-rounded text-base">lock_open</span>
+                                    <span>Nonaktifkan 2FA</span>
+                                </button>
+                            </div>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-normal border-t border-emerald-100 dark:border-emerald-900/50 pt-3">
+                                💡 Setiap kali Anda masuk ke sistem SSO pada perangkat atau browser baru, Anda akan diminta memasukkan kode 6 digit dari aplikasi autentikator di ponsel Anda.
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200/60 dark:border-slate-800 rounded-2xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div className="space-y-2">
+                                <p className="text-sm font-bold text-slate-700 dark:text-slate-200">
+                                    Aktifkan Verifikasi Dua Langkah
+                                </p>
+                                <ul className="text-xs text-slate-500 dark:text-slate-400 space-y-1">
+                                    <li className="flex items-center gap-1.5">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-[#0F91FC]"></span>
+                                        Pindai QR code dengan Google Authenticator atau Authy
+                                    </li>
+                                    <li className="flex items-center gap-1.5">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-[#0F91FC]"></span>
+                                        Dapatkan 8 kode pemulihan darurat jika ponsel hilang
+                                    </li>
+                                </ul>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={mulaiSetup2FA}
+                                disabled={loadingSetup}
+                                className="bg-[#0F91FC] hover:bg-[#0a78d6] text-white px-5 py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-[#0F91FC]/20 disabled:opacity-50 flex items-center justify-center gap-2 self-start md:self-center whitespace-nowrap"
+                            >
+                                {loadingSetup ? (
+                                    <>
+                                        <span className="material-symbols-rounded animate-spin text-base">progress_activity</span>
+                                        <span>Menyiapkan...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <span className="material-symbols-rounded text-base">qr_code_scanner</span>
+                                        <span>Aktifkan 2FA Sekarang</span>
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    )}
+                </div>
+
+                {/* Modal Setup 2FA Mandiri */}
+                {modal2FAOpen && setup2FAData && (
+                    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+                        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative space-y-6 max-h-[90vh] overflow-y-auto">
+                            
+                            {/* Tombol Tutup */}
+                            <button
+                                type="button"
+                                onClick={() => setModal2FAOpen(false)}
+                                className="absolute top-5 right-5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            >
+                                <span className="material-symbols-rounded text-xl">close</span>
+                            </button>
+
+                            {/* Header Modal */}
+                            <div>
+                                <div className="w-12 h-12 rounded-2xl bg-[#0F91FC]/10 text-[#0F91FC] flex items-center justify-center mb-3">
+                                    <span className="material-symbols-rounded text-2xl">qr_code_2</span>
+                                </div>
+                                <h3 className="text-xl font-black text-slate-800 dark:text-white">
+                                    Setup Autentikasi Dua Faktor (2FA)
+                                </h3>
+                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                    Ikuti langkah-langkah di bawah untuk menghubungkan akun SSO Anda dengan aplikasi autentikator di ponsel.
+                                </p>
+                            </div>
+
+                            {/* Langkah 1: Pindai QR Code */}
+                            <div className="space-y-3">
+                                <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
+                                    <span className="w-5 h-5 rounded-full bg-[#0F91FC] text-white flex items-center justify-center text-[11px]">1</span>
+                                    <span>Pindai QR Code dengan Ponsel</span>
+                                </div>
+                                <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 text-center">
+                                    <img
+                                        src={setup2FAData.qr_code_url}
+                                        alt="QR Code 2FA"
+                                        className="w-44 h-44 mx-auto rounded-xl shadow-md border border-white dark:border-slate-800"
+                                    />
+                                    <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-2">
+                                        Buka Google Authenticator atau Authy, pilih "Scan QR code".
+                                    </p>
+                                </div>
+
+                                {/* Atau Masukkan Kunci Manual */}
+                                <div className="space-y-1">
+                                    <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                                        Atau masukkan kunci rahasia manual:
+                                    </label>
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="text"
+                                            readOnly
+                                            value={setup2FAData.secret}
+                                            className="w-full bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-slate-700 dark:text-slate-300 font-bold select-all text-center tracking-widest"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                navigator.clipboard.writeText(setup2FAData.secret);
+                                                setSalinSecretSukses(true);
+                                                setTimeout(() => setSalinSecretSukses(false), 2000);
+                                            }}
+                                            className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 px-3 py-2 rounded-xl text-xs font-bold transition-colors flex items-center gap-1 flex-shrink-0"
+                                            title="Salin Kunci"
+                                        >
+                                            <span className="material-symbols-rounded text-sm">
+                                                {salinSecretSukses ? 'check' : 'content_copy'}
+                                            </span>
+                                            <span>{salinSecretSukses ? 'Disalin' : 'Salin'}</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Langkah 2: Simpan Kode Pemulihan Cadangan */}
+                            <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
+                                        <span className="w-5 h-5 rounded-full bg-[#0F91FC] text-white flex items-center justify-center text-[11px]">2</span>
+                                        <span>Kode Pemulihan Darurat (8 Kode)</span>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => unduhRecoveryCodes(setup2FAData.recovery_codes)}
+                                        className="text-[11px] text-[#0F91FC] hover:underline font-bold flex items-center gap-1"
+                                    >
+                                        <span className="material-symbols-rounded text-xs">download</span>
+                                        <span>Unduh .TXT</span>
+                                    </button>
+                                </div>
+                                <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-3 text-[11px] text-amber-800 dark:text-amber-300 leading-normal">
+                                    ⚠️ Simpan kode berikut di tempat yang aman. Jika ponsel Anda hilang, Anda dapat masuk menggunakan salah satu kode ini.
+                                </div>
+                                <div className="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-950 p-3 rounded-2xl border border-slate-200 dark:border-slate-800">
+                                    {(setup2FAData.recovery_codes || []).map((kode, idx) => (
+                                        <div
+                                            key={idx}
+                                            className="font-mono text-[11px] font-bold text-center py-1.5 px-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-700 dark:text-slate-300"
+                                        >
+                                            {kode}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Langkah 3: Masukkan Kode OTP 6 Digit untuk Konfirmasi */}
+                            <form onSubmit={kirimKonfirmasi2FA} className="space-y-4 pt-2 border-t border-slate-100 dark:border-slate-800">
+                                <div className="space-y-2">
+                                    <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
+                                        <span className="w-5 h-5 rounded-full bg-[#0F91FC] text-white flex items-center justify-center text-[11px]">3</span>
+                                        <span>Verifikasi Kode OTP 6 Digit</span>
+                                    </div>
+                                    <p className="text-xs text-slate-400">
+                                        Masukkan kode 6 digit yang sedang aktif di aplikasi autentikator Anda:
+                                    </p>
+                                    <input
+                                        type="text"
+                                        inputMode="numeric"
+                                        maxLength={6}
+                                        autoFocus
+                                        value={formKonfirmasi2FA.data.code}
+                                        onChange={(e) => {
+                                            const val = e.target.value.replace(/\D/g, '').slice(0, 6);
+                                            formKonfirmasi2FA.setData('code', val);
+                                        }}
+                                        placeholder="000000"
+                                        className="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-700 rounded-2xl py-3 px-4 text-center font-mono text-2xl font-black tracking-[0.4em] text-slate-800 dark:text-white focus:outline-none focus:border-[#0F91FC]"
+                                        required
+                                    />
+                                    <InputError message={formKonfirmasi2FA.errors.code} className="mt-1 text-center" />
+                                </div>
+
+                                <div className="flex items-center justify-end gap-3 pt-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setModal2FAOpen(false)}
+                                        className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                    >
+                                        Batal
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={formKonfirmasi2FA.processing || formKonfirmasi2FA.data.code.length !== 6}
+                                        className="bg-[#0F91FC] hover:bg-[#0a78d6] text-white px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-[#0F91FC]/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+                                    >
+                                        {formKonfirmasi2FA.processing ? (
+                                            <>
+                                                <span className="material-symbols-rounded animate-spin text-sm">progress_activity</span>
+                                                <span>Memverifikasi...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <span className="material-symbols-rounded text-sm">verified_user</span>
+                                                <span>Konfirmasi & Aktifkan</span>
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
+
+                {/* 4. Panel Sesi Perangkat Aktif */}
                 <div className="bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-3xl p-6 lg:p-8 border border-slate-100 dark:border-slate-700/50 shadow-sm">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                         <div>
