@@ -1,5 +1,5 @@
 import React from 'react';
-import { Head, usePage } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import TataLetakUtama from '@/Layouts/TataLetakUtama';
 
 export default function ProfilSaya({ pengguna }) {
@@ -73,6 +73,26 @@ export default function ProfilSaya({ pengguna }) {
                                 {pengguna?.jk === 'L' ? 'Laki-laki' : pengguna?.jk === 'P' ? 'Perempuan' : '-'}
                             </div>
                         </div>
+                    </div>
+
+                    {/* Pintasan Keamanan & 2FA */}
+                    <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-700/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-[#0F91FC]/10 text-[#0F91FC] flex items-center justify-center flex-shrink-0">
+                                <span className="material-symbols-rounded text-xl">security</span>
+                            </div>
+                            <div>
+                                <h4 className="text-sm font-bold text-slate-800 dark:text-white">Keamanan Akun & Autentikasi 2FA</h4>
+                                <p className="text-xs text-slate-400">Kelola kata sandi, aktifkan verifikasi dua langkah (2FA), dan pantau sesi perangkat aktif Anda.</p>
+                            </div>
+                        </div>
+                        <Link
+                            href={route('keamanan.indeks')}
+                            className="bg-[#0F91FC] hover:bg-[#0a78d6] text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-md shadow-[#0F91FC]/20 flex items-center gap-1.5 self-start sm:self-center whitespace-nowrap"
+                        >
+                            <span>Kelola Keamanan</span>
+                            <span className="material-symbols-rounded text-sm">arrow_forward</span>
+                        </Link>
                     </div>
                 </div>
             </div>
