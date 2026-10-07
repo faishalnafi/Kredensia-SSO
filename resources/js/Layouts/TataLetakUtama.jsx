@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import ThemeToggle from '@/Components/ThemeToggle';
+import PengalihAkun from '@/Components/PengalihAkun';
+import PendengarSesiRealtime from '@/Components/PendengarSesiRealtime';
 
 export default function TataLetakUtama({ children, title }) {
     const { url, props } = usePage();
@@ -25,6 +27,7 @@ export default function TataLetakUtama({ children, title }) {
             { nama: 'Peran & Akses', rute: route('superadmin.peran.indeks'), ikon: 'admin_panel_settings', aktif: url.startsWith('/superadmin/manajemen-peran') },
             { nama: 'Manajemen Pengguna', rute: route('superadmin.pengguna.indeks'), ikon: 'group', aktif: url.startsWith('/superadmin/manajemen-pengguna') },
             { nama: 'Pengaturan Sistem', rute: route('superadmin.pengaturan.indeks'), ikon: 'settings', aktif: url.startsWith('/superadmin/pengaturan-sistem') },
+            { nama: 'Konfigurasi 2FA', rute: route('superadmin.two-factor.indeks'), ikon: 'verified_user', aktif: url.startsWith('/superadmin/konfigurasi-2fa') },
             { nama: 'Persetujuan Data', rute: route('superadmin.persetujuan.indeks'), ikon: 'fact_check', aktif: url.startsWith('/superadmin/persetujuan-data') },
             { nama: 'Log Aktivitas', rute: route('superadmin.log.indeks'), ikon: 'history', aktif: url.startsWith('/superadmin/log-aktivitas') },
             { nama: 'Kunci API', rute: route('superadmin.kunci-api.indeks'), ikon: 'key', aktif: url.startsWith('/superadmin/kunci-api') },
@@ -43,7 +46,7 @@ export default function TataLetakUtama({ children, title }) {
             { nama: 'Keamanan Akun', rute: route('keamanan.indeks'), ikon: 'security', aktif: url.startsWith('/keamanan-akun') },
         ];
     } else {
-        // Pengguna Umum (Siswa, Guru, dll)
+        // Pengguna Umum
         menuItems = [
             { nama: 'Katalog Aplikasi', rute: route('dasbor'), ikon: 'grid_view', aktif: url === '/dasbor' },
             { nama: 'Profil Saya', rute: route('profil.indeks'), ikon: 'person', aktif: url.startsWith('/profil-saya') },
@@ -53,6 +56,8 @@ export default function TataLetakUtama({ children, title }) {
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex text-slate-800 dark:text-slate-100 font-sans transition-colors duration-300">
+            <PendengarSesiRealtime />
+
             {/* Ornamen Background Glassmorphism */}
             <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-[-10%] right-[-5%] w-[40%] h-[40%] rounded-full bg-[#0F91FC]/10 dark:bg-[#0F91FC]/20 blur-[100px]"></div>
@@ -155,22 +160,9 @@ export default function TataLetakUtama({ children, title }) {
                             {title}
                         </h1>
                     </div>
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3">
                         <ThemeToggle />
-                        <div className="flex items-center gap-3 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-full">
-                            {auth.user?.avatar_url ? (
-                                <img 
-                                    src={auth.user.avatar_url} 
-                                    alt={auth.user.nama_lengkap} 
-                                    className="w-8 h-8 rounded-full object-cover shadow-sm border border-white dark:border-slate-700"
-                                />
-                            ) : (
-                                <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-md">
-                                    <span className="material-symbols-rounded text-sm">shield_person</span>
-                                </div>
-                            )}
-                            <span className="text-sm font-bold text-slate-700 dark:text-slate-200 pr-2 hidden sm:block capitalize">{roleUtama}</span>
-                        </div>
+                        <PengalihAkun />
                     </div>
                 </header>
 

@@ -18,6 +18,7 @@ class UserCorrection extends Model
     protected $fillable = [
         'user_id_asli',
         'nama_lengkap',
+        'username',
         'email',
         'password',
         'jk',

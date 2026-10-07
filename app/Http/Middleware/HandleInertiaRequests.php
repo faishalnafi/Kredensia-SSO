@@ -54,12 +54,22 @@ class HandleInertiaRequests extends Middleware
             }
         });
 
+        $daftarMultiAkun = [];
+        if ($user) {
+            try {
+                $daftarMultiAkun = \App\Services\LayananSesiPerangkat::dapatkanDaftarAkunPerangkat($request);
+            } catch (\Throwable $e) {
+                $daftarMultiAkun = [];
+            }
+        }
+
         return [
             ...parent::share($request),
             'auth' => [
                 'user' => $user ? [
                     'id' => $user->id,
                     'nama_lengkap' => $user->nama_lengkap,
+                    'username' => $user->username,
                     'email' => $user->email,
                     'nik' => $user->nik,
                     'nip_nis' => $user->nip_nis,
@@ -68,6 +78,8 @@ class HandleInertiaRequests extends Middleware
                     'peran' => $user->roles->pluck('nama_role')->toArray(),
                     'avatar_url' => $user->avatar_url,
                 ] : null,
+                'multi_akun' => $daftarMultiAkun,
+                'maks_multi_akun' => \App\Services\LayananSesiPerangkat::MAKS_MULTI_AKUN,
             ],
             'settings' => $settings,
         ];
