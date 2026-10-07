@@ -39,6 +39,7 @@ use App\Http\Controllers\Superadmin\PersetujuanDataController;
 use App\Http\Controllers\Superadmin\LogAktivitasController;
 use App\Http\Controllers\Superadmin\ProfilSayaController;
 use App\Http\Controllers\Superadmin\KeamananAkunController;
+use App\Http\Controllers\Superadmin\Konfigurasi2FAController;
 use App\Http\Controllers\Superadmin\DokumentasiApiController;
 use App\Http\Controllers\Superadmin\KunciApiController;
 use App\Http\Controllers\Admin\DasborAdminController;
@@ -62,9 +63,25 @@ Route::middleware('auth')->group(function () {
     Route::get('/beranda', [KatalogAplikasiController::class, 'indeks'])->name('beranda');
     Route::get('/profil-saya', [ProfilSayaController::class, 'indeks'])->name('profil.indeks');
     Route::get('/keamanan-akun', [KeamananAkunController::class, 'indeks'])->name('keamanan.indeks');
+    Route::post('/keamanan-akun/cek-username', [KeamananAkunController::class, 'cekUsername'])->name('keamanan.cek_username');
     Route::post('/keamanan-akun/ajukan-perubahan', [KeamananAkunController::class, 'ajukanPerubahan'])->name('keamanan.ajukan_perubahan');
     Route::delete('/keamanan-akun/sesi/{id}', [KeamananAkunController::class, 'hapusSesi'])->name('keamanan.sesi.hapus');
     Route::post('/keamanan-akun/sesi/hapus-lainnya', [KeamananAkunController::class, 'hapusSesiLainnya'])->name('keamanan.sesi.hapus_lainnya');
+
+    # Pengaturan 2FA / MFA Mandiri Pengguna
+    Route::post('/keamanan-akun/2fa/generate', [KeamananAkunController::class, 'generate2FA'])->name('keamanan.2fa.generate');
+    Route::post('/keamanan-akun/2fa/konfirmasi', [KeamananAkunController::class, 'confirm2FA'])->name('keamanan.2fa.confirm');
+    Route::post('/keamanan-akun/2fa/kirim-otp-setup', [KeamananAkunController::class, 'kirimOtpSetup'])->name('keamanan.2fa.kirim_otp_setup');
+    Route::post('/keamanan-akun/2fa/konfirmasi-otp', [KeamananAkunController::class, 'konfirmasiMetodeOtp'])->name('keamanan.2fa.konfirmasi_otp');
+    Route::post('/keamanan-akun/2fa/kelola-metode', [KeamananAkunController::class, 'kelolaMetodeMfa'])->name('keamanan.2fa.kelola_metode');
+    Route::post('/keamanan-akun/2fa/kode-cadangan-baru', [KeamananAkunController::class, 'regenerasiKodeCadangan'])->name('keamanan.2fa.regenerasi_kode');
+    Route::post('/keamanan-akun/2fa/webauthn', [KeamananAkunController::class, 'simpanKredensialWebAuthn'])->name('keamanan.2fa.webauthn.simpan');
+    Route::delete('/keamanan-akun/2fa/webauthn/{idKunci}', [KeamananAkunController::class, 'hapusKredensialWebAuthn'])->name('keamanan.2fa.webauthn.hapus');
+    Route::post('/keamanan-akun/2fa/nonaktifkan', [KeamananAkunController::class, 'disable2FA'])->name('keamanan.2fa.disable');
+
+    # Endpoint Real-Time Dialog Google Prompt untuk perangkat yang sedang aktif login
+    Route::get('/keamanan-akun/2fa/prompt-pending', [KeamananAkunController::class, 'cekPromptPending'])->name('keamanan.2fa.prompt_pending');
+    Route::post('/keamanan-akun/2fa/prompt-respon', [KeamananAkunController::class, 'responPromptLogin'])->name('keamanan.2fa.prompt_respon');
     
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -107,6 +124,18 @@ Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmi
 
     Route::get('/pengaturan-sistem', [PengaturanSistemController::class, 'indeks'])->name('pengaturan.indeks');
     Route::post('/pengaturan-sistem', [PengaturanSistemController::class, 'perbarui'])->name('pengaturan.perbarui');
+    Route::post('/pengaturan-sistem/uji-smtp', [PengaturanSistemController::class, 'ujiKirimSmtp'])->name('pengaturan.uji-smtp');
+
+    # Konfigurasi Autentikasi 2FA & Gateway WhatsApp Fonnte / SMTP Email
+    Route::get('/konfigurasi-2fa', [Konfigurasi2FAController::class, 'indeks'])->name('two-factor.indeks');
+    Route::post('/konfigurasi-2fa', [Konfigurasi2FAController::class, 'perbarui'])->name('two-factor.perbarui');
+    Route::post('/konfigurasi-2fa/fonnte', [Konfigurasi2FAController::class, 'simpanKonfigurasiFonnte'])->name('two-factor.fonnte.simpan');
+    Route::post('/konfigurasi-2fa/fonnte/cek-device', [Konfigurasi2FAController::class, 'cekDeviceFonnte'])->name('two-factor.fonnte.cek-device');
+    Route::post('/konfigurasi-2fa/fonnte/uji-kirim', [Konfigurasi2FAController::class, 'ujiKirimFonnte'])->name('two-factor.fonnte.uji-kirim');
+    Route::post('/konfigurasi-2fa/smtp', [Konfigurasi2FAController::class, 'simpanKonfigurasiSmtp'])->name('two-factor.smtp.simpan');
+    Route::post('/konfigurasi-2fa/smtp/uji-kirim', [Konfigurasi2FAController::class, 'ujiKirimSmtp'])->name('two-factor.smtp.uji-kirim');
+    Route::post('/konfigurasi-2fa/reset/{userId}', [Konfigurasi2FAController::class, 'resetPengguna2FA'])->name('two-factor.reset');
+    Route::post('/konfigurasi-2fa/reset-semua', [Konfigurasi2FAController::class, 'resetSemua2FA'])->name('two-factor.reset-semua');
     
     Route::get('/persetujuan-data', [PersetujuanDataController::class, 'indeks'])->name('persetujuan.indeks');
     Route::post('/persetujuan-data/{id}/setujui', [PersetujuanDataController::class, 'setujui'])->name('persetujuan.setujui');
