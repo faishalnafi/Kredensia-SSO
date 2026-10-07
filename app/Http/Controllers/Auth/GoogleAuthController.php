@@ -20,8 +20,18 @@ class GoogleAuthController extends Controller
     /**
      * Redirect the user to the Google authentication page.
      */
-    public function redirectToGoogle(): RedirectResponse
+    public function redirectToGoogle(\Illuminate\Http\Request $request): RedirectResponse
     {
+        $appId = $request->query('client_id') ?: $request->query('app_id');
+        if ($appId) {
+            session(['sso_app_id' => $appId]);
+        }
+        if ($request->has('redirect_uri')) {
+            session(['sso_redirect_uri' => $request->query('redirect_uri')]);
+        }
+        if ($request->has('remember')) {
+            session(['sso_google_remember' => $request->boolean('remember')]);
+        }
         return Socialite::driver('google')->redirect();
     }
 
@@ -89,16 +99,79 @@ class GoogleAuthController extends Controller
             ]);
         }
 
-        // Login user
-        Auth::login($user, true);
+        // Tangkap status centang "Ingat Saya" sebelum tombol Google ditekan
+        $ingatSaya = session('sso_google_remember', false);
+        session()->forget('sso_google_remember');
 
-        // Atur masa hidup sesi default (24 jam karena Google login menggunakan remember secara default)
-        $lifetime = 1440;
-        session(['session_lifetime' => $lifetime]);
+        # Pastikan jumlah multi-akun pada perangkat ini belum melewati batas maksimal (25 akun)
+        if (!\App\Services\LayananSesiPerangkat::masihBisaTambahAkun(request(), (string) $user->id)) {
+            $batas = \App\Services\LayananSesiPerangkat::BATAS_MAKSIMAL_MULTI_AKUN;
+            return redirect()->route('login')->withErrors([
+                'email' => "Batas maksimal multi-akun pada perangkat ini ({$batas} akun) telah tercapai. Silakan keluarkan salah satu akun terlebih dahulu.",
+            ]);
+        }
+
+        $idPenggunaSebelumnya = Auth::id();
+
+        // Login user dengan status remember
+        Auth::login($user, $ingatSaya);
+
+        // Jika dicentang "Ingat Saya" = SEUMUR HIDUP / FOREVER (5 Tahun = 2.628.000 menit), jika tidak = 31 hari (44.640 menit)
+        if ($ingatSaya) {
+            $lifetime = 2628000; // 5 Tahun = Seumur Hidup
+            session(['is_remember_forever' => true, 'session_lifetime' => $lifetime]);
+        } else {
+            $lifetime = 44640; // 31 Hari (Sliding Expiration)
+            session(['is_remember_forever' => false, 'session_lifetime' => $lifetime]);
+        }
         config(['session.lifetime' => $lifetime]);
 
         $request = request();
         $request->session()->regenerate();
+
+        // Cek apakah pengguna mengaktifkan Autentikasi Dua Faktor (2FA / MFA)
+        if ($user->hasEnabledTwoFactor()) {
+            $rememberCookieName = 'sso_2fa_remember_' . $user->id;
+            $cookieValue = $request->cookie($rememberCookieName);
+            $isBrowserRemembered = false;
+
+            if ($cookieValue && !empty($user->remember_token)) {
+                if (hash_equals(hash('sha256', (string) $user->remember_token), (string) $cookieValue)) {
+                    $isBrowserRemembered = true;
+                }
+            }
+
+            if (!$isBrowserRemembered) {
+                $appId = $request->session()->get('sso_app_id');
+                $redirectUri = $request->session()->get('sso_redirect_uri');
+
+                $request->session()->put([
+                    'login.2fa.user_id' => $user->id,
+                    'login.2fa.remember' => (bool) $ingatSaya,
+                    'login.2fa.app_id' => $appId,
+                    'login.2fa.redirect_uri' => $redirectUri,
+                ]);
+
+                if ($idPenggunaSebelumnya && (string) $idPenggunaSebelumnya !== (string) $user->id) {
+                    Auth::loginUsingId($idPenggunaSebelumnya);
+                } else {
+                    Auth::guard('web')->logout();
+                }
+
+                $metodeUtama = $user->two_factor_type ?: 'totp';
+                if ($metodeUtama === 'email') {
+                    \App\Services\Layanan2FA::kirimOtpEmail($user);
+                } elseif ($metodeUtama === 'whatsapp') {
+                    \App\Services\Layanan2FA::kirimOtpWhatsapp($user);
+                } elseif ($metodeUtama === 'google_prompt') {
+                    \App\Services\Layanan2FA::buatTantanganPrompt($user, $request);
+                }
+
+                \App\Services\LayananLogAktivitas::catat("Meminta verifikasi 2FA/MFA ({$metodeUtama}) saat login Google SSO", $user->email, $user->id);
+
+                return redirect()->route('2fa.challenge');
+            }
+        }
 
         // Cek apakah ada proses login SSO untuk aplikasi tertentu
         if ($request->session()->has('sso_app_id')) {
@@ -106,6 +179,13 @@ class GoogleAuthController extends Controller
             $app = RegisteredApp::find($appId);
 
             if ($app && $app->is_active) {
+                // Periksa jika aplikasi bukan SSO (tanpa callback URL / hanya katalog), langsung alihkan ke portal_url
+                if (empty($app->login_callback_url)) {
+                    $request->session()->forget(['sso_app_id', 'sso_redirect_uri']);
+                    \App\Services\LayananLogAktivitas::catat('Pengalihan ke aplikasi katalog (non-SSO) via Google: ' . $app->nama_aplikasi, $user->email, $user->id);
+                    return redirect()->away($app->portal_url);
+                }
+
                 // Periksa hak akses peran jika aplikasi dibatasi visibilitasnya
                 if (!$app->is_global_visibility) {
                     $userRoleIds = $user->roles->pluck('id')->toArray();
@@ -146,7 +226,8 @@ class GoogleAuthController extends Controller
             }
         }
 
-        \App\Services\LayananLogAktivitas::catat('Login sukses via Google', $user->email, $user->id);
+        # Daftarkan akun ke sesi multi-akun & catat silsilah penambahan akun ke log aktivitas
+        \App\Services\LayananSesiPerangkat::daftarkanAkunKeSesi($request, $user, 'Google SSO', true);
 
         // Redirect ke beranda berdasarkan peran
         if ($user->hasRole('Super Admin') || $user->hasRole('superadmin')) {
@@ -157,6 +238,7 @@ class GoogleAuthController extends Controller
             return redirect()->intended(route('admin.beranda'));
         }
 
-        return redirect()->intended(route('beranda'));
+        return redirect()->intended(route('dasbor'));
     }
 }
+

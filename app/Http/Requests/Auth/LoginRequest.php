@@ -10,8 +10,33 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * ============================================================
+ * SSO Sekolah - Portal Otentikasi Terpusat
+ * Versi    : v1.0.0 | Production | Community Edition
+ * Lisensi  : Open Source - Bebas Dikembangkan
+ * Besutan  : Faishal Nafi Network (https://faishalnafi.com)
+ * ============================================================
+ */
+
 class LoginRequest extends FormRequest
 {
+    /**
+     * Persiapkan data sebelum validasi (normalisasi email).
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('email')) {
+            $nilaiIdentitas = strtolower(trim((string) $this->email));
+            if (str_starts_with($nilaiIdentitas, '@') && !str_contains($nilaiIdentitas, '.com') && !str_contains(substr($nilaiIdentitas, 1), '@')) {
+                $nilaiIdentitas = ltrim($nilaiIdentitas, '@');
+            }
+            $this->merge([
+                'email' => $nilaiIdentitas,
+            ]);
+        }
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -27,11 +52,21 @@ class LoginRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'email' => ['required', 'string', 'email:rfc,dns', 'max:255'],
+        $aturan = [
+            'email' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string', 'max:255'],
-            'recaptcha_token' => ['required', 'string'],
         ];
+
+        // Hanya wajibkan reCAPTCHA jika konfigurasinya lengkap di .env
+        $projectId = env('RECAPTCHA_PROJECT_ID');
+        $apiKey = env('RECAPTCHA_API_KEY');
+        $siteKey = env('RECAPTCHA_SITE_KEY');
+
+        if ($projectId && $apiKey && $siteKey) {
+            $aturan['recaptcha_token'] = ['required', 'string'];
+        }
+
+        return $aturan;
     }
 
     /**
@@ -42,8 +77,7 @@ class LoginRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'email.required' => 'Surel/Email wajib diisi.',
-            'email.email' => 'Format surel/email tidak valid.',
+            'email.required' => 'Surel, Username, atau UUID wajib diisi.',
             'password.required' => 'Kata sandi wajib diisi.',
             'recaptcha_token.required' => 'Validasi keamanan reCAPTCHA gagal. Silakan muat ulang halaman.',
         ];
@@ -67,12 +101,17 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        $user = \App\Models\User::where('email', $this->email)->first();
+        $identitas = (string) $this->email;
 
-        // 1. Cek apakah email terdaftar di database
+        $user = \App\Models\User::where('email', $identitas)
+            ->orWhere('username', $identitas)
+            ->orWhere('id', $identitas)
+            ->first();
+
+        // 1. Cek apakah akun terdaftar di database
         if (! $user) {
             throw ValidationException::withMessages([
-                'email' => 'Akun Anda belum diverifikasi. Silakan verifikasi akun Anda terlebih dahulu.',
+                'email' => 'Akun dengan surel, username, atau UUID tersebut tidak ditemukan atau belum diverifikasi.',
             ]);
         }
 
@@ -91,8 +130,8 @@ class LoginRequest extends FormRequest
         }
 
 
-        // 5. Cek validitas password
-        if (! Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->boolean('remember'))) {
+        // 5. Cek validitas password menggunakan ID pengguna yang ditemukan (mendukung login via email, username, maupun UUID)
+        if (! Auth::attempt(['id' => $user->id, 'password' => $this->password], $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -102,9 +141,14 @@ class LoginRequest extends FormRequest
 
         RateLimiter::clear($this->throttleKey());
 
-        // 5. Atur masa hidup sesi dinamis
-        $lifetime = $this->boolean('remember') ? 1440 : 720;
-        session(['session_lifetime' => $lifetime]);
+        // 5. Atur masa hidup sesi dinamis: jika dicentang "Ingat Saya" = SEUMUR HIDUP / FOREVER (5 Tahun = 2.628.000 menit), jika tidak = 31 hari (44.640 menit dengan sliding expiration)
+        if ($this->boolean('remember')) {
+            $lifetime = 2628000; // 5 Tahun = Seumur Hidup
+            session(['is_remember_forever' => true, 'session_lifetime' => $lifetime]);
+        } else {
+            $lifetime = 44640; // 31 Hari (Sliding Expiration)
+            session(['is_remember_forever' => false, 'session_lifetime' => $lifetime]);
+        }
         config(['session.lifetime' => $lifetime]);
     }
 

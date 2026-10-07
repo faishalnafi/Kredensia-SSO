@@ -33,15 +33,27 @@ Route::get('otentikasi/verifikasi', function(\Illuminate\Http\Request $request) 
     return redirect('/otentikasi' . (!empty($query) ? '?' . http_build_query($query) : '') . '#verifikasi');
 })->name('claim.form');
 
+Route::get('auth/google', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'redirectToGoogle'])
+    ->name('auth.google');
+
+Route::get('auth/google/callback', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'handleGoogleCallback'])
+    ->name('auth.google.callback');
+
+Route::post('otentikasi', [AuthenticatedSessionController::class, 'store']);
+
+// Verifikasi Tantangan Autentikasi Dua Faktor (2FA / MFA) saat Login maupun Tambah Akun (Multi-Akun)
+Route::get('two-factor-challenge', [\App\Http\Controllers\Auth\TwoFactorChallengeController::class, 'create'])
+    ->name('2fa.challenge');
+Route::post('two-factor-challenge', [\App\Http\Controllers\Auth\TwoFactorChallengeController::class, 'store'])
+    ->name('2fa.verify');
+Route::post('two-factor-challenge/kirim-tantangan', [\App\Http\Controllers\Auth\TwoFactorChallengeController::class, 'kirimTantanganBaru'])
+    ->name('2fa.send_challenge');
+Route::get('two-factor-challenge/status-prompt', [\App\Http\Controllers\Auth\TwoFactorChallengeController::class, 'cekStatusPrompt'])
+    ->name('2fa.prompt_status');
+Route::post('two-factor-challenge/cancel', [\App\Http\Controllers\Auth\TwoFactorChallengeController::class, 'cancel'])
+    ->name('2fa.cancel');
+
 Route::middleware('guest')->group(function () {
-    Route::post('otentikasi', [AuthenticatedSessionController::class, 'store']);
-
-    Route::get('auth/google', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'redirectToGoogle'])
-        ->name('auth.google');
-
-    Route::get('auth/google/callback', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'handleGoogleCallback'])
-        ->name('auth.google.callback');
-
     Route::post('otentikasi/verifikasi', [ClaimAccountController::class, 'prosesKlaim'])
         ->name('claim.process');
 
@@ -59,6 +71,10 @@ Route::middleware('guest')->group(function () {
     Route::get('lupa-kata-sandi', function () {
         return inertia('ComingSoon', ['title' => 'Pemulihan Kata Sandi']);
     })->name('password.request');
+
+    Route::post('lupa-kata-sandi', [PasswordResetLinkController::class, 'store'])
+        ->middleware('throttle:6,1')
+        ->name('password.email');
 
     Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
         ->name('password.reset');
@@ -88,4 +104,10 @@ Route::middleware('auth')->group(function () {
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
+
+    Route::post('otentikasi/switch', [AuthenticatedSessionController::class, 'switchAccount'])
+        ->name('account.switch');
+
+    Route::post('otentikasi/logout-partial', [AuthenticatedSessionController::class, 'logoutPartial'])
+        ->name('account.logout.partial');
 });
