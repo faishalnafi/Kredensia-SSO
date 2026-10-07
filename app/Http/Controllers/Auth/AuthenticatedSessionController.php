@@ -61,8 +61,8 @@ class AuthenticatedSessionController extends Controller
             }
         }
 
-        // Jika pengguna sudah terautentikasi (sesi aktif)
-        if (Auth::check()) {
+        // Jika pengguna sudah terautentikasi (sesi aktif) dan tidak sedang menambah akun
+        if (Auth::check() && !$request->has('tambah_akun')) {
             $user = Auth::user()->load('roles');
 
             // Cek apakah ada parameter app_id atau client_id dari pihak ketiga
@@ -81,6 +81,7 @@ class AuthenticatedSessionController extends Controller
                 $peranUser = $user->roles->pluck('nama_role')->toArray();
                 $token = \App\Services\LayananJWT::buatToken([
                     'user_id' => $user->id,
+                    'username' => $user->username,
                     'nomor_induk' => $user->nip_nis ?: $user->nik,
                     'nama' => $user->nama_lengkap,
                     'roles' => $peranUser,
@@ -141,6 +142,16 @@ class AuthenticatedSessionController extends Controller
         // Bungkus seluruh proses autentikasi dalam DB::transaction untuk menjamin ACID.
         // Jika RBAC check gagal dan perlu logout, rollback tidak diperlukan karena login sudah terjadi,
         // namun try-catch dipasang untuk menangkap kegagalan DB tak terduga.
+        # Pastikan jumlah multi-akun pada perangkat ini belum melewati batas maksimal (default 25 akun)
+        if (!\App\Services\LayananSesiPerangkat::masihBisaTambahAkun($request, (string) $request->email)) {
+            $batas = \App\Services\LayananSesiPerangkat::BATAS_MAKSIMAL_MULTI_AKUN;
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'email' => "Batas maksimal multi-akun pada perangkat ini ({$batas} akun) telah tercapai. Silakan keluarkan salah satu akun terlebih dahulu.",
+            ]);
+        }
+
+        $idPenggunaSebelumnya = Auth::id();
+
         try {
             $request->authenticate();
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -156,16 +167,16 @@ class AuthenticatedSessionController extends Controller
                 } elseif (str_contains($pesanEmail, 'dinonaktifkan')) {
                     $pesanError = 'Akun Nonaktif';
                 } elseif (str_contains($pesanEmail, 'belum diverifikasi')) {
-                    $pesanError = 'Email Tidak Terdaftar';
+                    $pesanError = 'Akun Tidak Terdaftar';
                 } else {
-                    $pesanError = 'Email Tidak Valid';
+                    $pesanError = 'Identitas Tidak Valid';
                 }
             }
 
-            \App\Services\LayananLogAktivitas::catat('Percobaan login gagal: ' . $pesanError . ' (email: ' . $request->email . ')', $request->email);
+            \App\Services\LayananLogAktivitas::catat('Percobaan login gagal: ' . $pesanError . ' (identitas: ' . $request->email . ')', $request->email);
             throw $e;
         } catch (\Throwable $e) {
-            \App\Services\LayananLogAktivitas::catat('Percobaan login gagal (email: ' . $request->email . ')', $request->email);
+            \App\Services\LayananLogAktivitas::catat('Percobaan login gagal (identitas: ' . $request->email . ')', $request->email);
             throw $e;
         }
 
@@ -174,7 +185,7 @@ class AuthenticatedSessionController extends Controller
         // Ambil data user dengan eager load roles
         $user = $request->user()->load('roles');
 
-        // Cek apakah pengguna mengaktifkan Autentikasi Dua Faktor (2FA)
+        // Cek apakah pengguna mengaktifkan Autentikasi Dua Faktor (2FA / MFA)
         if ($user->hasEnabledTwoFactor()) {
             $rememberCookieName = 'sso_2fa_remember_' . $user->id;
             $cookieValue = $request->cookie($rememberCookieName);
@@ -196,13 +207,22 @@ class AuthenticatedSessionController extends Controller
                     'login.2fa.redirect_uri' => $redirectUri,
                 ]);
 
-                Auth::guard('web')->logout();
-
-                if ($user->two_factor_type === 'email') {
-                    \App\Services\Layanan2FA::kirimOtpEmail($user);
+                if ($idPenggunaSebelumnya && (string) $idPenggunaSebelumnya !== (string) $user->id) {
+                    Auth::loginUsingId($idPenggunaSebelumnya);
+                } else {
+                    Auth::guard('web')->logout();
                 }
 
-                \App\Services\LayananLogAktivitas::catat('Meminta verifikasi kode 2FA saat login', $user->email, $user->id);
+                $metodeUtama = $user->two_factor_type ?: 'totp';
+                if ($metodeUtama === 'email') {
+                    \App\Services\Layanan2FA::kirimOtpEmail($user);
+                } elseif ($metodeUtama === 'whatsapp') {
+                    \App\Services\Layanan2FA::kirimOtpWhatsapp($user);
+                } elseif ($metodeUtama === 'google_prompt') {
+                    \App\Services\Layanan2FA::buatTantanganPrompt($user, $request);
+                }
+
+                \App\Services\LayananLogAktivitas::catat("Meminta verifikasi 2FA/MFA ({$metodeUtama}) saat login", $user->email, $user->id);
 
                 return redirect()->route('2fa.challenge');
             }
@@ -242,6 +262,7 @@ class AuthenticatedSessionController extends Controller
                 $peranUser = $user->roles->pluck('nama_role')->toArray();
                 $token = \App\Services\LayananJWT::buatToken([
                     'user_id' => $user->id,
+                    'username' => $user->username,
                     'nomor_induk' => $user->nip_nis ?: $user->nik,
                     'nama' => $user->nama_lengkap,
                     'roles' => $peranUser,
@@ -261,7 +282,8 @@ class AuthenticatedSessionController extends Controller
             }
         }
 
-        \App\Services\LayananLogAktivitas::catat('Login sukses via Email & Kata Sandi', $user->email, $user->id);
+        # Daftarkan akun ke sesi multi-akun & catat silsilah penambahan akun ke log aktivitas
+        \App\Services\LayananSesiPerangkat::daftarkanAkunKeSesi($request, $user, 'Email & Kata Sandi', true);
 
         if ($user->hasRole('Super Admin') || $user->hasRole('superadmin')) {
             return redirect()->intended(route('superadmin.beranda', absolute: false));
@@ -281,11 +303,21 @@ class AuthenticatedSessionController extends Controller
     {
         if (Auth::check()) {
             $user = Auth::user();
-            \App\Services\LayananLogAktivitas::catat('Logout dari sistem', $user->email, $user->id);
+            $daftarTerdampak = array_filter([
+                (string) $user->id,
+                ...array_map('strval', $request->session()->get('sso_multi_accounts', [])),
+            ]);
+            $akunPertama = $request->session()->get('sso_akun_pertama');
+            $infoPertama = $akunPertama
+                ? ' [Akun pertama perangkat: ' . \App\Services\LayananSesiPerangkat::formatLabelPengguna(null, $akunPertama) . ']'
+                : '';
+            \App\Services\LayananLogAktivitas::catat('Logout dari seluruh akun pada perangkat ini' . $infoPertama, $user->email, $user->id);
             
             Auth::guard('web')->logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
+
+            \App\Services\LayananSesiPerangkat::siarkanPerubahanSesi($daftarTerdampak);
         }
 
         // Cek jika ada parameter redirect_uri (untuk SSO logout)
@@ -294,5 +326,115 @@ class AuthenticatedSessionController extends Controller
         }
 
         return redirect()->route('login');
+    }
+
+    /**
+     * Logout hanya satu akun tertentu.
+     */
+    public function logoutPartial(Request $request): RedirectResponse
+    {
+        $email = $request->input('email');
+        $multiAccounts = $request->session()->get('sso_multi_accounts', []);
+
+        if ($email) {
+            $kunciIdentitas = strtolower(trim(ltrim((string) $email, '@')));
+            $targetUser = \App\Models\User::where('email', $kunciIdentitas)
+                ->orWhere('username', $kunciIdentitas)
+                ->orWhere('id', trim((string) $email))
+                ->first();
+            if ($targetUser) {
+                $akunPertama = $request->session()->get('sso_akun_pertama');
+                $infoPertama = $akunPertama
+                    ? ' [Akun pertama perangkat: ' . \App\Services\LayananSesiPerangkat::formatLabelPengguna(null, $akunPertama) . ']'
+                    : '';
+
+                // Hapus akun dari array sesi
+                $multiAccounts = array_filter($multiAccounts, function($id) use ($targetUser) {
+                    return (string) $id !== (string) $targetUser->id;
+                });
+                $multiAccounts = array_values($multiAccounts);
+                $request->session()->put('sso_multi_accounts', $multiAccounts);
+
+                \App\Services\LayananLogAktivitas::catat(
+                    'Logout parsial (keluar 1 akun dari perangkat): ' . \App\Services\LayananSesiPerangkat::formatLabelPengguna($targetUser) . $infoPertama,
+                    $targetUser->email,
+                    (string) $targetUser->id
+                );
+
+                \App\Services\LayananSesiPerangkat::siarkanPerubahanSesi([
+                    (string) $targetUser->id,
+                    ...array_map('strval', $multiAccounts),
+                ]);
+
+                // Jika yang dilogout adalah akun yang saat ini aktif
+                if (Auth::check() && (string) Auth::id() === (string) $targetUser->id) {
+                    Auth::guard('web')->logout();
+                    
+                    // Jika masih ada akun lain, switch otomatis
+                    if (!empty($multiAccounts)) {
+                        $nextUser = \App\Models\User::find($multiAccounts[0]);
+                        if ($nextUser) {
+                            Auth::guard('web')->login($nextUser);
+                            \App\Services\LayananSesiPerangkat::catatSwitchAkun($request, $targetUser, $nextUser);
+                            return redirect()->intended(route('dasbor', absolute: false));
+                        }
+                    }
+                    
+                    // Jika tidak ada sisa, logout total
+                    $request->session()->invalidate();
+                    $request->session()->regenerateToken();
+                    return redirect()->route('login');
+                }
+            }
+        }
+        
+        return back();
+    }
+
+    /**
+     * Switch ke akun lain yang sudah login di sesi browser ini.
+     */
+    public function switchAccount(Request $request): RedirectResponse
+    {
+        $email = $request->input('email');
+        $penggunaAsal = Auth::user();
+        
+        $multiAccounts = $request->session()->get('sso_multi_accounts', []);
+        
+        if (!empty($multiAccounts) && $email) {
+            $kunciIdentitas = strtolower(trim(ltrim((string) $email, '@')));
+            $targetUser = \App\Models\User::where('email', $kunciIdentitas)
+                ->orWhere('username', $kunciIdentitas)
+                ->orWhere('id', trim((string) $email))
+                ->first();
+            
+            if ($targetUser && in_array((string) $targetUser->id, array_map('strval', $multiAccounts), true)) {
+                // Login sebagai user ini tanpa password (karena sudah pernah diverifikasi di sesi ini)
+                Auth::guard('web')->login($targetUser);
+                $request->session()->regenerate();
+                
+                // Pastikan user ini tetap ada di multi_accounts
+                $multiAccounts = $request->session()->get('sso_multi_accounts', []);
+                if (!in_array((string) $targetUser->id, array_map('strval', $multiAccounts), true)) {
+                    $multiAccounts[] = $targetUser->id;
+                    $request->session()->put('sso_multi_accounts', $multiAccounts);
+                }
+
+                // Catat aktivitas switch akun ke log
+                \App\Services\LayananSesiPerangkat::catatSwitchAkun($request, $penggunaAsal, $targetUser);
+
+                if ($targetUser->hasRole('Super Admin') || $targetUser->hasRole('superadmin')) {
+                    return redirect()->route('superadmin.beranda');
+                }
+
+                if ($targetUser->hasRole('Admin') || $targetUser->hasRole('admin')) {
+                    return redirect()->route('admin.beranda');
+                }
+
+                return redirect()->route('dasbor');
+            }
+        }
+        
+        return back()->withErrors(['email' => 'Sesi untuk akun ini telah berakhir. Silakan login kembali.']);
     }
 }

@@ -23,6 +23,7 @@ class User extends Authenticatable
 
     protected $fillable = [
         'nama_lengkap',
+        'username',
         'email',
         'password',
         'jk',
@@ -44,8 +45,13 @@ class User extends Authenticatable
         'two_factor_recovery_codes',
         'two_factor_confirmed_at',
         'two_factor_type',
+        'two_factor_methods',
         'two_factor_email_code',
         'two_factor_email_expires_at',
+        'two_factor_wa_code',
+        'two_factor_wa_expires_at',
+        'two_factor_passkeys',
+        'two_factor_prompt_challenge',
     ];
 
     protected $appends = [
@@ -58,6 +64,7 @@ class User extends Authenticatable
         'two_factor_secret',
         'two_factor_recovery_codes',
         'two_factor_email_code',
+        'two_factor_wa_code',
     ];
 
     protected function casts(): array
@@ -70,17 +77,55 @@ class User extends Authenticatable
             'biodata_dilengkapi_pada'      => 'datetime',
             'two_factor_confirmed_at'      => 'datetime',
             'two_factor_email_expires_at'  => 'datetime',
+            'two_factor_wa_expires_at'     => 'datetime',
             'two_factor_secret'            => 'encrypted',
             'two_factor_recovery_codes'    => 'encrypted:array',
+            'two_factor_methods'           => 'array',
+            'two_factor_passkeys'          => 'array',
+            'two_factor_prompt_challenge'  => 'array',
         ];
     }
 
     /**
-     * Cek apakah pengguna telah aktif mengonfigurasi 2FA.
+     * Cek apakah pengguna telah aktif mengonfigurasi 2FA / MFA.
      */
     public function hasEnabledTwoFactor(): bool
     {
         return !is_null($this->two_factor_confirmed_at);
+    }
+
+    /**
+     * Dapatkan daftar metode MFA yang diaktifkan oleh pengguna ini.
+     *
+     * @return array<int, string>
+     */
+    public function daftarMetodeMfaAktif(): array
+    {
+        $methods = is_array($this->two_factor_methods) ? $this->two_factor_methods : [];
+
+        if ($this->hasEnabledTwoFactor() && empty($methods)) {
+            $methods[] = $this->two_factor_type ?: 'totp';
+        }
+
+        if (!empty($this->two_factor_secret) && $this->hasEnabledTwoFactor() && !in_array('totp', $methods, true)) {
+            if (($this->two_factor_type ?? 'totp') === 'totp') {
+                $methods[] = 'totp';
+            }
+        }
+
+        $passkeys = is_array($this->two_factor_passkeys) ? $this->two_factor_passkeys : [];
+        foreach ($passkeys as $pk) {
+            $jenis = $pk['jenis'] ?? 'passkey';
+            if (!in_array($jenis, $methods, true)) {
+                $methods[] = $jenis;
+            }
+        }
+
+        if (!empty($this->two_factor_recovery_codes) && !in_array('backup_codes', $methods, true)) {
+            $methods[] = 'backup_codes';
+        }
+
+        return array_values(array_unique($methods));
     }
 
     /**

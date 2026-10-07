@@ -199,6 +199,24 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
         recaptcha_token: '',
     });
 
+    // === Form Lupa Kata Sandi (Reset Password via Email) ===
+    const {
+        data: dataLupaSandi,
+        setData: setDataLupaSandi,
+        post: kirimLupaSandi,
+        processing: prosesLupaSandi,
+        errors: galatLupaSandi,
+    } = useForm({
+        email: '',
+    });
+
+    const tanganiKirimLupaSandi = (e) => {
+        e.preventDefault();
+        kirimLupaSandi(route('password.email'), {
+            preserveScroll: true,
+        });
+    };
+
     const images = [
         '/images/login-1.png',
         '/images/login-2.png',
@@ -333,7 +351,10 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
     // langsung alihkan ke dasbor meskipun pengguna menekan tombol Back (←) di browser!
     useEffect(() => {
         if (auth?.user) {
-            router.visit(route('dasbor'));
+            const urlParams = new URLSearchParams(window.location.search);
+            if (!urlParams.has('tambah_akun')) {
+                router.visit(route('dasbor'));
+            }
         }
 
         const handlePageShow = (e) => {
@@ -954,7 +975,7 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                                 : 'font-medium text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
                                         }`}
                                     >
-                                        <span>Atau masuk dengan surel</span>
+                                        <span>Atau masuk dengan surel / username</span>
                                         <span className={`material-symbols-rounded text-xl transition-transform duration-500 ${tampilkanFormSurel ? 'rotate-180' : 'rotate-0'}`}>
                                             arrow_drop_down
                                         </span>
@@ -976,13 +997,13 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                         <form onSubmit={tanganiLogin} className="w-full space-y-5 text-left p-1">
                                             <div>
                                                 <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wider" htmlFor="email-login">
-                                                    Surel
+                                                    Surel / Username / UUID
                                                 </label>
                                                 <input 
                                                     className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-inset focus:ring-[#0F91FC] dark:focus:ring-[#0F91FC] focus:border-[#0F91FC] py-3.5 px-4 text-sm transition-all placeholder:text-slate-400 outline-none"
                                                     id="email-login" 
-                                                    type="email"
-                                                    placeholder="Gunakan surel yang terdaftar di sekolah" 
+                                                    type="text"
+                                                    placeholder="Masukkan surel, username, atau UUID Anda" 
                                                     value={dataLogin.email}
                                                     onChange={(e) => setDataLogin('email', e.target.value)}
                                                     autoFocus={modeAktif === 'masuk'}
@@ -1478,75 +1499,127 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                     {modeAktif === 'syarat-dan-ketentuan' && 'Syarat & Ketentuan (Terms of Service)'}
                                 </h1>
 
-                                {/* Card Informasional */}
-                                <div className="w-full p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 space-y-4 mb-6 text-left">
-                                    <div className="w-12 h-12 rounded-xl bg-[#0F91FC]/10 dark:bg-[#0F91FC]/20 flex items-center justify-center text-[#0F91FC] dark:text-[#38b6ff]">
-                                        <span className="material-symbols-rounded text-2xl">
-                                            {modeAktif === 'buat-akun' && 'engineering'}
-                                            {modeAktif === 'panduan' && 'menu_book'}
-                                            {modeAktif === 'kata-sandi' && 'lock_reset'}
-                                            {modeAktif === 'kebijakan-privasi' && 'shield_lock'}
-                                            {modeAktif === 'syarat-dan-ketentuan' && 'gavel'}
-                                        </span>
-                                    </div>
-                                    <div>
-                                        <h3 className="text-base font-bold text-[#081242] dark:text-white mb-1.5">
-                                            {modeAktif === 'kebijakan-privasi' && 'Perlindungan & Keamanan Data Privasi'}
-                                            {modeAktif === 'syarat-dan-ketentuan' && 'Ketentuan Penggunaan Portal SSO'}
-                                            {!['kebijakan-privasi', 'syarat-dan-ketentuan'].includes(modeAktif) && 'Fitur Dalam Masa Pengembangan'}
-                                        </h3>
-                                        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                                            {modeAktif === 'buat-akun' && 'Modul pendaftaran akun mandiri saat ini sedang dikembangkan oleh tim pengembang. Silakan gunakan fitur Verifikasi Akun untuk mengklaim akun sekolah Anda.'}
-                                            {modeAktif === 'panduan' && 'Dokumentasi dan petunjuk penggunaan terpadu SSO Sekolah sedang dalam tahap penyusunan dan penyempurnaan.'}
-                                            {modeAktif === 'kata-sandi' && 'Fitur pemulihan kata sandi mandiri sedang dalam tahap pengujian keamanan. Apabila Anda lupa kata sandi, Anda dapat masuk menggunakan Akun Google terdaftar lalu memperbarui kata sandi di menu Keamanan Akun, atau hubungi Administrator Sekolah Anda.'}
-                                            {modeAktif === 'kebijakan-privasi' && 'Sistem Single Sign-On (SSO) Sekolah berkomitmen penuh dalam melindungi privasi data pribadi pengguna (Siswa, Guru, dan Tendik). Seluruh identitas kredensial, enkripsi kata sandi, serta log otentikasi disimpan dengan standar keamanan tinggi dan hanya digunakan untuk verifikasi akses ekosistem sekolah.'}
-                                            {modeAktif === 'syarat-dan-ketentuan' && 'Dengan mengakses Portal SSO Sekolah, Pengguna setuju untuk menjaga kerahasiaan kata sandi pribadi, tidak memberikan kredensial kepada pihak manapun, serta menggunakannya secara sah demi kelancaran kegiatan akademik dan administrasi sekolah.'}
+                                {modeAktif === 'kata-sandi' ? (
+                                    <form onSubmit={tanganiKirimLupaSandi} className="w-full space-y-5 text-left">
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                                            Masukkan <strong>Alamat Surel (Email)</strong>, <strong>Username</strong>, atau <strong>UUID</strong> akun Anda. Sistem akan mengirimkan tautan pemulihan kata sandi ke alamat surel yang terdaftar pada akun Anda.
                                         </p>
-                                    </div>
-                                </div>
 
-                                {/* Tombol Navigasi Aksi */}
-                                <div className="w-full flex gap-3">
-                                    <button 
-                                        type="button"
-                                        onClick={() => gantiMode('masuk')}
-                                        className="flex-1 py-3.5 px-5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-all text-xs shadow-sm flex items-center justify-center gap-2"
-                                    >
-                                        <span className="material-symbols-rounded text-base">arrow_back</span>
-                                        Kembali ke Masuk
-                                    </button>
+                                        {(status || props?.flash?.success) && (
+                                            <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-emerald-700 dark:text-emerald-300 text-xs font-semibold flex items-start gap-2.5 leading-relaxed">
+                                                <span className="material-symbols-rounded text-lg text-emerald-600 dark:text-emerald-400 shrink-0">mark_email_read</span>
+                                                <span>{status || props?.flash?.success}</span>
+                                            </div>
+                                        )}
 
-                                    {modeAktif === 'buat-akun' && (
-                                        <button 
-                                            type="button"
-                                            onClick={() => gantiMode('verifikasi')}
-                                            className="flex-1 bg-[#111827] dark:bg-[#0F91FC] text-white font-bold py-3.5 px-5 rounded-xl hover:bg-slate-800 dark:hover:bg-[#0a78d6] transition-all text-xs shadow-lg flex items-center justify-center gap-2 group"
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-2">
+                                                Surel, Username, atau UUID Akun
+                                            </label>
+                                            <div className="relative">
+                                                <span className="material-symbols-rounded absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg">
+                                                    alternate_email
+                                                </span>
+                                                <input
+                                                    type="text"
+                                                    value={dataLupaSandi.email}
+                                                    onChange={e => setDataLupaSandi('email', e.target.value)}
+                                                    placeholder="Contoh: nama@gmail.com atau username"
+                                                    className="w-full pl-11 pr-4 py-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-[#0F91FC] transition-colors"
+                                                    required
+                                                />
+                                            </div>
+                                            <InputError message={galatLupaSandi.email} className="mt-1.5" />
+                                        </div>
+
+                                        <button
+                                            type="submit"
+                                            disabled={prosesLupaSandi}
+                                            className="w-full py-3.5 px-5 bg-[#0F91FC] hover:bg-[#0a78d6] text-white font-bold rounded-xl transition-all text-xs shadow-lg shadow-[#0F91FC]/25 flex items-center justify-center gap-2 disabled:opacity-50"
                                         >
-                                            Verifikasi Akun
-                                            <span className="material-symbols-rounded text-base group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                                            <span className="material-symbols-rounded text-base">send</span>
+                                            <span>{prosesLupaSandi ? 'Mengirim Tautan Pemulihan...' : 'Kirim Tautan Atur Ulang Kata Sandi'}</span>
                                         </button>
-                                    )}
 
-                                    {modeAktif === 'kata-sandi' && (
-                                        <button 
-                                            type="button"
-                                            onClick={() => {
-                                                window.location.href = route('auth.google');
-                                            }}
-                                            className="flex-1 bg-[#4285F4] hover:bg-[#3367D6] text-white font-bold py-3.5 px-5 rounded-xl transition-all text-xs shadow-lg flex items-center justify-center gap-2 group"
-                                        >
-                                            Masuk via Google
-                                            <span className="material-symbols-rounded text-base group-hover:translate-x-1 transition-transform">arrow_forward</span>
-                                        </button>
-                                    )}
-                                </div>
+                                        <div className="w-full flex gap-3 pt-1">
+                                            <button
+                                                type="button"
+                                                onClick={() => gantiMode('masuk')}
+                                                className="flex-1 py-3 px-4 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-all text-xs flex items-center justify-center gap-1.5"
+                                            >
+                                                <span className="material-symbols-rounded text-base">arrow_back</span>
+                                                Kembali ke Masuk
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    window.location.href = route('auth.google');
+                                                }}
+                                                className="flex-1 py-3 px-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 text-slate-700 dark:text-slate-200 font-bold rounded-xl transition-all text-xs flex items-center justify-center gap-1.5"
+                                            >
+                                                <span>Masuk via Google</span>
+                                            </button>
+                                        </div>
+                                    </form>
+                                ) : (
+                                    <>
+                                        {/* Card Informasional */}
+                                        <div className="w-full p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 space-y-4 mb-6 text-left">
+                                            <div className="w-12 h-12 rounded-xl bg-[#0F91FC]/10 dark:bg-[#0F91FC]/20 flex items-center justify-center text-[#0F91FC] dark:text-[#38b6ff]">
+                                                <span className="material-symbols-rounded text-2xl">
+                                                    {modeAktif === 'buat-akun' && 'engineering'}
+                                                    {modeAktif === 'panduan' && 'menu_book'}
+                                                    {modeAktif === 'kebijakan-privasi' && 'shield_lock'}
+                                                    {modeAktif === 'syarat-dan-ketentuan' && 'gavel'}
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <h3 className="text-base font-bold text-[#081242] dark:text-white mb-1.5">
+                                                    {modeAktif === 'kebijakan-privasi' && 'Perlindungan & Keamanan Data Privasi'}
+                                                    {modeAktif === 'syarat-dan-ketentuan' && 'Ketentuan Penggunaan Portal SSO'}
+                                                    {!['kebijakan-privasi', 'syarat-dan-ketentuan'].includes(modeAktif) && 'Fitur Dalam Masa Pengembangan'}
+                                                </h3>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                                    {modeAktif === 'buat-akun' && 'Modul pendaftaran akun mandiri saat ini sedang dikembangkan oleh tim pengembang. Silakan gunakan fitur Verifikasi Akun untuk mengklaim akun sekolah Anda.'}
+                                                    {modeAktif === 'panduan' && 'Dokumentasi dan petunjuk penggunaan terpadu SSO Sekolah sedang dalam tahap penyusunan dan penyempurnaan.'}
+                                                    {modeAktif === 'kebijakan-privasi' && 'Sistem Single Sign-On (SSO) Sekolah berkomitmen penuh dalam melindungi privasi data pribadi pengguna (Siswa, Guru, dan Tendik). Seluruh identitas kredensial, enkripsi kata sandi, serta log otentikasi disimpan dengan standar keamanan tinggi dan hanya digunakan untuk verifikasi akses ekosistem sekolah.'}
+                                                    {modeAktif === 'syarat-dan-ketentuan' && 'Dengan mengakses Portal SSO Sekolah, Pengguna setuju untuk menjaga kerahasiaan kata sandi pribadi, tidak memberikan kredensial kepada pihak manapun, serta menggunakannya secara sah demi kelancaran kegiatan akademik dan administrasi sekolah.'}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {/* Tombol Navigasi Aksi */}
+                                        <div className="w-full flex gap-3">
+                                            <button 
+                                                type="button"
+                                                onClick={() => gantiMode('masuk')}
+                                                className="flex-1 py-3.5 px-5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-all text-xs shadow-sm flex items-center justify-center gap-2"
+                                            >
+                                                <span className="material-symbols-rounded text-base">arrow_back</span>
+                                                Kembali ke Masuk
+                                            </button>
+
+                                            {modeAktif === 'buat-akun' && (
+                                                <button 
+                                                    type="button"
+                                                    onClick={() => gantiMode('verifikasi')}
+                                                    className="flex-1 bg-[#111827] dark:bg-[#0F91FC] text-white font-bold py-3.5 px-5 rounded-xl hover:bg-slate-800 dark:hover:bg-[#0a78d6] transition-all text-xs shadow-lg flex items-center justify-center gap-2 group"
+                                                >
+                                                    Verifikasi Akun
+                                                    <span className="material-symbols-rounded text-base group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                                                </button>
+                                            )}
+                                        </div>
+                                    </>
+                                )}
 
                                 {/* Footer Note Disesuaikan untuk Setiap Mode */}
                                 <div className="w-full mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
                                     <p className="text-xs text-slate-400 dark:text-slate-500 leading-relaxed mx-auto">
                                         {modeAktif === 'buat-akun' && 'Gunakan akun resmi yang telah didaftarkan oleh administrator sekolah Anda.'}
                                         {modeAktif === 'panduan' && 'Pusat Bantuan & Petunjuk Layanan Diri Portal SSO Sekolah.'}
-                                        {modeAktif === 'kata-sandi' && 'Hubungi Administrator Sekolah jika Anda membutuhkan bantuan reset kata sandi.'}
+                                        {modeAktif === 'kata-sandi' && 'Periksa folder Kotak Masuk (Inbox) atau Spam pada email Anda setelah mengirim permintaan.'}
                                     </p>
                                 </div>
                             </div>

@@ -103,6 +103,16 @@ class GoogleAuthController extends Controller
         $ingatSaya = session('sso_google_remember', false);
         session()->forget('sso_google_remember');
 
+        # Pastikan jumlah multi-akun pada perangkat ini belum melewati batas maksimal (25 akun)
+        if (!\App\Services\LayananSesiPerangkat::masihBisaTambahAkun(request(), (string) $user->id)) {
+            $batas = \App\Services\LayananSesiPerangkat::BATAS_MAKSIMAL_MULTI_AKUN;
+            return redirect()->route('login')->withErrors([
+                'email' => "Batas maksimal multi-akun pada perangkat ini ({$batas} akun) telah tercapai. Silakan keluarkan salah satu akun terlebih dahulu.",
+            ]);
+        }
+
+        $idPenggunaSebelumnya = Auth::id();
+
         // Login user dengan status remember
         Auth::login($user, $ingatSaya);
 
@@ -119,7 +129,7 @@ class GoogleAuthController extends Controller
         $request = request();
         $request->session()->regenerate();
 
-        // Cek apakah pengguna mengaktifkan Autentikasi Dua Faktor (2FA)
+        // Cek apakah pengguna mengaktifkan Autentikasi Dua Faktor (2FA / MFA)
         if ($user->hasEnabledTwoFactor()) {
             $rememberCookieName = 'sso_2fa_remember_' . $user->id;
             $cookieValue = $request->cookie($rememberCookieName);
@@ -142,13 +152,22 @@ class GoogleAuthController extends Controller
                     'login.2fa.redirect_uri' => $redirectUri,
                 ]);
 
-                Auth::guard('web')->logout();
-
-                if ($user->two_factor_type === 'email') {
-                    \App\Services\Layanan2FA::kirimOtpEmail($user);
+                if ($idPenggunaSebelumnya && (string) $idPenggunaSebelumnya !== (string) $user->id) {
+                    Auth::loginUsingId($idPenggunaSebelumnya);
+                } else {
+                    Auth::guard('web')->logout();
                 }
 
-                \App\Services\LayananLogAktivitas::catat('Meminta verifikasi kode 2FA saat login Google SSO', $user->email, $user->id);
+                $metodeUtama = $user->two_factor_type ?: 'totp';
+                if ($metodeUtama === 'email') {
+                    \App\Services\Layanan2FA::kirimOtpEmail($user);
+                } elseif ($metodeUtama === 'whatsapp') {
+                    \App\Services\Layanan2FA::kirimOtpWhatsapp($user);
+                } elseif ($metodeUtama === 'google_prompt') {
+                    \App\Services\Layanan2FA::buatTantanganPrompt($user, $request);
+                }
+
+                \App\Services\LayananLogAktivitas::catat("Meminta verifikasi 2FA/MFA ({$metodeUtama}) saat login Google SSO", $user->email, $user->id);
 
                 return redirect()->route('2fa.challenge');
             }
@@ -207,7 +226,8 @@ class GoogleAuthController extends Controller
             }
         }
 
-        \App\Services\LayananLogAktivitas::catat('Login sukses via Google SSO', $user->email, $user->id);
+        # Daftarkan akun ke sesi multi-akun & catat silsilah penambahan akun ke log aktivitas
+        \App\Services\LayananSesiPerangkat::daftarkanAkunKeSesi($request, $user, 'Google SSO', true);
 
         // Redirect ke beranda berdasarkan peran
         if ($user->hasRole('Super Admin') || $user->hasRole('superadmin')) {
