@@ -24,6 +24,16 @@ window.Pusher = Pusher;
 
 const connection = import.meta.env.VITE_BROADCAST_CONNECTION || 'reverb';
 
+// Otorisasi kanal privat lewat axios agar cookie sesi & XSRF-TOKEN ikut terkirim otomatis
+const authorizerAxios = (channel) => ({
+    authorize: (socketId, callback) => {
+        window.axios
+            .post('/broadcasting/auth', { socket_id: socketId, channel_name: channel.name })
+            .then((res) => callback(null, res.data))
+            .catch((err) => callback(err));
+    },
+});
+
 // Hanya inisialisasi Echo jika salah satu App Key didefinisikan di .env
 if (import.meta.env.VITE_REVERB_APP_KEY || import.meta.env.VITE_PUSHER_APP_KEY) {
     if (connection === 'pusher') {
@@ -31,7 +41,8 @@ if (import.meta.env.VITE_REVERB_APP_KEY || import.meta.env.VITE_PUSHER_APP_KEY) 
             broadcaster: 'pusher',
             key: import.meta.env.VITE_PUSHER_APP_KEY,
             cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
-            forceTLS: true
+            forceTLS: true,
+            authorizer: authorizerAxios,
         });
     } else {
         window.Echo = new Echo({
@@ -42,6 +53,7 @@ if (import.meta.env.VITE_REVERB_APP_KEY || import.meta.env.VITE_PUSHER_APP_KEY) 
             wssPort: import.meta.env.VITE_REVERB_PORT ?? 443,
             forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https',
             enabledTransports: ['ws', 'wss'],
+            authorizer: authorizerAxios,
         });
     }
 }

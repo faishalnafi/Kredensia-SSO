@@ -27,8 +27,12 @@ class LoginRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         if ($this->has('email')) {
+            $nilaiIdentitas = strtolower(trim((string) $this->email));
+            if (str_starts_with($nilaiIdentitas, '@') && !str_contains($nilaiIdentitas, '.com') && !str_contains(substr($nilaiIdentitas, 1), '@')) {
+                $nilaiIdentitas = ltrim($nilaiIdentitas, '@');
+            }
             $this->merge([
-                'email' => strtolower(trim((string) $this->email)),
+                'email' => $nilaiIdentitas,
             ]);
         }
     }
@@ -49,7 +53,7 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         $aturan = [
-            'email' => ['required', 'string', 'email:rfc,dns', 'max:255'],
+            'email' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string', 'max:255'],
         ];
 
@@ -73,8 +77,7 @@ class LoginRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'email.required' => 'Surel/Email wajib diisi.',
-            'email.email' => 'Format surel/email tidak valid.',
+            'email.required' => 'Surel, Username, atau UUID wajib diisi.',
             'password.required' => 'Kata sandi wajib diisi.',
             'recaptcha_token.required' => 'Validasi keamanan reCAPTCHA gagal. Silakan muat ulang halaman.',
         ];
@@ -98,12 +101,17 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        $user = \App\Models\User::where('email', $this->email)->first();
+        $identitas = (string) $this->email;
 
-        // 1. Cek apakah email terdaftar di database
+        $user = \App\Models\User::where('email', $identitas)
+            ->orWhere('username', $identitas)
+            ->orWhere('id', $identitas)
+            ->first();
+
+        // 1. Cek apakah akun terdaftar di database
         if (! $user) {
             throw ValidationException::withMessages([
-                'email' => 'Akun Anda belum diverifikasi. Silakan verifikasi akun Anda terlebih dahulu.',
+                'email' => 'Akun dengan surel, username, atau UUID tersebut tidak ditemukan atau belum diverifikasi.',
             ]);
         }
 
@@ -122,8 +130,8 @@ class LoginRequest extends FormRequest
         }
 
 
-        // 5. Cek validitas password
-        if (! Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->boolean('remember'))) {
+        // 5. Cek validitas password menggunakan ID pengguna yang ditemukan (mendukung login via email, username, maupun UUID)
+        if (! Auth::attempt(['id' => $user->id, 'password' => $this->password], $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([

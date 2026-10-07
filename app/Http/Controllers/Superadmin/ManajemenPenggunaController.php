@@ -29,10 +29,12 @@ class ManajemenPenggunaController extends Controller
 
         // Filter pencarian
         if ($request->filled('cari')) {
-            $cari = $request->cari;
+            $cari = ltrim(trim((string) $request->cari), '@');
             $query->where(function ($q) use ($cari) {
                 $q->where('nama_lengkap', 'like', "%{$cari}%")
+                  ->orWhere('username', 'like', "%{$cari}%")
                   ->orWhere('email', 'like', "%{$cari}%")
+                  ->orWhere('id', 'like', "%{$cari}%")
                   ->orWhere('nik', 'like', "%{$cari}%")
                   ->orWhere('nip_nis', 'like', "%{$cari}%");
             });
@@ -358,17 +360,29 @@ class ManajemenPenggunaController extends Controller
             return redirect()->back()->with('error', 'Anda sudah masuk menggunakan akun ini.');
         }
 
+        if (!\App\Services\LayananSesiPerangkat::masihBisaTambahAkun($request, $id)) {
+            $batas = \App\Services\LayananSesiPerangkat::BATAS_MAKSIMAL_MULTI_AKUN;
+            return redirect()->back()->with('error', "Batas maksimal multi-akun pada perangkat ini ({$batas} akun) telah tercapai. Silakan keluarkan salah satu akun terlebih dahulu.");
+        }
+
         $targetUser = User::findOrFail($id);
         $adminUser = auth()->user();
 
-        \App\Services\LayananLogAktivitas::catat(
-            'Masuk sebagai pengguna lain: ' . $targetUser->nama_lengkap . ' (' . ($targetUser->email ?: $targetUser->nik ?: $targetUser->nip_nis ?: 'Tanpa Identitas') . ')',
-            $adminUser ? $adminUser->email : null,
-            $adminUser ? $adminUser->id : null
-        );
+        # Pastikan Superadmin tercatat di sesi multi-akun terlebih dahulu sebelum beralih
+        if ($adminUser) {
+            \App\Services\LayananSesiPerangkat::daftarkanAkunKeSesi($request, $adminUser, 'Sesi Utama Superadmin', false);
+        }
 
         \Illuminate\Support\Facades\Auth::login($targetUser);
         $request->session()->regenerate();
+
+        # Daftarkan pengguna target ke sesi multi-akun & catat rantai penambahannya di log
+        \App\Services\LayananSesiPerangkat::daftarkanAkunKeSesi(
+            $request,
+            $targetUser,
+            'Impersonasi oleh ' . ($adminUser ? $adminUser->nama_lengkap : 'Super Admin'),
+            true
+        );
 
         if ($targetUser->hasRole('Super Admin') || $targetUser->hasRole('superadmin')) {
             return redirect()->route('superadmin.beranda')->with('success', 'Berhasil masuk sebagai ' . $targetUser->nama_lengkap);

@@ -110,6 +110,7 @@ class BackupRestoreController extends Controller
             });
 
             \App\Services\LayananLogAktivitas::catat('Melakukan restore data sistem dari berkas backup JSON');
+            \App\Services\LayananSinkronisasiRealtime::siarkan('sistem', 'disinkronkan');
 
             return back()->with('sukses', 'Data berhasil di-restore dari backup JSON.');
         } catch (\Throwable $e) {

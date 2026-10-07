@@ -69,6 +69,9 @@ class HapusDataAdminController extends Controller
                 Role::whereNotIn('nama_role', ['Super Admin', 'Admin'])->delete();
             });
 
+            \App\Services\LayananLogAktivitas::catat('Melakukan penghapusan/reset seluruh data sistem (kecuali admin & superadmin)');
+            \App\Services\LayananSinkronisasiRealtime::siarkan('sistem', 'dihapus');
+
             return redirect()->back()->with('sukses', 'Seluruh data berhasil dihapus. Sistem telah direset ke kondisi awal.');
         } catch (\Throwable $e) {
             return redirect()->back()->withErrors(['hapus' => 'Gagal menghapus data: ' . $e->getMessage()]);

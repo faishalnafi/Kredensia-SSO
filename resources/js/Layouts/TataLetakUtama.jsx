@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import ThemeToggle from '@/Components/ThemeToggle';
+import PengalihAkun from '@/Components/PengalihAkun';
+import PendengarSesiRealtime from '@/Components/PendengarSesiRealtime';
 import Swal from 'sweetalert2';
 
 export default function TataLetakUtama({ children, title }) {
@@ -8,6 +10,7 @@ export default function TataLetakUtama({ children, title }) {
     const { auth, settings } = props;
     const [sidebarBuka, setSidebarBuka] = useState(false);
     const [logoGagal, setLogoGagal] = useState(false);
+    const [pengalihAkunBuka, setPengalihAkunBuka] = useState(false);
     const [floatingTooltip, setFloatingTooltip] = useState({ show: false, text: '', top: 0 });
     const [sidebarMengecil, setSidebarMengecil] = useState(() => {
         try {
@@ -185,8 +188,6 @@ export default function TataLetakUtama({ children, title }) {
                 kategori: 'Utama',
                 items: [
                     { nama: 'Beranda Sistem', rute: route('superadmin.beranda'), ikon: 'dashboard', aktif: url.startsWith('/superadmin/beranda') },
-                    { nama: 'Profil Saya', rute: route('profil.indeks'), ikon: 'person', aktif: url.startsWith('/profil-saya') },
-                    { nama: 'Keamanan Akun', rute: route('keamanan.indeks'), ikon: 'security', aktif: url.startsWith('/keamanan-akun') },
                 ]
             },
             {
@@ -230,8 +231,6 @@ export default function TataLetakUtama({ children, title }) {
                 kategori: 'Utama',
                 items: [
                     { nama: 'Beranda Admin', rute: route('admin.beranda'), ikon: 'dashboard', aktif: url.startsWith('/admin/beranda') },
-                    { nama: 'Profil Saya', rute: route('profil.indeks'), ikon: 'person', aktif: url.startsWith('/profil-saya') },
-                    { nama: 'Keamanan Akun', rute: route('keamanan.indeks'), ikon: 'security', aktif: url.startsWith('/keamanan-akun') },
                 ]
             },
             {
@@ -273,8 +272,6 @@ export default function TataLetakUtama({ children, title }) {
             { nama: 'Katalog Aplikasi', rute: route('dasbor'), ikon: 'grid_view', aktif: url === '/dasbor', dikunci: biodataBelumLengkap },
             { nama: 'Temukan', rute: route('temukan.indeks'), ikon: 'explore', aktif: url.startsWith('/temukan'), dikunci: biodataBelumLengkap },
             { nama: 'Komunitas', rute: route('komunitas.indeks'), ikon: 'groups', aktif: url.startsWith('/komunitas'), dikunci: biodataBelumLengkap },
-            { nama: 'Profil Saya', rute: route('profil.indeks'), ikon: 'person', aktif: url.startsWith('/profil-saya'), dikunci: biodataBelumLengkap },
-            { nama: 'Keamanan Akun', rute: route('keamanan.indeks'), ikon: 'security', aktif: url.startsWith('/keamanan-akun'), dikunci: biodataBelumLengkap },
         );
 
         menuGroups = [
@@ -288,7 +285,7 @@ export default function TataLetakUtama({ children, title }) {
     return (
         <div className="h-[100dvh] bg-[#0F91FC] text-white flex flex-col font-sans overflow-hidden transition-colors duration-300">
             {/* Top Unified Header */}
-            <header className="h-16 bg-[#0F91FC] text-white flex items-center justify-between px-3 sm:px-4 lg:px-6 shrink-0 z-20">
+            <header className="h-16 bg-[#0F91FC] text-white flex items-center justify-between px-3 sm:px-4 lg:px-6 shrink-0 relative z-30">
                 <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                     {/* Tombol Hamburger / Collapse */}
                     <button
@@ -321,11 +318,14 @@ export default function TataLetakUtama({ children, title }) {
 
                 {/* Kanan Header: ThemeToggle & User Profile */}
                 <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                    <PendengarSesiRealtime />
                     <ThemeToggle />
-                    <Link
-                        href={route('profil.indeks')}
-                        title={`Profil ${auth.user?.nama_lengkap || 'Saya'}`}
-                        className="flex items-center gap-2 pl-1.5 pr-2 sm:pl-2 sm:pr-3 py-1 bg-white/15 hover:bg-white/20 active:bg-white/25 transition-colors rounded-full border border-white/20 shrink-0"
+                    <button
+                        type="button"
+                        onClick={() => setPengalihAkunBuka(true)}
+                        title={`Akun: ${auth.user?.nama_lengkap || 'Saya'} (${roleUtama})`}
+                        className="flex items-center gap-2 pl-1.5 pr-2 sm:pl-2 sm:pr-3 py-1 bg-white/15 hover:bg-white/20 active:bg-white/25 transition-colors rounded-full border border-white/20 shrink-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/40"
+                        aria-label="Buka Pengalih Akun"
                     >
                         <img 
                             src={auth.user?.avatar_url || 'https://www.gravatar.com/avatar/?s=256&d=identicon'} 
@@ -338,12 +338,12 @@ export default function TataLetakUtama({ children, title }) {
                             className="w-7 h-7 rounded-full object-cover shadow-sm border border-white/40 bg-white/20 shrink-0"
                         />
                         <span className="text-xs font-bold text-white hidden md:block capitalize">{roleUtama}</span>
-                    </Link>
+                    </button>
                 </div>
             </header>
 
             {/* Layout Body: Sidebar + Main Content */}
-            <div className="flex-1 flex relative overflow-hidden bg-[#0F91FC] z-30">
+            <div className="flex-1 flex relative overflow-hidden bg-[#0F91FC]">
                 {/* Overlay Mobile */}
                 {sidebarBuka && (
                     <div 
@@ -487,34 +487,67 @@ export default function TataLetakUtama({ children, title }) {
                         ))}
                     </div>
 
-                    <div className="p-3 pb-8 lg:pb-3 pb-[max(2rem,env(safe-area-inset-bottom))] border-t border-white/15 shrink-0">
-                        <Link
-                            href={route('logout')}
-                            method="post"
-                            as="button"
+                    {/* Profil Pengguna Bawah Sidebar (Persis Gambar 4) */}
+                    <div className="p-2.5 pb-8 lg:pb-3 pb-[max(2rem,env(safe-area-inset-bottom))] border-t border-white/15 shrink-0">
+                        <button
+                            type="button"
+                            onClick={() => setPengalihAkunBuka(true)}
                             onMouseEnter={(e) => {
                                 if (!sidebarMengecil) return;
                                 const rect = e.currentTarget.getBoundingClientRect();
                                 setFloatingTooltip({
                                     show: true,
-                                    text: 'Keluar',
+                                    text: `${auth.user?.nama_lengkap || 'Profil'} (${roleUtama})`,
                                     top: rect.top + rect.height / 2,
                                     left: rect.right + 12
                                 });
                             }}
                             onMouseLeave={() => setFloatingTooltip({ show: false, text: '', top: 0, left: 0 })}
-                            className={`flex rounded-xl bg-white/10 text-white font-bold hover:bg-white/20 active:bg-white/30 transition-colors text-sm
+                            className={`flex items-center rounded-2xl bg-white/10 hover:bg-white/20 active:bg-white/25 transition-all text-white border border-white/15 cursor-pointer text-left group
                                 ${sidebarMengecil
-                                    ? 'lg:flex-col lg:items-center lg:justify-center lg:w-full lg:py-2.5 lg:px-1.5 lg:gap-1 lg:rounded-2xl w-full px-4 py-3 items-center gap-3'
-                                    : 'w-full px-4 py-3 items-center gap-3'
+                                    ? 'lg:flex-col lg:items-center lg:justify-center lg:w-full lg:p-2 lg:gap-1 p-2 w-full justify-between'
+                                    : 'w-full p-2.5 justify-between gap-3'
                                 }`}
+                            title="Buka Pengalih Akun & Kelola Profil"
                         >
-                            <span className="material-symbols-rounded text-xl shrink-0">logout</span>
-                            <span className={sidebarMengecil
-                                ? 'lg:text-[10px] lg:font-bold lg:text-center'
-                                : ''
-                            }>Keluar</span>
-                        </Link>
+                            <div className="flex items-center gap-2.5 min-w-0">
+                                {/* Avatar Bulat / Inisial S (Persis Gambar 4) */}
+                                {auth.user?.avatar_url ? (
+                                    <img
+                                        src={auth.user.avatar_url}
+                                        alt={auth.user.nama_lengkap}
+                                        className="w-9 h-9 rounded-full object-cover shrink-0 shadow-sm border border-white/40"
+                                        onError={(e) => {
+                                            e.currentTarget.onerror = null;
+                                            e.currentTarget.src = 'https://www.gravatar.com/avatar/?s=256&d=identicon';
+                                        }}
+                                    />
+                                ) : (
+                                    <div className="w-9 h-9 rounded-full bg-white text-[#0F91FC] font-extrabold flex items-center justify-center text-sm shrink-0 shadow-sm">
+                                        {(auth.user?.nama_lengkap || 'S').substring(0, 1).toUpperCase()}
+                                    </div>
+                                )}
+
+                                {/* Nama Pengguna & Peran */}
+                                {!sidebarMengecil && (
+                                    <div className="min-w-0 flex-1">
+                                        <div className="text-sm font-bold text-white truncate leading-tight group-hover:text-white/95">
+                                            {auth.user?.nama_lengkap || 'Pengguna'}
+                                        </div>
+                                        <div className="text-[11px] text-white/70 truncate capitalize leading-tight mt-0.5">
+                                            {roleUtama}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Chevron Panah Kanan (Persis Gambar 4) */}
+                            {!sidebarMengecil && (
+                                <span className="material-symbols-rounded text-xl text-white/75 group-hover:text-white group-hover:translate-x-0.5 transition-transform shrink-0">
+                                    chevron_right
+                                </span>
+                            )}
+                        </button>
                     </div>
                 </aside>
 
@@ -606,6 +639,11 @@ export default function TataLetakUtama({ children, title }) {
                     </div>
                 </div>
             )}
+            {/* Modal Pengalih Akun (Google-Style Multi-Account Switcher) */}
+            <PengalihAkun
+                terbuka={pengalihAkunBuka}
+                onTutup={() => setPengalihAkunBuka(false)}
+            />
         </div>
     );
 }

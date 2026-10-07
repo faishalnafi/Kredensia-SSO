@@ -76,20 +76,29 @@ class ApiDataController extends Controller
     {
         $query = User::with(['roles:id,nama_role', 'kelas', 'kelas.tahunPelajaran']);
 
-        # Filter pencarian pencocokan umum (nama, NIK, NISN/NIP, email)
+        # Filter pencarian pencocokan umum (nama, username, NIK, NISN/NIP, email)
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('nama_lengkap', 'like', "%{$search}%")
+                  ->orWhere('username', 'like', "%{$search}%")
                   ->orWhere('nik', 'like', "%{$search}%")
                   ->orWhere('nip_nis', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
-        # Filter spesifik email
+        # Filter spesifik email atau username
         if ($request->filled('email')) {
-            $query->where('email', $request->input('email'));
+            $nilaiEmail = strtolower(trim((string) $request->input('email')));
+            $query->where(function ($q) use ($nilaiEmail) {
+                $q->where('email', $nilaiEmail)
+                  ->orWhere('username', ltrim($nilaiEmail, '@'));
+            });
+        }
+
+        if ($request->filled('username')) {
+            $query->where('username', strtolower(trim(ltrim((string) $request->input('username'), '@'))));
         }
 
         # Filter spesifik role
@@ -112,7 +121,7 @@ class ApiDataController extends Controller
 
         $perPage = min((int) $request->input('per_page', 50), 100);
 
-        $data = $query->select(['id', 'nama_lengkap', 'email', 'nik', 'nip_nis', 'jk', 'no_telp', 'tgl_lahir', 'is_active', 'claimed_at', 'created_at', 'updated_at', 'kelas_id'])
+        $data = $query->select(['id', 'nama_lengkap', 'username', 'email', 'nik', 'nip_nis', 'jk', 'no_telp', 'tgl_lahir', 'is_active', 'claimed_at', 'created_at', 'updated_at', 'kelas_id'])
             ->orderBy('nama_lengkap')
             ->paginate($perPage);
 
@@ -130,13 +139,18 @@ class ApiDataController extends Controller
 
     /**
      * GET /api/v1/members/{id}
-     * Detail satu member beserta data kelas dan tahun pelajaran aktif.
+     * Detail satu member beserta data kelas dan tahun pelajaran aktif (mendukung UUID, username, atau email).
      */
     public function detailMember(string $id): JsonResponse
     {
+        $kunci = strtolower(trim(ltrim($id, '@')));
+
         $pengguna = User::with(['roles:id,nama_role', 'kelas', 'kelas.tahunPelajaran'])
-            ->select(['id', 'nama_lengkap', 'email', 'nik', 'nip_nis', 'jk', 'no_telp', 'tgl_lahir', 'is_active', 'claimed_at', 'created_at', 'updated_at', 'kelas_id'])
-            ->find($id);
+            ->select(['id', 'nama_lengkap', 'username', 'email', 'nik', 'nip_nis', 'jk', 'no_telp', 'tgl_lahir', 'is_active', 'claimed_at', 'created_at', 'updated_at', 'kelas_id'])
+            ->where('id', $id)
+            ->orWhere('username', $kunci)
+            ->orWhere('email', $kunci)
+            ->first();
 
         if (!$pengguna) {
             return response()->json(['success' => false, 'pesan' => 'Member tidak ditemukan.'], 404);

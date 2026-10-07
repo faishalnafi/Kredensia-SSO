@@ -61,6 +61,11 @@ class AppServiceProvider extends ServiceProvider
                     config([
                         'sso.batas_request_per_menit' => $settings->batas_request_per_menit ?? 2500,
                     ]);
+
+                    // Terapkan konfigurasi SMTP / Gmail pribadi jika diaktifkan
+                    if ($settings->smtp_enabled) {
+                        app(\App\Services\LayananEmail::class)->terapkanKonfigurasiSmtp($settings);
+                    }
                 }
             }
         } catch (\Throwable $e) {
@@ -72,5 +77,47 @@ class AppServiceProvider extends ServiceProvider
             $limit = config('sso.batas_request_per_menit', 2500);
             return \Illuminate\Cache\RateLimiting\Limit::perMinute($limit)->by($request->ip());
         });
+
+        // Daftarkan pendengar perubahan model untuk sinkronisasi real-time 2 arah otomatis
+        $this->daftarkanPendengarSinkronisasiRealtime();
+    }
+
+    /**
+     * Daftarkan hook otomatis pada setiap model utama agar setiap operasi
+     * tambah, ubah, atau hapus langsung menyiarkan event WebSocket (Reverb/Pusher)
+     * ke seluruh klien tanpa perlu refresh halaman manual.
+     */
+    private function daftarkanPendengarSinkronisasiRealtime(): void
+    {
+        $petaModelModul = [
+            \App\Models\User::class             => 'pengguna',
+            \App\Models\UserRole::class         => 'pengguna',
+            \App\Models\Role::class             => 'peran',
+            \App\Models\RegisteredApp::class    => 'aplikasi',
+            \App\Models\AppRole::class          => 'aplikasi',
+            \App\Models\UserCorrection::class   => 'koreksi',
+            \App\Models\Kelas::class            => 'kelas',
+            \App\Models\TahunPelajaran::class   => 'tahun_pelajaran',
+            \App\Models\KunciApi::class         => 'kunci_api',
+            \App\Models\PengaturanSistem::class => 'pengaturan',
+            \App\Models\LogAktivitas::class     => 'log_aktivitas',
+        ];
+
+        foreach ($petaModelModul as $kelasModel => $namaModul) {
+            if (!class_exists($kelasModel)) {
+                continue;
+            }
+
+            $kelasModel::saved(function ($model) use ($namaModul) {
+                $aksi = $model->wasRecentlyCreated ? 'dibuat' : 'diperbarui';
+                $idTarget = isset($model->id) ? (string) $model->id : null;
+                \App\Services\LayananSinkronisasiRealtime::siarkan($namaModul, $aksi, $idTarget);
+            });
+
+            $kelasModel::deleted(function ($model) use ($namaModul) {
+                $idTarget = isset($model->id) ? (string) $model->id : null;
+                \App\Services\LayananSinkronisasiRealtime::siarkan($namaModul, 'dihapus', $idTarget);
+            });
+        }
     }
 }

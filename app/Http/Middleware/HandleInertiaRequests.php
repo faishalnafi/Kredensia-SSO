@@ -31,6 +31,10 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $user = $request->user();
+        
+        if ($user) {
+            \App\Services\LayananSesiPerangkat::daftarkanAkunKeSesi($request, $user, 'Sesi Aktif', false);
+        }
 
         // Otomatis simpan GPS dari input, cookie, atau header ke dalam session jika ada
         $lat = $request->input('latitude')
@@ -81,10 +85,27 @@ class HandleInertiaRequests extends Middleware
 
         return [
             ...parent::share($request),
+            // Kanal push notification real-time untuk sesi browser ini
+            'kanalSesi' => $user ? \App\Services\LayananSesiPerangkat::kanalSesi($request->session()->getId()) : null,
+            // Batas maksimal akun multi-sesi dalam satu perangkat (default 25)
+            'batasMultiAkun' => \App\Services\LayananSesiPerangkat::BATAS_MAKSIMAL_MULTI_AKUN,
+            // Daftar akun yang sesinya masih valid di browser ini (sumber kebenaran Pengalih Akun)
+            'akunMultiSesi' => $user
+                ? \App\Models\User::whereIn('id', $request->session()->get('sso_multi_accounts', []))
+                    ->get()
+                    ->map(fn ($u) => [
+                        'id' => $u->id,
+                        'nama_lengkap' => $u->nama_lengkap,
+                        'username' => $u->username,
+                        'email' => $u->email,
+                        'avatar_url' => $u->avatar_url,
+                    ])->values()
+                : [],
             'auth' => [
                 'user' => $user ? [
                     'id'           => $user->id,
                     'nama_lengkap' => $user->nama_lengkap,
+                    'username'     => $user->username,
                     'email'        => $user->email,
                     'nik'          => $user->nik,
                     'nip_nis'      => $user->nip_nis,

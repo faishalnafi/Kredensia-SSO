@@ -47,6 +47,17 @@ export default function ProfilSaya({ pengguna }) {
                                 <span className="text-[11px] font-sans text-slate-400 font-normal">Sistem ID (UUID)</span>
                             </div>
                         </div>
+                        <div className="md:col-span-2">
+                            <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Username</label>
+                            <div className="bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-600 dark:text-slate-300 font-mono flex items-center justify-between gap-2">
+                                <span className={pengguna?.username ? 'font-bold text-slate-800 dark:text-white' : 'text-slate-400 dark:text-slate-500 italic font-sans'}>
+                                    {pengguna?.username ? `@${pengguna.username}` : 'Belum diatur'}
+                                </span>
+                                <span className="text-[11px] font-sans text-slate-400 font-normal">
+                                    {pengguna?.username ? 'Alias Akses Sistem (Pengganti Email / UUID)' : 'Dapat diatur di menu Keamanan Akun'}
+                                </span>
+                            </div>
+                        </div>
                         <div>
                             <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Nomor Induk Kependudukan (NIK)</label>
                             <div className="bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-600 dark:text-slate-300 font-semibold">

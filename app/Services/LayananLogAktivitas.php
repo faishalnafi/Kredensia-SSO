@@ -179,6 +179,7 @@ class LayananLogAktivitas
                 foreach (array_chunk($idsToDelete, 500) as $chunkIds) {
                     LogAktivitas::whereIn('id', $chunkIds)->delete();
                 }
+                \App\Services\LayananSinkronisasiRealtime::siarkan('log_aktivitas', 'dihapus');
             }
 
             return $hasil;

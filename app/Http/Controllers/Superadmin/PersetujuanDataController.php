@@ -31,6 +31,7 @@ class PersetujuanDataController extends Controller
                 if ($user) {
                     $fields = [
                         'nama_lengkap' => 'Nama Lengkap',
+                        'username'     => 'Username',
                         'email'        => 'Email',
                         'jk'           => 'Jenis Kelamin',
                         'tgl_lahir'    => 'Tanggal Lahir',
@@ -91,12 +92,32 @@ class PersetujuanDataController extends Controller
             return redirect()->back()->with('error', 'Gagal: Pengajuan ini sudah ditinjau sebelumnya.');
         }
 
-        DB::transaction(function () use ($koreksi) {
+        $ditolakKarenaDuplikat = false;
+
+        DB::transaction(function () use ($koreksi, &$ditolakKarenaDuplikat) {
             $user = $koreksi->userAsli;
+
+            if ($user && !empty($koreksi->username)) {
+                $sudahDipakai = \App\Models\User::whereRaw('LOWER(username) = ?', [strtolower((string) $koreksi->username)])
+                    ->where('id', '!=', $user->id)
+                    ->lockForUpdate()
+                    ->exists();
+
+                if ($sudahDipakai) {
+                    # Jika username sudah terlanjur disetujui/dipakai pengguna lain, pengajuan ini otomatis ditolak
+                    $koreksi->update([
+                        'status_correction' => 'rejected',
+                        'reviewed_by'       => auth()->id(),
+                    ]);
+                    $ditolakKarenaDuplikat = true;
+                    return;
+                }
+            }
 
             if ($user) {
                 $user->update([
                     'nama_lengkap' => $koreksi->nama_lengkap ?? $user->nama_lengkap,
+                    'username'     => $koreksi->username ?? $user->username,
                     'email'        => $koreksi->email ?? $user->email,
                     'jk'           => $koreksi->jk ?? $user->jk,
                     'tgl_lahir'    => $koreksi->tgl_lahir ?? $user->tgl_lahir,
@@ -111,11 +132,27 @@ class PersetujuanDataController extends Controller
                 'status_correction' => 'approved',
                 'reviewed_by'       => auth()->id(),
             ]);
+
+            # Tolak otomatis seluruh pengajuan pending lain yang meminta username yang sama
+            if (!empty($koreksi->username)) {
+                UserCorrection::where('status_correction', 'pending')
+                    ->where('id', '!=', $koreksi->id)
+                    ->whereRaw('LOWER(username) = ?', [strtolower((string) $koreksi->username)])
+                    ->update([
+                        'status_correction' => 'rejected',
+                        'reviewed_by'       => auth()->id(),
+                    ]);
+            }
         });
 
         // Hapus cache daftar pengguna agar perubahan ter-update instan
         Cache::forget('superadmin:daftar-pengguna');
         Cache::forget('superadmin:statistik');
+
+        if ($ditolakKarenaDuplikat) {
+            \App\Services\LayananLogAktivitas::catat('Menolak otomatis pengajuan perbaikan data karena username @' . $koreksi->username . ' sudah digunakan: ' . ($koreksi->nama_lengkap ?: ''));
+            return redirect()->back()->with('error', "Pengajuan otomatis ditolak karena username @{$koreksi->username} sudah digunakan oleh pengguna lain.");
+        }
 
         \App\Services\LayananLogAktivitas::catat('Menyetujui perbaikan data pengguna: ' . ($koreksi->nama_lengkap ?: ''));
 
@@ -147,24 +184,47 @@ class PersetujuanDataController extends Controller
 
     /**
      * Setujui semua pengajuan perbaikan data yang pending sekaligus.
+     * Diproses berurutan berdasarkan waktu pengajuan (siapa cepat dia dapat, pengajuan kedua dengan username sama otomatis ditolak).
      */
     public function setujuiSemua(): RedirectResponse
     {
-        $daftarKoreksi = UserCorrection::where('status_correction', 'pending')->get();
+        $daftarKoreksi = UserCorrection::where('status_correction', 'pending')
+            ->orderBy('submitted_at', 'asc')
+            ->orderBy('created_at', 'asc')
+            ->get();
 
         if ($daftarKoreksi->isEmpty()) {
             return redirect()->back()->with('error', 'Gagal: Tidak ada pengajuan perbaikan data yang tertunda.');
         }
 
         $totalSetujui = 0;
+        $totalDitolakDuplikat = 0;
 
-        DB::transaction(function () use ($daftarKoreksi, &$totalSetujui) {
+        DB::transaction(function () use ($daftarKoreksi, &$totalSetujui, &$totalDitolakDuplikat) {
             foreach ($daftarKoreksi as $koreksi) {
                 $user = $koreksi->userAsli;
+
+                if ($user && !empty($koreksi->username)) {
+                    $sudahDipakai = \App\Models\User::whereRaw('LOWER(username) = ?', [strtolower((string) $koreksi->username)])
+                        ->where('id', '!=', $user->id)
+                        ->lockForUpdate()
+                        ->exists();
+
+                    if ($sudahDipakai) {
+                        # Pengajuan kedua dengan username yang sama dipastikan ditolak
+                        $koreksi->update([
+                            'status_correction' => 'rejected',
+                            'reviewed_by'       => auth()->id(),
+                        ]);
+                        $totalDitolakDuplikat++;
+                        continue;
+                    }
+                }
 
                 if ($user) {
                     $user->update([
                         'nama_lengkap' => $koreksi->nama_lengkap ?? $user->nama_lengkap,
+                        'username'     => $koreksi->username ?? $user->username,
                         'email'        => $koreksi->email ?? $user->email,
                         'jk'           => $koreksi->jk ?? $user->jk,
                         'tgl_lahir'    => $koreksi->tgl_lahir ?? $user->tgl_lahir,
@@ -188,8 +248,13 @@ class PersetujuanDataController extends Controller
         Cache::forget('superadmin:daftar-pengguna');
         Cache::forget('superadmin:statistik');
 
-        \App\Services\LayananLogAktivitas::catat("Menyetujui sekaligus ({$totalSetujui}) pengajuan perbaikan data pengguna.");
+        \App\Services\LayananLogAktivitas::catat("Menyetujui sekaligus ({$totalSetujui}) pengajuan perbaikan data pengguna" . ($totalDitolakDuplikat > 0 ? " ({$totalDitolakDuplikat} ditolak karena duplikat username)." : '.'));
 
-        return redirect()->back()->with('success', "Berhasil menyetujui sekaligus {$totalSetujui} pengajuan perbaikan data.");
+        $pesan = "Berhasil menyetujui {$totalSetujui} pengajuan perbaikan data.";
+        if ($totalDitolakDuplikat > 0) {
+            $pesan .= " ({$totalDitolakDuplikat} pengajuan kedua otomatis ditolak karena menggunakan username yang sama).";
+        }
+
+        return redirect()->back()->with('success', $pesan);
     }
 }

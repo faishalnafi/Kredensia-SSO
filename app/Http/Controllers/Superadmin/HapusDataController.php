@@ -78,6 +78,7 @@ class HapusDataController extends Controller
             });
 
             \App\Services\LayananLogAktivitas::catat('Melakukan penghapusan/reset seluruh data sistem (kecuali admin & superadmin)');
+            \App\Services\LayananSinkronisasiRealtime::siarkan('sistem', 'dihapus');
 
             return redirect()->back()->with('sukses', 'Seluruh data berhasil dihapus. Sistem telah direset ke kondisi awal.');
         } catch (\Throwable $e) {
