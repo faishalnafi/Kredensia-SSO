@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Services\LayananLogAktivitas;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,7 +20,7 @@ use Inertia\Response;
 class NewPasswordController extends Controller
 {
     /**
-     * Display the password reset view.
+     * Tampilkan halaman pembuatan kata sandi baru (Reset Password).
      */
     public function create(Request $request): Response
     {
@@ -28,24 +31,27 @@ class NewPasswordController extends Controller
     }
 
     /**
-     * Handle an incoming new password request.
+     * Simpan kata sandi baru dari tautan pemulihan surel.
      *
      * @throws ValidationException
      */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'token' => 'required',
-            'email' => 'required|email',
+            'token' => ['required', 'string'],
+            'email' => ['required', 'email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ], [
+            'email.required' => 'Alamat surel wajib diisi.',
+            'email.email' => 'Format alamat surel tidak valid.',
+            'password.required' => 'Kata sandi baru wajib diisi.',
+            'password.confirmed' => 'Konfirmasi kata sandi baru tidak cocok.',
+            'password.min' => 'Kata sandi baru minimal harus 8 karakter.',
         ]);
 
-        // Here we will attempt to reset the user's password. If it is successful we
-        // will update the password on an actual user model and persist it to the
-        // database. Otherwise we will parse the error and return the response.
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
-            function ($user) use ($request) {
+            function ($user) use ($request): void {
                 $user->forceFill([
                     'password' => Hash::make($request->password),
                     'remember_token' => Str::random(60),
@@ -55,16 +61,23 @@ class NewPasswordController extends Controller
             }
         );
 
-        // If the password was successfully reset, we will redirect the user back to
-        // the application's home authenticated view. If there is an error we can
-        // redirect them back to where they came from with their error message.
         if ($status == Password::PASSWORD_RESET) {
-            \App\Services\LayananLogAktivitas::catat('Berhasil melakukan reset kata sandi melalui tautan email', $request->email);
-            return redirect()->route('login')->with('status', __($status));
+            LayananLogAktivitas::catat('Berhasil melakukan reset kata sandi melalui tautan surel', (string) $request->email);
+            return redirect('/otentikasi#masuk')->with(
+                'status',
+                'Kata sandi Anda berhasil diperbarui! Silakan masuk menggunakan kata sandi baru Anda.'
+            );
         }
 
+        $pesanError = match ($status) {
+            Password::INVALID_TOKEN => 'Token pemulihan kata sandi tidak valid atau sudah kedaluwarsa. Silakan ajukan permintaan ulang.',
+            Password::INVALID_USER => 'Pengguna dengan alamat surel tersebut tidak ditemukan.',
+            Password::RESET_THROTTLED => 'Terlalu banyak percobaan. Silakan tunggu beberapa saat sebelum mencoba kembali.',
+            default => trans($status),
+        };
+
         throw ValidationException::withMessages([
-            'email' => [trans($status)],
+            'email' => [$pesanError],
         ]);
     }
 }

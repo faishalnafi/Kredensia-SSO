@@ -10,6 +10,7 @@ use App\Models\Role;
 use App\Models\User;
 use App\Services\Layanan2FA;
 use App\Services\LayananLogAktivitas;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -39,6 +40,9 @@ class Konfigurasi2FAController extends Controller
                 'is_active',
                 'two_factor_confirmed_at',
                 'two_factor_type',
+                'two_factor_methods',
+                'two_factor_passkeys',
+                'two_factor_recovery_codes',
                 'created_at',
             ])
             ->orderBy('nama_lengkap', 'asc');
@@ -101,6 +105,7 @@ class Konfigurasi2FAController extends Controller
                 'has_2fa' => !is_null($u->two_factor_confirmed_at),
                 'two_factor_confirmed_at' => $u->two_factor_confirmed_at ? $u->two_factor_confirmed_at->format('d/m/Y H:i') : null,
                 'two_factor_type' => $u->two_factor_type ?: 'totp',
+                'two_factor_methods' => $u->daftarMetodeMfaAktif(),
                 'is_required' => $isWajib,
             ];
         });
@@ -125,13 +130,46 @@ class Konfigurasi2FAController extends Controller
 
         return Inertia::render('Superadmin/Konfigurasi2FA/Indeks', [
             'pengaturan' => [
+                'nama_aplikasi' => (string) ($pengaturan->nama_aplikasi ?: 'SSO Sekolah'),
                 'two_factor_enabled' => (bool) $pengaturan->two_factor_enabled,
                 'two_factor_enforcement' => $pengaturan->two_factor_enforcement ?: 'roles',
                 'two_factor_roles' => (array) ($pengaturan->two_factor_roles ?: ['Super Admin', 'Admin']),
-                'two_factor_allowed_methods' => (array) ($pengaturan->two_factor_allowed_methods ?: ['totp', 'email']),
+                'two_factor_allowed_methods' => (array) ($pengaturan->two_factor_allowed_methods ?: ['totp', 'google_prompt', 'whatsapp', 'email', 'passkey', 'security_key', 'backup_codes']),
                 'two_factor_grace_period_days' => (int) ($pengaturan->two_factor_grace_period_days ?? 7),
                 'two_factor_remember_browser_days' => (int) ($pengaturan->two_factor_remember_browser_days ?? 30),
+                'wa_fonnte_enabled' => (bool) ($pengaturan->wa_fonnte_enabled ?? true),
+                'wa_fonnte_api_url' => (string) ($pengaturan->wa_fonnte_api_url ?: 'https://api.fonnte.com/send'),
+                'wa_fonnte_token' => (string) ($pengaturan->wa_fonnte_token ?: ''),
+                'wa_fonnte_sender' => (string) ($pengaturan->wa_fonnte_sender ?: ''),
+                'wa_fonnte_country_code' => (string) ($pengaturan->wa_fonnte_country_code ?: '62'),
+                'wa_fonnte_delay' => (string) ($pengaturan->wa_fonnte_delay ?: '1'),
+                'wa_fonnte_typing' => (bool) ($pengaturan->wa_fonnte_typing ?? true),
+                'wa_fonnte_message_template' => (string) ($pengaturan->wa_fonnte_message_template ?: Layanan2FA::DEFAULT_WA_TEMPLATE),
+                'default_wa_template' => Layanan2FA::DEFAULT_WA_TEMPLATE,
+                'smtp_enabled' => (bool) ($pengaturan->smtp_enabled ?? false),
+                'smtp_host' => (string) ($pengaturan->smtp_host ?: 'smtp.gmail.com'),
+                'smtp_port' => (int) ($pengaturan->smtp_port ?: 587),
+                'smtp_encryption' => (string) ($pengaturan->smtp_encryption ?: 'tls'),
+                'smtp_username' => (string) ($pengaturan->smtp_username ?: ''),
+                'smtp_password' => (string) ($pengaturan->smtp_password ?: ''),
+                'smtp_from_address' => (string) ($pengaturan->smtp_from_address ?: ''),
+                'smtp_from_name' => (string) ($pengaturan->smtp_from_name ?: ($pengaturan->nama_aplikasi ?: 'SSO Sekolah')),
+                'email_otp_subject' => (string) ($pengaturan->email_otp_subject ?: \App\Services\LayananEmail::ambilDefaultSubjekOtp()),
+                'email_otp_message' => (string) ($pengaturan->email_otp_message ?: \App\Services\LayananEmail::ambilDefaultPesanOtp()),
+                'email_otp_template' => (string) ($pengaturan->email_otp_template ?: \App\Services\LayananEmail::ambilDefaultTemplateHtmlOtp()),
+                'email_reset_subject' => (string) ($pengaturan->email_reset_subject ?: \App\Services\LayananEmail::ambilDefaultSubjekReset()),
+                'email_reset_message' => (string) ($pengaturan->email_reset_message ?: \App\Services\LayananEmail::ambilDefaultPesanReset()),
+                'email_reset_template' => (string) ($pengaturan->email_reset_template ?: \App\Services\LayananEmail::ambilDefaultTemplateHtmlReset()),
+                'default_email_templates' => [
+                    'otp_subject' => \App\Services\LayananEmail::ambilDefaultSubjekOtp(),
+                    'otp_message' => \App\Services\LayananEmail::ambilDefaultPesanOtp(),
+                    'otp_template' => \App\Services\LayananEmail::ambilDefaultTemplateHtmlOtp(),
+                    'reset_subject' => \App\Services\LayananEmail::ambilDefaultSubjekReset(),
+                    'reset_message' => \App\Services\LayananEmail::ambilDefaultPesanReset(),
+                    'reset_template' => \App\Services\LayananEmail::ambilDefaultTemplateHtmlReset(),
+                ],
             ],
+            'daftarMetodeSistem' => array_values(Layanan2FA::SEMUA_METODE),
             'semuaPeran' => $semuaPeran,
             'daftarPengguna' => $daftarPengguna,
             'statistik' => [
@@ -146,7 +184,7 @@ class Konfigurasi2FAController extends Controller
     }
 
     /**
-     * Simpan pembaruan kebijakan konfigurasi 2FA sistem.
+     * Simpan pembaruan kebijakan konfigurasi 2FA sistem beserta konfigurasi Fonnte WhatsApp API.
      */
     public function perbarui(Request $request): RedirectResponse
     {
@@ -156,34 +194,171 @@ class Konfigurasi2FAController extends Controller
             'two_factor_roles' => ['nullable', 'array'],
             'two_factor_roles.*' => ['string'],
             'two_factor_allowed_methods' => ['required', 'array', 'min:1'],
-            'two_factor_allowed_methods.*' => ['string', 'in:totp,email'],
+            'two_factor_allowed_methods.*' => ['string', 'in:totp,google_prompt,whatsapp,email,passkey,security_key,backup_codes'],
             'two_factor_grace_period_days' => ['required', 'integer', 'min:0', 'max:365'],
             'two_factor_remember_browser_days' => ['required', 'integer', 'min:1', 'max:365'],
+            'wa_fonnte_enabled' => ['nullable', 'boolean'],
+            'wa_fonnte_api_url' => ['nullable', 'url', 'max:500'],
+            'wa_fonnte_token' => ['nullable', 'string', 'max:500'],
+            'wa_fonnte_sender' => ['nullable', 'string', 'max:50'],
+            'wa_fonnte_country_code' => ['nullable', 'string', 'max:10'],
+            'wa_fonnte_delay' => ['nullable', 'string', 'max:20'],
+            'wa_fonnte_typing' => ['nullable', 'boolean'],
+            'wa_fonnte_message_template' => ['nullable', 'string', 'max:4000'],
         ], [
-            'two_factor_allowed_methods.min' => 'Pilih minimal satu metode 2FA yang diizinkan (TOTP atau Email).',
+            'two_factor_allowed_methods.min' => 'Pilih minimal satu metode verifikasi 2FA / MFA yang diizinkan.',
             'two_factor_grace_period_days.min' => 'Masa tenggang minimal 0 hari.',
             'two_factor_remember_browser_days.min' => 'Durasi ingat perangkat minimal 1 hari.',
+            'wa_fonnte_api_url.url' => 'Format URL Endpoint API Fonnte tidak valid.',
+        ]);
+
+        $pengaturan = Layanan2FA::dapatkanPengaturan();
+
+        DB::transaction(function () use ($pengaturan, $request) {
+            $dataUpdate = [
+                'two_factor_enabled' => (bool) $request->two_factor_enabled,
+                'two_factor_enforcement' => $request->two_factor_enforcement,
+                'two_factor_roles' => $request->two_factor_roles ?: [],
+                'two_factor_allowed_methods' => array_values(array_unique($request->two_factor_allowed_methods)),
+                'two_factor_grace_period_days' => (int) $request->two_factor_grace_period_days,
+                'two_factor_remember_browser_days' => (int) $request->two_factor_remember_browser_days,
+            ];
+
+            if ($request->has('wa_fonnte_api_url') || $request->has('wa_fonnte_token')) {
+                $dataUpdate['wa_fonnte_enabled'] = (bool) ($request->wa_fonnte_enabled ?? true);
+                $dataUpdate['wa_fonnte_api_url'] = trim((string) ($request->wa_fonnte_api_url ?: 'https://api.fonnte.com/send'));
+                $dataUpdate['wa_fonnte_token'] = trim((string) ($request->wa_fonnte_token ?? '')) ?: null;
+                $dataUpdate['wa_fonnte_sender'] = trim((string) ($request->wa_fonnte_sender ?? '')) ?: null;
+                $dataUpdate['wa_fonnte_country_code'] = trim((string) ($request->wa_fonnte_country_code ?: '62'));
+                $dataUpdate['wa_fonnte_delay'] = trim((string) ($request->wa_fonnte_delay ?: '1'));
+                $dataUpdate['wa_fonnte_typing'] = (bool) ($request->wa_fonnte_typing ?? true);
+                $dataUpdate['wa_fonnte_message_template'] = trim((string) ($request->wa_fonnte_message_template ?: Layanan2FA::DEFAULT_WA_TEMPLATE));
+            }
+
+            $pengaturan->update($dataUpdate);
+        });
+
+        Cache::forget('platform_settings');
+        Cache::forget('platform_settings_model');
+
+        LayananLogAktivitas::catat('Memperbarui kebijakan konfigurasi autentikasi 2FA / MFA & Gateway WhatsApp Fonnte');
+
+        return redirect()->back()->with('success', 'Kebijakan Autentikasi 2FA / MFA dan Konfigurasi WhatsApp Fonnte berhasil disimpan.');
+    }
+
+    /**
+     * Simpan khusus konfigurasi API WhatsApp Fonnte dari panel Superadmin.
+     */
+    public function simpanKonfigurasiFonnte(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'wa_fonnte_enabled' => ['required', 'boolean'],
+            'wa_fonnte_api_url' => ['required', 'url', 'max:500'],
+            'wa_fonnte_token' => ['nullable', 'string', 'max:500'],
+            'wa_fonnte_sender' => ['nullable', 'string', 'max:50'],
+            'wa_fonnte_country_code' => ['required', 'string', 'max:10'],
+            'wa_fonnte_delay' => ['required', 'string', 'max:20'],
+            'wa_fonnte_typing' => ['required', 'boolean'],
+            'wa_fonnte_message_template' => ['required', 'string', 'max:4000'],
+        ], [
+            'wa_fonnte_api_url.required' => 'URL Endpoint API Fonnte wajib diisi.',
+            'wa_fonnte_api_url.url' => 'Format URL Endpoint API Fonnte tidak valid.',
+            'wa_fonnte_message_template.required' => 'Template pesan OTP WhatsApp wajib diisi.',
         ]);
 
         $pengaturan = Layanan2FA::dapatkanPengaturan();
 
         DB::transaction(function () use ($pengaturan, $request) {
             $pengaturan->update([
-                'two_factor_enabled' => (bool) $request->two_factor_enabled,
-                'two_factor_enforcement' => $request->two_factor_enforcement,
-                'two_factor_roles' => $request->two_factor_roles ?: [],
-                'two_factor_allowed_methods' => $request->two_factor_allowed_methods,
-                'two_factor_grace_period_days' => (int) $request->two_factor_grace_period_days,
-                'two_factor_remember_browser_days' => (int) $request->two_factor_remember_browser_days,
+                'wa_fonnte_enabled' => (bool) $request->wa_fonnte_enabled,
+                'wa_fonnte_api_url' => trim((string) $request->wa_fonnte_api_url),
+                'wa_fonnte_token' => trim((string) ($request->wa_fonnte_token ?? '')) ?: null,
+                'wa_fonnte_sender' => trim((string) ($request->wa_fonnte_sender ?? '')) ?: null,
+                'wa_fonnte_country_code' => trim((string) ($request->wa_fonnte_country_code ?: '62')),
+                'wa_fonnte_delay' => trim((string) ($request->wa_fonnte_delay ?: '1')),
+                'wa_fonnte_typing' => (bool) $request->wa_fonnte_typing,
+                'wa_fonnte_message_template' => trim((string) $request->wa_fonnte_message_template),
             ]);
         });
 
         Cache::forget('platform_settings');
         Cache::forget('platform_settings_model');
 
-        LayananLogAktivitas::catat('Memperbarui kebijakan konfigurasi autentikasi 2FA sistem');
+        LayananLogAktivitas::catat('Memperbarui konfigurasi API WhatsApp Gateway (Fonnte)');
 
-        return redirect()->back()->with('success', 'Kebijakan Autentikasi 2FA berhasil disimpan dan diterapkan.');
+        return redirect()->back()->with('success', 'Konfigurasi API WhatsApp Fonnte berhasil disimpan dan diterapkan secara dinamis.');
+    }
+
+    /**
+     * Cek status koneksi perangkat WhatsApp di Fonnte secara langsung.
+     */
+    public function cekDeviceFonnte(Request $request): JsonResponse
+    {
+        $token = $request->input('wa_fonnte_token');
+        $hasil = Layanan2FA::cekPerangkatFonnte(is_string($token) ? $token : null);
+
+        return response()->json($hasil, $hasil['berhasil'] ? 200 : 422);
+    }
+
+    /**
+     * Uji kirim pesan WhatsApp OTP melalui Fonnte menggunakan konfigurasi yang sedang diedit.
+     */
+    public function ujiKirimFonnte(Request $request): JsonResponse
+    {
+        $request->validate([
+            'nomor_tujuan' => ['required', 'string', 'max:30'],
+            'wa_fonnte_api_url' => ['nullable', 'url', 'max:500'],
+            'wa_fonnte_token' => ['nullable', 'string', 'max:500'],
+            'wa_fonnte_country_code' => ['nullable', 'string', 'max:10'],
+            'wa_fonnte_delay' => ['nullable', 'string', 'max:20'],
+            'wa_fonnte_typing' => ['nullable', 'boolean'],
+            'wa_fonnte_message_template' => ['nullable', 'string', 'max:4000'],
+        ], [
+            'nomor_tujuan.required' => 'Masukkan nomor WhatsApp tujuan untuk pengujian.',
+        ]);
+
+        $pengaturan = Layanan2FA::dapatkanPengaturan();
+        $user = $request->user();
+        $otpSimulasi = (string) random_int(100000, 999999);
+
+        $template = trim((string) ($request->input('wa_fonnte_message_template') ?: $pengaturan->wa_fonnte_message_template ?: Layanan2FA::DEFAULT_WA_TEMPLATE));
+
+        $pesan = Layanan2FA::formatPesanOtpWhatsapp($template, [
+            'otp' => $otpSimulasi,
+            'nama' => (string) ($user?->nama_lengkap ?: 'Superadmin SSO'),
+            'email' => (string) ($user?->email ?: 'superadmin@sekolah.sch.id'),
+            'no_telp' => (string) $request->input('nomor_tujuan'),
+            'aplikasi' => (string) ($pengaturan->nama_aplikasi ?: config('app.name', 'SSO Sekolah')),
+            'menit' => '10',
+            'waktu' => now()->addMinutes(10)->format('H:i'),
+        ]);
+
+        $override = [
+            'wa_fonnte_api_url' => $request->input('wa_fonnte_api_url') ?: $pengaturan->wa_fonnte_api_url,
+            'wa_fonnte_token' => $request->input('wa_fonnte_token') !== null ? $request->input('wa_fonnte_token') : $pengaturan->wa_fonnte_token,
+            'wa_fonnte_country_code' => $request->input('wa_fonnte_country_code') ?: $pengaturan->wa_fonnte_country_code,
+            'wa_fonnte_delay' => $request->input('wa_fonnte_delay') ?: $pengaturan->wa_fonnte_delay,
+            'wa_fonnte_typing' => $request->has('wa_fonnte_typing') ? (bool) $request->boolean('wa_fonnte_typing') : (bool) $pengaturan->wa_fonnte_typing,
+        ];
+
+        $hasil = Layanan2FA::kirimPesanFonnte(
+            (string) $request->input('nomor_tujuan'),
+            $pesan,
+            $pengaturan,
+            $override
+        );
+
+        if ($hasil['berhasil']) {
+            LayananLogAktivitas::catat("Melakukan uji kirim pesan OTP WhatsApp Fonnte ke nomor: {$request->input('nomor_tujuan')}");
+        }
+
+        return response()->json([
+            'berhasil' => $hasil['berhasil'],
+            'pesan' => $hasil['pesan_respon'],
+            'otp_simulasi' => $otpSimulasi,
+            'pratinjau_pesan' => $pesan,
+            'detail' => $hasil['data'],
+        ], $hasil['berhasil'] ? 200 : 422);
     }
 
     /**
@@ -195,9 +370,9 @@ class Konfigurasi2FAController extends Controller
 
         Layanan2FA::resetUser2FA($user);
 
-        LayananLogAktivitas::catat("Mereset kunci autentikasi 2FA pengguna: {$user->nama_lengkap} ({$user->email})");
+        LayananLogAktivitas::catat("Mereset kunci autentikasi 2FA/MFA pengguna: {$user->nama_lengkap} ({$user->email})");
 
-        return redirect()->back()->with('success', "Autentikasi 2FA untuk pengguna {$user->nama_lengkap} berhasil di-reset. Pengguna dapat mengatur ulang 2FA pada login berikutnya.");
+        return redirect()->back()->with('success', "Autentikasi 2FA/MFA untuk pengguna {$user->nama_lengkap} berhasil di-reset. Pengguna dapat mengatur ulang metode verifikasi pada login berikutnya.");
     }
 
     /**
@@ -212,12 +387,17 @@ class Konfigurasi2FAController extends Controller
             'two_factor_recovery_codes' => null,
             'two_factor_confirmed_at' => null,
             'two_factor_type' => 'totp',
+            'two_factor_methods' => null,
             'two_factor_email_code' => null,
             'two_factor_email_expires_at' => null,
+            'two_factor_wa_code' => null,
+            'two_factor_wa_expires_at' => null,
+            'two_factor_passkeys' => null,
+            'two_factor_prompt_challenge' => null,
         ]);
 
-        LayananLogAktivitas::catat("Melakukan reset massal 2FA untuk seluruh pengguna ({$total} akun)");
+        LayananLogAktivitas::catat("Melakukan reset massal 2FA/MFA untuk seluruh pengguna ({$total} akun)");
 
-        return redirect()->back()->with('success', "Berhasil mereset 2FA untuk seluruh {$total} akun pengguna.");
+        return redirect()->back()->with('success', "Berhasil mereset 2FA/MFA untuk seluruh {$total} akun pengguna.");
     }
 }

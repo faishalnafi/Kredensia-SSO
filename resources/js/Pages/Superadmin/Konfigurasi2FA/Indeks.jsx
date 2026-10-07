@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Head, useForm, router, Link } from '@inertiajs/react';
 import TataLetakUtama from '@/Layouts/TataLetakUtama';
 import InputError from '@/Components/InputError';
+import PanelKonfigurasiFonnte from '@/Components/PanelKonfigurasiFonnte';
 import Swal from 'sweetalert2';
 
 export default function Konfigurasi2FA({
@@ -11,20 +12,43 @@ export default function Konfigurasi2FA({
     statistik = {},
     filters = {}
 }) {
-    const [tabAktif, setTabAktif] = useState('kebijakan'); // 'kebijakan' | 'pengguna' | 'panduan'
+    const [tabAktif, setTabAktif] = useState('kebijakan'); // 'kebijakan' | 'fonnte' | 'pengguna' | 'panduan'
     const [cari, setCari] = useState(filters.cari || '');
     const [filterPeran, setFilterPeran] = useState(filters.peran || 'semua');
     const [filterStatus, setFilterStatus] = useState(filters.status_2fa || '');
 
-    // Form Pengaturan Kebijakan 2FA
+    // Form Pengaturan Kebijakan 2FA & Konfigurasi API WhatsApp Fonnte
     const { data, setData, post, processing, errors } = useForm({
         two_factor_enabled: pengaturan.two_factor_enabled ?? false,
         two_factor_enforcement: pengaturan.two_factor_enforcement || 'roles',
         two_factor_roles: pengaturan.two_factor_roles || ['Super Admin', 'Admin'],
-        two_factor_allowed_methods: pengaturan.two_factor_allowed_methods || ['totp', 'email'],
+        two_factor_allowed_methods: pengaturan.two_factor_allowed_methods || ['totp', 'google_prompt', 'whatsapp', 'email', 'passkey', 'security_key', 'backup_codes'],
         two_factor_grace_period_days: pengaturan.two_factor_grace_period_days ?? 7,
         two_factor_remember_browser_days: pengaturan.two_factor_remember_browser_days ?? 30,
+        wa_fonnte_enabled: pengaturan.wa_fonnte_enabled ?? true,
+        wa_fonnte_api_url: pengaturan.wa_fonnte_api_url || 'https://api.fonnte.com/send',
+        wa_fonnte_token: pengaturan.wa_fonnte_token || '',
+        wa_fonnte_sender: pengaturan.wa_fonnte_sender || '',
+        wa_fonnte_country_code: pengaturan.wa_fonnte_country_code || '62',
+        wa_fonnte_delay: pengaturan.wa_fonnte_delay || '1',
+        wa_fonnte_typing: pengaturan.wa_fonnte_typing ?? true,
+        wa_fonnte_message_template: pengaturan.wa_fonnte_message_template || pengaturan.default_wa_template || '',
     });
+
+    const tanganiSimpanFonnteMandiri = () => {
+        post(route('superadmin.two-factor.fonnte.simpan'), {
+            preserveScroll: true,
+            onSuccess: () => {
+                Swal.fire({
+                    title: 'Berhasil Disimpan!',
+                    text: 'Konfigurasi API WhatsApp Fonnte berhasil diperbarui.',
+                    icon: 'success',
+                    confirmButtonColor: '#0F91FC',
+                    customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl font-bold px-5 py-2.5' }
+                });
+            }
+        });
+    };
 
     const tanganiToggleRole = (roleName) => {
         const rolesSaatIni = [...data.two_factor_roles];
@@ -297,6 +321,19 @@ export default function Konfigurasi2FA({
 
                     <button
                         type="button"
+                        onClick={() => setTabAktif('fonnte')}
+                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
+                            tabAktif === 'fonnte'
+                                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/25'
+                                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50'
+                        }`}
+                    >
+                        <span className="material-symbols-rounded text-lg">chat</span>
+                        API WhatsApp (Fonnte)
+                    </button>
+
+                    <button
+                        type="button"
                         onClick={() => setTabAktif('pengguna')}
                         className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
                             tabAktif === 'pengguna'
@@ -321,6 +358,20 @@ export default function Konfigurasi2FA({
                         Panduan Teknis & Aplikasi
                     </button>
                 </div>
+
+                {/* TAB KHUSUS: KONFIGURASI API WHATSAPP FONNTE */}
+                {tabAktif === 'fonnte' && (
+                    <PanelKonfigurasiFonnte
+                        data={data}
+                        setData={setData}
+                        errors={errors}
+                        defaultTemplate={pengaturan.default_wa_template}
+                        namaAplikasi={pengaturan.nama_aplikasi || 'SSO Sekolah'}
+                        tampilkanTombolSimpanMandiri={true}
+                        sedangMenyimpan={processing}
+                        onSimpanMandiri={tanganiSimpanFonnteMandiri}
+                    />
+                )}
 
                 {/* TAB 1: FORM KEBIJAKAN 2FA */}
                 {tabAktif === 'kebijakan' && (
@@ -491,65 +542,116 @@ export default function Konfigurasi2FA({
                                 </div>
                             )}
 
-                            {/* Metode 2FA yang Diizinkan */}
+                            {/* Metode 2FA / MFA yang Diizinkan */}
                             <div className="space-y-3 pt-2">
                                 <label className="block text-sm font-bold text-slate-700 dark:text-slate-200">
-                                    Metode 2FA yang Diizinkan
+                                    Metode Verifikasi 2FA & MFA yang Diizinkan Sistem
                                 </label>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    {/* TOTP */}
-                                    <div 
-                                        onClick={() => tanganiToggleMethod('totp')}
-                                        className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-start gap-3.5 ${
-                                            data.two_factor_allowed_methods.includes('totp')
-                                                ? 'border-[#0F91FC] bg-blue-50/30 dark:bg-blue-950/20'
-                                                : 'border-slate-200 dark:border-slate-700'
-                                        }`}
-                                    >
-                                        <div className="w-10 h-10 rounded-xl bg-blue-100 text-[#0F91FC] dark:bg-blue-900/40 flex items-center justify-center shrink-0">
-                                            <span className="material-symbols-rounded text-xl">phonelink_lock</span>
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center justify-between">
-                                                <h5 className="font-extrabold text-sm text-slate-800 dark:text-white">
-                                                    Aplikasi Authenticator (TOTP)
-                                                </h5>
-                                                <span className="material-symbols-rounded text-[#0F91FC]">
-                                                    {data.two_factor_allowed_methods.includes('totp') ? 'check_circle' : 'circle'}
-                                                </span>
+                                    {[
+                                        {
+                                            kode: 'totp',
+                                            nama: 'Aplikasi Authenticator (TOTP)',
+                                            ikon: 'qr_code_scanner',
+                                            warna: 'bg-blue-100 text-[#0F91FC] dark:bg-blue-900/40',
+                                            deskripsi: 'Google Authenticator, Microsoft Authenticator, Authy (Kode 6 digit bekerja offline).',
+                                            aktifSistem: true,
+                                        },
+                                        {
+                                            kode: 'google_prompt',
+                                            nama: 'Dialog Perangkat (Mirip Google Prompt)',
+                                            ikon: 'phonelink_lock',
+                                            warna: 'bg-sky-100 text-sky-600 dark:bg-sky-900/40',
+                                            deskripsi: 'Notifikasi pop-up real-time dengan pencocokan angka 2 digit di perangkat yang sedang aktif.',
+                                            aktifSistem: true,
+                                        },
+                                        {
+                                            kode: 'whatsapp',
+                                            nama: 'OTP No. Telepon via WhatsApp (Fonnte)',
+                                            ikon: 'chat',
+                                            warna: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40',
+                                            deskripsi: 'Kirim kode OTP 6 digit ke nomor WhatsApp profil pengguna melalui API Fonnte.',
+                                            aktifSistem: true,
+                                        },
+                                        {
+                                            kode: 'sms',
+                                            nama: 'OTP No. Telepon via SMS',
+                                            ikon: 'sms',
+                                            warna: 'bg-slate-200 text-slate-500 dark:bg-slate-800',
+                                            deskripsi: 'Pengiriman OTP via SMS seluler reguler (Disediakan pada antarmuka namun berstatus Nonaktif).',
+                                            aktifSistem: false,
+                                        },
+                                        {
+                                            kode: 'email',
+                                            nama: 'Kode Verifikasi Email (Email OTP)',
+                                            ikon: 'mail_lock',
+                                            warna: 'bg-purple-100 text-purple-600 dark:bg-purple-900/40',
+                                            deskripsi: 'Kode OTP 6 digit dikirimkan ke alamat email resmi pengguna dengan masa berlaku 10 menit.',
+                                            aktifSistem: true,
+                                        },
+                                        {
+                                            kode: 'passkey',
+                                            nama: 'Kunci Sandi (Passkey Biometrik)',
+                                            ikon: 'fingerprint',
+                                            warna: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40',
+                                            deskripsi: 'Sidik Jari, Face ID, Touch ID, atau Windows Hello berbasis standar WebAuthn.',
+                                            aktifSistem: true,
+                                        },
+                                        {
+                                            kode: 'security_key',
+                                            nama: 'Kunci Keamanan Fisik (Security Key)',
+                                            ikon: 'usb',
+                                            warna: 'bg-amber-100 text-amber-600 dark:bg-amber-900/40',
+                                            deskripsi: 'Kunci keamanan perangkat keras FIDO2 melalui USB, NFC, atau Bluetooth (YubiKey / Titan).',
+                                            aktifSistem: true,
+                                        },
+                                        {
+                                            kode: 'backup_codes',
+                                            nama: 'Kode Cadangan 10 Digit',
+                                            ikon: 'pin',
+                                            warna: 'bg-teal-100 text-teal-600 dark:bg-teal-900/40',
+                                            deskripsi: '10 kode angka darurat (masing-masing 10 digit) sekali pakai saat perangkat utama tidak tersedia.',
+                                            aktifSistem: true,
+                                        },
+                                    ].map((item) => {
+                                        const dipilih = data.two_factor_allowed_methods.includes(item.kode);
+                                        return (
+                                            <div
+                                                key={item.kode}
+                                                onClick={() => item.aktifSistem && tanganiToggleMethod(item.kode)}
+                                                className={`p-4 rounded-2xl border-2 transition-all flex items-start gap-3.5 ${
+                                                    !item.aktifSistem
+                                                        ? 'border-slate-200/70 dark:border-slate-800 bg-slate-100/60 dark:bg-slate-900/40 opacity-65 cursor-not-allowed'
+                                                        : dipilih
+                                                        ? 'border-[#0F91FC] bg-blue-50/30 dark:bg-blue-950/20 cursor-pointer'
+                                                        : 'border-slate-200 dark:border-slate-700 cursor-pointer hover:border-slate-300'
+                                                }`}
+                                            >
+                                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${item.warna}`}>
+                                                    <span className="material-symbols-rounded text-xl">{item.ikon}</span>
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center justify-between gap-2">
+                                                        <h5 className="font-extrabold text-sm text-slate-800 dark:text-white">
+                                                            {item.nama}
+                                                        </h5>
+                                                        {!item.aktifSistem ? (
+                                                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300">
+                                                                Nonaktif
+                                                            </span>
+                                                        ) : (
+                                                            <span className="material-symbols-rounded text-[#0F91FC]">
+                                                                {dipilih ? 'check_circle' : 'circle'}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+                                                        {item.deskripsi}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                                                Google Authenticator, Microsoft Authenticator, Authy, dll. Paling direkomendasikan & bekerja offline.
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    {/* Email OTP */}
-                                    <div 
-                                        onClick={() => tanganiToggleMethod('email')}
-                                        className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-start gap-3.5 ${
-                                            data.two_factor_allowed_methods.includes('email')
-                                                ? 'border-[#0F91FC] bg-blue-50/30 dark:bg-blue-950/20'
-                                                : 'border-slate-200 dark:border-slate-700'
-                                        }`}
-                                    >
-                                        <div className="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 dark:bg-purple-900/40 flex items-center justify-center shrink-0">
-                                            <span className="material-symbols-rounded text-xl">mail_lock</span>
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center justify-between">
-                                                <h5 className="font-extrabold text-sm text-slate-800 dark:text-white">
-                                                    Kode Verifikasi Email (Email OTP)
-                                                </h5>
-                                                <span className="material-symbols-rounded text-[#0F91FC]">
-                                                    {data.two_factor_allowed_methods.includes('email') ? 'check_circle' : 'circle'}
-                                                </span>
-                                            </div>
-                                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                                                Kode 6 digit dikirimkan ke email akun terdaftar pengguna dengan masa berlaku 10 menit.
-                                            </p>
-                                        </div>
-                                    </div>
+                                        );
+                                    })}
                                 </div>
                                 <InputError message={errors.two_factor_allowed_methods} />
                             </div>
@@ -604,6 +706,15 @@ export default function Konfigurasi2FA({
                             </div>
                         </div>
 
+                        {/* Panel Konfigurasi API WhatsApp Gateway (Fonnte) langsung di bawah Kebijakan */}
+                        <PanelKonfigurasiFonnte
+                            data={data}
+                            setData={setData}
+                            errors={errors}
+                            defaultTemplate={pengaturan.default_wa_template}
+                            namaAplikasi={pengaturan.nama_aplikasi || 'SSO Sekolah'}
+                        />
+
                         {/* Tombol Simpan Form */}
                         <div className="flex justify-end">
                             <button
@@ -612,7 +723,7 @@ export default function Konfigurasi2FA({
                                 className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#0F91FC] hover:bg-blue-600 text-white font-bold text-sm shadow-lg shadow-blue-500/20 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
                             >
                                 <span className="material-symbols-rounded text-lg">save</span>
-                                {processing ? 'Menyimpan...' : 'Simpan Kebijakan 2FA'}
+                                {processing ? 'Menyimpan...' : 'Simpan Kebijakan 2FA & Konfigurasi Fonnte'}
                             </button>
                         </div>
                     </form>
