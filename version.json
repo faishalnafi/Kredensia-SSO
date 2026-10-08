@@ -1,7 +1,7 @@
 {
-  "version": "1.7.2",
-  "name": "Pembaruan Portal SSO Sekolah v1.7.2",
-  "release_date": "2026-09-30",
-  "description": "Perbaikan null-safety modal edit pengguna di production, integrasi aplikasi SIMAK, penyesuaian nama aplikasi SIAKAD & PASTi, serta pengarsipan otomatis log aktivitas bulanan setiap tanggal 1 (dual-layer auto archive)."
+  "version": "1.8.0",
+  "name": "Pembaruan Portal SSO Sekolah v1.8.0",
+  "release_date": "2026-10-08",
+  "description": "Integrasi keamanan akun 2FA & MFA lengkap (TOTP Authenticator, Google Prompt real-time, Passkey, Security Key, Kode Cadangan 10 digit, OTP Email & WhatsApp), sinkronisasi sesi perangkat real-time 2 arah, multi-akun (maks 25 akun), login username, serta Gateway WhatsApp Fonnte dan SMTP Email dinamis di Superadmin."
 }
 
