@@ -226,7 +226,7 @@ class ClaimAccountController extends Controller
             'email' => $user->email,
             'nama_lengkap' => $user->nama_lengkap,
             'jenis_pengguna' => $request->jenis_pengguna,
-            'wajib_verifikasi_wajah' => ($request->jenis_pengguna === 'Siswa'),
+            'wajib_verifikasi_wajah' => false,
         ]);
     }
 }

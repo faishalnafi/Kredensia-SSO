@@ -639,13 +639,9 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                     setNamaSiswaKlaim(response.data.nama_lengkap);
                 }
                 
-                // Lanjut ke tahap verifikasi wajah jika Siswa, atau langsung ke tahap 2 jika Guru
+                // Verifikasi wajah dinonaktifkan sementara: langsung ke tahap 2 (Pengaturan Email & Kata Sandi)
                 setTimeout(() => {
-                    if (dataKlaim.jenis_pengguna === 'Siswa' || response.data.wajib_verifikasi_wajah) {
-                        setTahapKlaim('wajah');
-                    } else {
-                        setTahapKlaim(2);
-                    }
+                    setTahapKlaim(2);
                 }, 800);
             }
         })
@@ -686,20 +682,6 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
             return;
         } else if (!surelRegex.test(dataKlaim.email)) {
             setGalatKlaim('email', 'Format surel tidak valid.');
-            return;
-        }
-
-        // Khusus Siswa: pastikan foto verifikasi wajah sudah ada
-        if (dataKlaim.jenis_pengguna === 'Siswa' && !dataKlaim.foto_wajah) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Verifikasi Wajah Diperlukan',
-                text: 'Akun siswa wajib menyelesaikan verifikasi pemindaian wajah sebelum mengatur kata sandi.',
-                confirmButtonColor: '#0F91FC',
-                customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl font-bold px-5 py-2.5' }
-            }).then(() => {
-                setTahapKlaim('wajah');
-            });
             return;
         }
 
@@ -1444,7 +1426,7 @@ export default function HalamanOtentikasi({ status, mode: modeProp }) {
                                             <div className="pt-2 flex gap-3">
                                                 <button 
                                                     type="button"
-                                                    onClick={() => setTahapKlaim(dataKlaim.jenis_pengguna === 'Siswa' ? 'wajah' : 1)}
+                                                    onClick={() => setTahapKlaim(1)}
                                                     className="flex-1 py-4 px-6 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-all text-sm shadow-sm flex items-center justify-center gap-2"
                                                 >
                                                     <span className="material-symbols-rounded text-lg">arrow_back</span>
