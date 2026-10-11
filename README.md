@@ -7,10 +7,12 @@
 
 <br/>
 
-[![Version](https://img.shields.io/badge/Versi-v1.0.0-6366f1?style=for-the-badge&logo=git&logoColor=white)](https://github.com/faishalnafi/sso-sekolah)
+[![Version](https://img.shields.io/badge/Versi-v1.8.0-6366f1?style=for-the-badge&logo=git&logoColor=white)](https://github.com/faishalnafi/sso-sekolah-monolith)
 [![Laravel](https://img.shields.io/badge/Laravel-12.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
 [![React](https://img.shields.io/badge/React-18.x-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
 [![Inertia](https://img.shields.io/badge/Inertia.js-v2-9553E9?style=for-the-badge)](https://inertiajs.com)
+[![WebSocket](https://img.shields.io/badge/Real--Time-Laravel%20Reverb-ff2d20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com/docs/reverb)
+[![PWA](https://img.shields.io/badge/PWA-Ready-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white)](.)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-v3-38BDF8?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 [![License](https://img.shields.io/badge/Lisensi-Open%20Source%20(MIT)-22c55e?style=for-the-badge&logo=opensourceinitiative&logoColor=white)](./LICENSE)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](./docker-compose.yml)
@@ -18,7 +20,7 @@
 
 <br/>
 
-> **SSO Sekolah** adalah solusi *Single Sign-On* terpusat yang dirancang khusus untuk ekosistem sekolah digital Indonesia. Satu akun, akses ke semua aplikasi. Dilengkapi dengan verifikasi identitas siswa & guru, manajemen peran berbasis RBAC, REST API terintegrasi, serta instalasi siap-pakai via Docker atau Setup Wizard berbasis browser.
+> **SSO Sekolah** adalah solusi *Single Sign-On* terpusat yang dirancang khusus untuk ekosistem sekolah digital Indonesia. Satu akun, akses ke semua aplikasi. Dilengkapi dengan otentikasi multi-faktor (2FA/MFA) tingkat tinggi, sinkronisasi sesi perangkat real-time dua arah, pengalih multi-akun (maksimal 25 akun), integrasi WhatsApp Gateway (Fonnte) & Email SMTP dinamis, verifikasi identitas siswa & guru, manajemen peran berbasis RBAC, REST API terintegrasi, serta instalasi siap-pakai via Docker atau Setup Wizard berbasis browser.
 
 <br/>
 
@@ -49,54 +51,52 @@
 <tr>
 <td width="50%">
 
-### 🔐 Autentikasi Multi-Provider
-Login aman dengan **Email & Password** atau integrasi **Google OAuth 2.0**. Sesi dijaga dengan cookie lintas subdomain terenkripsi, cocok untuk ekosistem multi-aplikasi sekolah.
+### 🔐 Autentikasi Multi-Provider & Kredensial Fleksibel
+Login fleksibel menggunakan **Email**, **Username khusus**, atau **UUID**, didukung integrasi **Google OAuth 2.0**. Sesi dijaga dengan cookie lintas subdomain terenkripsi, cocok untuk ekosistem multi-aplikasi sekolah.
 
-### ✅ Verifikasi & Klaim Akun
-Siswa dan guru dapat **memverifikasi & mengklaim akun** mereka menggunakan:
-- **Siswa** → NISN + Tanggal Lahir
-- **Guru/Staf** → NIK + NIP
+### 🛡️ Keamanan Akun Multi-Faktor (2FA & MFA Lengkap)
+Lapisan proteksi keamanan sekelas perbankan & Google Account:
+- **Aplikasi Autentikator (TOTP)**: Google Authenticator, Microsoft Authenticator, atau Aegis.
+- **Tantangan Google Prompt Real-Time**: Konfirmasi login interaktif langsung dari perangkat tepercaya via WebSocket.
+- **Kunci Sandi (Passkey) & Kunci Keamanan**: Autentikasi biometrik WebAuthn (Touch ID / Face ID / Windows Hello / YubiKey).
+- **Kode Cadangan 10-Digit**: Kumpulan kode cadangan darurat sekali pakai.
+- **OTP WhatsApp & Surel**: Pengiriman kode OTP via Gateway WhatsApp (Fonnte) dan SMTP Email.
 
-Proses klaim aman dengan alur persetujuan admin.
+### ⚡ Sinkronisasi Sesi Real-Time 2 Arah (WebSocket Reverb)
+Deteksi otomatis penambahan dan pengakhiran sesi perangkat secara langsung tanpa reload halaman. Pengguna dapat memantau peramban, lokasi IP, serta mengakhiri sesi perangkat lain secara remote.
 
-### 👥 Manajemen Pengguna
-Panel admin lengkap dengan **CRUD pengguna**, **impor massal via CSV/Excel**, pencarian, dan filter berdasarkan peran.
+### 👥 Pengalih Multi-Akun (Hingga 25 Akun per Peramban)
+Fitur *Google-Style Account Switcher* yang memungkinkan hingga 25 sesi akun berbeda aktif secara simultan dalam satu peramban, memudahkan guru atau siswa berganti profil secara instan.
 
-### 🎭 Manajemen Peran (RBAC)
-Sistem **Role-Based Access Control** yang fleksibel. Atur hak akses pengguna di seluruh aplikasi terdaftar dalam ekosistem SSO.
+### ✅ Verifikasi & Klaim Akun Mandiri
+Siswa dan guru dapat **memverifikasi & mengklaim akun** mereka secara mandiri menggunakan kombinasi NIK, NISN/NIP, dan Tanggal Lahir yang terdaftar di database sekolah.
 
-### 🏢 Manajemen Aplikasi Terdaftar
-Daftarkan dan kelola **aplikasi klien** yang boleh menggunakan SSO ini. Setiap aplikasi mendapatkan kunci API unik dengan pembatasan domain.
-
-### 🔑 Kunci API & REST API
-**REST API terintegrasi** dengan autentikasi berbasis **API Key** yang dibatasi per domain. Cocok untuk integrasi dengan aplikasi sekolah lain.
+### 🏫 Modul Akademik Terpadu
+Pengelolaan data terpadu untuk **Tahun Pelajaran**, **Kelas & Jurusan**, serta formulir **Biodata Wajib** dengan sistem blokir akses otomatis hingga biodata dilengkapi.
 
 </td>
 <td width="50%">
 
-### 📊 Log Aktivitas & Audit Trail
-Rekam setiap aktivitas penting — login, perubahan data, akses API — ke dalam **log audit yang detail** untuk keperluan keamanan dan kepatuhan.
+### 💬 Gateway WhatsApp (Fonnte) & Email Dinamis di Superadmin
+Integrasi WhatsApp API resmi via [Fonnte](https://fonnte.com) dan SMTP Email yang sepenuhnya dapat dikonfigurasi melalui panel antarmuka Superadmin (API token, template pesan variabel dinamis, serta fitur uji kirim pesan instan) tanpa perlu mengubah kode statis.
 
-### ✔️ Persetujuan Koreksi Data
-Alur **workflow persetujuan admin** untuk setiap permintaan perubahan data sensitif. Tidak ada perubahan tanpa rekam jejak.
+### 📊 Log Aktivitas & Pengarsipan Otomatis (Dual-Layer Auto Archive)
+Merekam seluruh aktivitas otentikasi dan aksi sistem secara detail. Dilengkapi fitur **auto-archive bulanan otomatis setiap tanggal 1** yang mengompresi log lawas ke berkas JSON terstruktur demi performa database maksimal.
 
-### ⚙️ Pengaturan Sistem
-Kustomisasi nama aplikasi, logo, **konfigurasi Google OAuth**, dan pengaturan reCAPTCHA langsung dari panel superadmin.
+### 📦 Pembaruan Sistem 1-Klik (ZIP Updater)
+Fitur unggah paket ZIP pembaruan aplikasi langsung dari antarmuka Superadmin yang secara otomatis mengekstrak berkas, menjalankan migrasi database, dan mereset OPcache & cache sistem tanpa mematikan server.
+
+### 👥 Manajemen Pengguna & Peran (RBAC)
+Panel admin lengkap dengan **CRUD pengguna**, impor massal CSV/Excel, filter peran, dan sistem **Role-Based Access Control** (RBAC) yang terperinci.
+
+### 🏢 Manajemen Aplikasi Terdaftar & Kunci API REST
+Daftarkan dan kelola aplikasi klien ekosistem sekolah. Setiap aplikasi mendapatkan kunci API unik dengan pembatasan domain (CORS whitelist).
 
 ### 🛡️ Google reCAPTCHA Enterprise
-Proteksi anti-bot tingkat lanjut menggunakan **reCAPTCHA Enterprise (Invisible)** pada semua form autentikasi.
+Proteksi anti-bot tingkat lanjut menggunakan **reCAPTCHA Enterprise (Invisible)** pada seluruh form otentikasi.
 
-### 🐳 Docker Ready
-Pasang aplikasi lengkap dengan **1 perintah** menggunakan skrip instalasi otomatis (`setup-docker.sh` / `setup-docker.ps1`). Termasuk Nginx, PHP-FPM, MySQL, dan Redis.
-
-### 🧙 Web Setup Wizard
-Tidak perlu terminal! Konfigurasikan database, superadmin, dan Google OAuth langsung **via antarmuka browser** di `/setup`.
-
-### 🌙 Dark / Light Mode
-Tampilan **adaptif gelap & terang** yang otomatis mengikuti preferensi sistem operasi pengguna.
-
-### 📱 Fully Responsive
-Desain **mobile-first** yang sempurna di semua ukuran layar — dari smartphone hingga monitor ultrawide.
+### 🌙 Dark / Light Mode & PWA Ready
+Antarmuka modern berbasis Glassmorphism & Bento Grid dengan tema gelap/terang otomatis serta dukungan **Progressive Web App (PWA)** untuk pengalaman penggunaan mirip aplikasi *native*.
 
 </td>
 </tr>
@@ -108,14 +108,18 @@ Desain **mobile-first** yang sempurna di semua ukuran layar — dari smartphone 
 
 | Kategori | Teknologi | Versi |
 |---|---|---|
-| **Backend Framework** | Laravel | `^12.x` |
+| **Backend Framework** | Laravel | `^12.x` (PHP 8.2+) |
 | **Frontend Library** | React | `^18.x` |
 | **Bridge SPA** | Inertia.js | `^2.x` |
+| **Real-Time WebSocket** | Laravel Reverb | `^1.x` |
+| **PWA Engine** | Vite PWA Plugin + Workbox | `^1.3.x` |
 | **UI Styling** | Tailwind CSS | `^3.x` |
 | **Build Tool** | Vite | `^6.x` |
 | **Database** | MySQL / MariaDB | `^8.x` |
-| **Cache / Session** | Redis | `^7.x` |
-| **Web Server** | Nginx + PHP-FPM | `8.3` |
+| **Cache & Queue** | Redis | `^7.x` |
+| **WhatsApp Gateway** | Fonnte API | v4 |
+| **Biometric & Hardware Key** | WebAuthn / Passkeys (FIDO2) | W3C Standard |
+| **Web Server** | Nginx + PHP-FPM / FrankenPHP | `8.2+` |
 | **Kontainerisasi** | Docker + Compose | `^26.x` |
 | **Autentikasi OAuth** | Google OAuth 2.0 | — |
 | **Proteksi Bot** | Google reCAPTCHA Enterprise | v3 Invisible |
@@ -418,11 +422,11 @@ Dibuat dengan ❤️ oleh
 <br/>
 
 [![Website](https://img.shields.io/badge/Website-faishalnafi.com-6366f1?style=flat-square&logo=globe&logoColor=white)](https://faishalnafi.com)
-[![Version](https://img.shields.io/badge/SSO%20Sekolah-v1.0.0%20Production-22c55e?style=flat-square)](.)
+[![Version](https://img.shields.io/badge/SSO%20Sekolah-v1.8.0%20Production-22c55e?style=flat-square)](.)
 [![Community Edition](https://img.shields.io/badge/Community-Edition-f59e0b?style=flat-square&logo=opensourceinitiative&logoColor=white)](.)
 
 <br/>
 
-*SSO Sekolah — Portal Otentikasi Terpusat · v1.0.0 · Community Edition*
+*SSO Sekolah — Portal Otentikasi Terpusat · v1.8.0 · Production Edition*
 
 </div>
