@@ -27,6 +27,7 @@ class User extends Authenticatable
         'email',
         'password',
         'jk',
+        'agama',
         'tgl_lahir',
         'nik',
         'nip_nis',

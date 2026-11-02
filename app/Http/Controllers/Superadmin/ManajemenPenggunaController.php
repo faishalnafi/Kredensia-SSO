@@ -36,8 +36,20 @@ class ManajemenPenggunaController extends Controller
                   ->orWhere('email', 'like', "%{$cari}%")
                   ->orWhere('id', 'like', "%{$cari}%")
                   ->orWhere('nik', 'like', "%{$cari}%")
-                  ->orWhere('nip_nis', 'like', "%{$cari}%");
+                  ->orWhere('nip_nis', 'like', "%{$cari}%")
+                  ->orWhere('agama', 'like', "%{$cari}%");
             });
+        }
+
+        // Filter peran dinamis sesuai pilihan
+        if ($request->filled('peran')) {
+            $peranDipilih = (string) $request->peran;
+            if ($peranDipilih !== '' && $peranDipilih !== 'semua') {
+                $query->whereHas('roles', function ($q) use ($peranDipilih) {
+                    $q->where('roles.id', $peranDipilih)
+                      ->orWhere('roles.nama_role', $peranDipilih);
+                });
+            }
         }
 
         // Filter pengurutan kolom (Sorting)
@@ -47,6 +59,7 @@ class ManajemenPenggunaController extends Controller
         switch ($kolomUrut) {
             case 'nama_lengkap':
             case 'email':
+            case 'agama':
                 $query->orderBy($kolomUrut, $arahUrut);
                 break;
             case 'verifikasi':
@@ -87,8 +100,8 @@ class ManajemenPenggunaController extends Controller
         // Paginasi dengan query string dipertahankan
         $daftarPengguna = $query->paginate(10)->withQueryString();
 
-        // Ambil peran aktif untuk dropdown pilihan peran
-        $daftarPeran = Role::where('is_active', true)->get();
+        // Ambil seluruh daftar peran dinamis sesuai daftar yang ada di menu peran
+        $daftarPeran = Role::orderBy('nama_role', 'asc')->get();
 
         // Ambil daftar kelas untuk dropdown pilihan kelas
         $daftarKelas = \App\Models\Kelas::with('tahunPelajaran')
@@ -105,6 +118,7 @@ class ManajemenPenggunaController extends Controller
             'daftarKelas' => $daftarKelas,
             'filters' => [
                 'cari' => $request->cari ?? '',
+                'peran' => $request->peran ?? '',
                 'urut' => $kolomUrut,
                 'arah' => $arahUrut,
             ],
@@ -128,6 +142,7 @@ class ManajemenPenggunaController extends Controller
             'email' => ['nullable', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8'],
             'jk' => ['nullable', 'string', Rule::in(['L', 'P'])],
+            'agama' => ['nullable', 'string', 'max:50'],
             'tgl_lahir' => ['nullable', 'date'],
             'nik' => ['nullable', 'string', 'max:16', 'regex:/^[0-9]+$/', 'unique:users,nik'],
             'nip_nis' => ['nullable', 'string', 'max:18', 'regex:/^[0-9]+$/', 'unique:users,nip_nis'],
@@ -154,6 +169,7 @@ class ManajemenPenggunaController extends Controller
                 'email' => $request->filled('email') ? trim($request->email) : null,
                 'password' => Hash::make($request->password),
                 'jk' => $request->filled('jk') ? $request->jk : null,
+                'agama' => $request->filled('agama') ? trim($request->agama) : null,
                 'tgl_lahir' => $request->filled('tgl_lahir') ? $request->tgl_lahir : null,
                 'nik' => $request->filled('nik') ? trim($request->nik) : null,
                 'nip_nis' => $request->filled('nip_nis') ? trim($request->nip_nis) : null,
@@ -193,6 +209,7 @@ class ManajemenPenggunaController extends Controller
             'email' => ['nullable', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($id)],
             'password' => ['nullable', 'string', 'min:8'],
             'jk' => ['nullable', 'string', Rule::in(['L', 'P'])],
+            'agama' => ['nullable', 'string', 'max:50'],
             'tgl_lahir' => ['nullable', 'date'],
             'nik' => ['nullable', 'string', 'max:16', 'regex:/^[0-9]+$/', Rule::unique('users', 'nik')->ignore($id)],
             'nip_nis' => ['nullable', 'string', 'max:18', 'regex:/^[0-9]+$/', Rule::unique('users', 'nip_nis')->ignore($id)],
@@ -223,6 +240,7 @@ class ManajemenPenggunaController extends Controller
                 'nama_lengkap' => $request->nama_lengkap,
                 'email' => $request->filled('email') ? trim($request->email) : null,
                 'jk' => $request->filled('jk') ? $request->jk : null,
+                'agama' => $request->filled('agama') ? trim($request->agama) : null,
                 'tgl_lahir' => $request->filled('tgl_lahir') ? $request->tgl_lahir : null,
                 'nik' => $request->filled('nik') ? trim($request->nik) : null,
                 'nip_nis' => $request->filled('nip_nis') ? trim($request->nip_nis) : null,
@@ -395,6 +413,272 @@ class ManajemenPenggunaController extends Controller
         return redirect()->route('dasbor')->with('success', 'Berhasil masuk sebagai ' . $targetUser->nama_lengkap);
     }
 
+
+    /**
+     * Unduh rekap seluruh data pengguna dalam format Excel (.xlsx) dengan tabel kolom lengkap
+     * dan fitur auto-filter pada header baris pertama.
+     */
+    public function unduhRekap(Request $request): \Symfony\Component\HttpFoundation\BinaryFileResponse
+    {
+        $query = User::with(['roles', 'kelas.tahunPelajaran']);
+
+        // Filter pencarian
+        if ($request->filled('cari')) {
+            $cari = ltrim(trim((string) $request->cari), '@');
+            $query->where(function ($q) use ($cari) {
+                $q->where('nama_lengkap', 'like', "%{$cari}%")
+                  ->orWhere('username', 'like', "%{$cari}%")
+                  ->orWhere('email', 'like', "%{$cari}%")
+                  ->orWhere('id', 'like', "%{$cari}%")
+                  ->orWhere('nik', 'like', "%{$cari}%")
+                  ->orWhere('nip_nis', 'like', "%{$cari}%")
+                  ->orWhere('agama', 'like', "%{$cari}%");
+            });
+        }
+
+        // Filter peran dinamis
+        if ($request->filled('peran')) {
+            $peranDipilih = (string) $request->peran;
+            if ($peranDipilih !== '' && $peranDipilih !== 'semua') {
+                $query->whereHas('roles', function ($q) use ($peranDipilih) {
+                    $q->where('roles.id', $peranDipilih)
+                      ->orWhere('roles.nama_role', $peranDipilih);
+                });
+            }
+        }
+
+        // Filter pengurutan
+        $kolomUrut = (string)$request->input('urut', 'nama_lengkap');
+        $arahUrut = strtolower((string)$request->input('arah', 'asc')) === 'desc' ? 'desc' : 'asc';
+        if (in_array($kolomUrut, ['nama_lengkap', 'email', 'created_at'])) {
+            $query->orderBy($kolomUrut, $arahUrut);
+        } else {
+            $query->orderBy('nama_lengkap', 'asc');
+        }
+
+        $daftarPengguna = $query->get();
+
+        $headers = [
+            'No',
+            'Nama Lengkap',
+            'Email',
+            'Peran',
+            'NIP / NISN',
+            'Kelas',
+            'Tahun Pelajaran',
+            'NIK',
+            'Jenis Kelamin',
+            'Agama',
+            'Tanggal Lahir',
+            'No. Telepon / WA',
+            'Alamat',
+            'Status Verifikasi',
+            'Waktu Verifikasi',
+            'Foto Wajah',
+            'Status Akun',
+            'Tanggal Terdaftar',
+        ];
+
+        $colWidths = [
+            6,   // No
+            28,  // Nama Lengkap
+            28,  // Email
+            20,  // Peran
+            20,  // NIP / NISN
+            15,  // Kelas
+            16,  // Tahun Pelajaran
+            20,  // NIK
+            15,  // Jenis Kelamin
+            15,  // Agama
+            15,  // Tanggal Lahir
+            18,  // No. Telepon / WA
+            35,  // Alamat
+            20,  // Status Verifikasi
+            20,  // Waktu Verifikasi
+            18,  // Foto Wajah
+            14,  // Status Akun
+            20,  // Tanggal Terdaftar
+        ];
+
+        $getColLetter = function(int $col): string {
+            $letter = '';
+            while ($col > 0) {
+                $mod = ($col - 1) % 26;
+                $letter = chr(65 + $mod) . $letter;
+                $col = (int)(($col - $mod) / 26);
+            }
+            return $letter;
+        };
+
+        $cleanXml = function($val): string {
+            if ($val === null || $val === '') return '';
+            $str = (string)$val;
+            $str = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $str);
+            return htmlspecialchars($str, ENT_XML1, 'UTF-8');
+        };
+
+        $sheetXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . "\n";
+        $sheetXml .= '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' . "\n";
+
+        // Columns definition with custom widths
+        $sheetXml .= '<cols>' . "\n";
+        foreach ($colWidths as $idx => $w) {
+            $cNum = $idx + 1;
+            $sheetXml .= '<col min="' . $cNum . '" max="' . $cNum . '" width="' . $w . '" customWidth="1"/>' . "\n";
+        }
+        $sheetXml .= '</cols>' . "\n";
+
+        // SheetData
+        $sheetXml .= '<sheetData>' . "\n";
+
+        // Header Row (Row 1)
+        $sheetXml .= '<row r="1" ht="26" customHeight="1">' . "\n";
+        foreach ($headers as $idx => $h) {
+            $cellRef = $getColLetter($idx + 1) . '1';
+            $sheetXml .= '<c r="' . $cellRef . '" s="1" t="inlineStr"><is><t>' . $cleanXml($h) . '</t></is></c>' . "\n";
+        }
+        $sheetXml .= '</row>' . "\n";
+
+        // Data Rows
+        $rowNum = 2;
+        foreach ($daftarPengguna as $u) {
+            $peranStr = $u->roles->pluck('nama_role')->implode(', ');
+            $tpStr = $u->kelas && $u->kelas->tahunPelajaran 
+                ? ($u->kelas->tahunPelajaran->tahun_mulai . '/' . $u->kelas->tahunPelajaran->tahun_selesai) 
+                : '-';
+
+            $jkStr = match($u->jk) {
+                'L' => 'Laki-laki',
+                'P' => 'Perempuan',
+                default => '-'
+            };
+
+            $tglLahirStr = $u->tgl_lahir ? $u->tgl_lahir->format('Y-m-d') : '-';
+            $statusVerif = $u->claimed_at ? 'Terverifikasi' : 'Belum Terverifikasi';
+            $waktuVerif = $u->claimed_at ? $u->claimed_at->format('Y-m-d H:i:s') : '-';
+            $statusFoto = !empty($u->foto_identitas) ? 'Ada (Terverifikasi)' : 'Belum Ada';
+            $statusAkun = $u->is_active ? 'Aktif' : 'Nonaktif';
+            $tglDaftar = $u->created_at ? $u->created_at->format('Y-m-d H:i:s') : '-';
+
+            $rowValues = [
+                ['val' => $rowNum - 1, 'type' => 'n', 'style' => '2'],
+                ['val' => $u->nama_lengkap ?? '', 'type' => 'inlineStr', 'style' => '0'],
+                ['val' => $u->email ?? '-', 'type' => 'inlineStr', 'style' => '0'],
+                ['val' => $peranStr ?: '-', 'type' => 'inlineStr', 'style' => '0'],
+                ['val' => $u->nip_nis ?? '-', 'type' => 'inlineStr', 'style' => '2'],
+                ['val' => $u->kelas->nama_kelas ?? '-', 'type' => 'inlineStr', 'style' => '2'],
+                ['val' => $tpStr, 'type' => 'inlineStr', 'style' => '2'],
+                ['val' => $u->nik ?? '-', 'type' => 'inlineStr', 'style' => '2'],
+                ['val' => $jkStr, 'type' => 'inlineStr', 'style' => '2'],
+                ['val' => $u->agama ?? '-', 'type' => 'inlineStr', 'style' => '2'],
+                ['val' => $tglLahirStr, 'type' => 'inlineStr', 'style' => '2'],
+                ['val' => $u->no_telp ?? '-', 'type' => 'inlineStr', 'style' => '2'],
+                ['val' => $u->alamat ?? '-', 'type' => 'inlineStr', 'style' => '0'],
+                ['val' => $statusVerif, 'type' => 'inlineStr', 'style' => '2'],
+                ['val' => $waktuVerif, 'type' => 'inlineStr', 'style' => '2'],
+                ['val' => $statusFoto, 'type' => 'inlineStr', 'style' => '2'],
+                ['val' => $statusAkun, 'type' => 'inlineStr', 'style' => '2'],
+                ['val' => $tglDaftar, 'type' => 'inlineStr', 'style' => '2'],
+            ];
+
+            $sheetXml .= '<row r="' . $rowNum . '">' . "\n";
+            foreach ($rowValues as $idx => $cell) {
+                $cellRef = $getColLetter($idx + 1) . $rowNum;
+                if ($cell['type'] === 'n') {
+                    $sheetXml .= '<c r="' . $cellRef . '" s="' . $cell['style'] . '" t="n"><v>' . (int)$cell['val'] . '</v></c>' . "\n";
+                } else {
+                    $sheetXml .= '<c r="' . $cellRef . '" s="' . $cell['style'] . '" t="inlineStr"><is><t>' . $cleanXml($cell['val']) . '</t></is></c>' . "\n";
+                }
+            }
+            $sheetXml .= '</row>' . "\n";
+            $rowNum++;
+        }
+
+        $sheetXml .= '</sheetData>' . "\n";
+
+        // AutoFilter pada baris 1 sampai baris data terakhir
+        $lastColLetter = $getColLetter(count($headers));
+        $totalRowIndex = max($rowNum - 1, 1);
+        $sheetXml .= '<autoFilter ref="A1:' . $lastColLetter . $totalRowIndex . '"/>' . "\n";
+        $sheetXml .= '</worksheet>';
+
+        $tempPath = tempnam(sys_get_temp_dir(), 'sso_rekap_');
+        $zip = new \ZipArchive();
+        $zip->open($tempPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+
+        $zip->addFromString('[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+<Default Extension="xml" ContentType="application/xml"/>
+<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
+<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>
+<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>
+</Types>');
+
+        $zip->addFromString('_rels/.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+</Relationships>');
+
+        $zip->addFromString('xl/_rels/workbook.xml.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>
+<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+</Relationships>');
+
+        $zip->addFromString('xl/workbook.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+<sheets><sheet name="Rekap Pengguna" sheetId="1" r:id="rId1"/></sheets>
+</workbook>');
+
+        $zip->addFromString('xl/styles.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+<fonts count="2">
+  <font><sz val="10"/><name val="Segoe UI"/></font>
+  <font><b/><sz val="10.5"/><color rgb="FFFFFFFF"/><name val="Segoe UI"/></font>
+</fonts>
+<fills count="3">
+  <fill><patternFill patternType="none"/></fill>
+  <fill><patternFill patternType="gray125"/></fill>
+  <fill><patternFill patternType="solid"><fgColor rgb="FF002060"/></patternFill></fill>
+</fills>
+<borders count="2">
+  <border><left/><right/><top/><bottom/><diagonal/></border>
+  <border>
+    <left style="thin"><color rgb="FFD3D3D3"/></left>
+    <right style="thin"><color rgb="FFD3D3D3"/></right>
+    <top style="thin"><color rgb="FFD3D3D3"/></top>
+    <bottom style="thin"><color rgb="FFD3D3D3"/></bottom>
+  </border>
+</borders>
+<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
+<cellXfs count="3">
+  <xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1">
+    <alignment vertical="center"/>
+  </xf>
+  <xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1">
+    <alignment horizontal="center" vertical="center" wrapText="1"/>
+  </xf>
+  <xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1">
+    <alignment horizontal="center" vertical="center"/>
+  </xf>
+</cellXfs>
+</styleSheet>');
+
+        $zip->addFromString('xl/worksheets/sheet1.xml', $sheetXml);
+        $zip->close();
+
+        \App\Services\LayananLogAktivitas::catat('Mengunduh rekap Excel data pengguna (' . count($daftarPengguna) . ' data)');
+
+        $namaFile = 'rekap_pengguna_sso_sman3mjk_' . date('Y-m-d_His') . '.xlsx';
+
+        return response()->download($tempPath, $namaFile, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ])->deleteFileAfterSend(true);
+    }
 
     /**
      * Unduh template CSV untuk import massal pengguna.
@@ -639,19 +923,19 @@ class ManajemenPenggunaController extends Controller
         $output .= ' <Worksheet ss:Name="Import Siswa">' . "\n";
         $output .= '  <Table>' . "\n";
         $output .= '   <Row>' . "\n";
-        $kolomSiswa = ['nama_lengkap', 'nik', 'nip_nis', 'tgl_lahir', 'jk', 'no_telp', 'alamat', 'jenjang', 'kelas', 'jurusan'];
+        $kolomSiswa = ['nama_lengkap', 'nik', 'nip_nis', 'tgl_lahir', 'jk', 'agama', 'no_telp', 'alamat', 'jenjang', 'kelas', 'jurusan'];
         foreach ($kolomSiswa as $col) {
             $output .= '    <Cell><Data ss:Type="String">' . htmlspecialchars($col) . '</Data></Cell>' . "\n";
         }
         $output .= '   </Row>' . "\n";
         $output .= '   <Row>' . "\n";
-        $barisSiswa1 = ['Budi Santoso', '3515012345670002', '0078901234', '2008-04-15', 'L', '081234567891', 'Sidoarjo, Jawa Timur', 'XII', 'XII IPA 1', 'IPA'];
+        $barisSiswa1 = ['Budi Santoso', '3515012345670002', '0078901234', '2008-04-15', 'L', 'Islam', '081234567891', 'Sidoarjo, Jawa Timur', 'XII', 'XII IPA 1', 'IPA'];
         foreach ($barisSiswa1 as $val) {
             $output .= '    <Cell><Data ss:Type="String">' . htmlspecialchars((string)$val) . '</Data></Cell>' . "\n";
         }
         $output .= '   </Row>' . "\n";
         $output .= '   <Row>' . "\n";
-        $barisSiswa2 = ['Rina Wulandari', '3515012345670005', '0078901237', '2008-11-22', 'P', '', '', 'XII', 'XII IPS 2', 'IPS'];
+        $barisSiswa2 = ['Rina Wulandari', '3515012345670005', '0078901237', '2008-11-22', 'P', 'Kristen', '', '', 'XII', 'XII IPS 2', 'IPS'];
         foreach ($barisSiswa2 as $val) {
             $output .= '    <Cell><Data ss:Type="String">' . htmlspecialchars((string)$val) . '</Data></Cell>' . "\n";
         }
@@ -663,13 +947,13 @@ class ManajemenPenggunaController extends Controller
         $output .= ' <Worksheet ss:Name="Import Guru">' . "\n";
         $output .= '  <Table>' . "\n";
         $output .= '   <Row>' . "\n";
-        $kolomGuru = ['nama_lengkap', 'nik', 'nip_nis', 'tgl_lahir', 'jk', 'no_telp', 'alamat', 'peran'];
+        $kolomGuru = ['nama_lengkap', 'nik', 'nip_nis', 'tgl_lahir', 'jk', 'agama', 'no_telp', 'alamat', 'peran'];
         foreach ($kolomGuru as $col) {
             $output .= '    <Cell><Data ss:Type="String">' . htmlspecialchars($col) . '</Data></Cell>' . "\n";
         }
         $output .= '   </Row>' . "\n";
         $output .= '   <Row>' . "\n";
-        $row1 = ['Ahmad Fauzi', '3515012345670003', '198508202010122001', '1985-08-20', 'L', '085712345678', 'Surabaya, Jawa Timur', 'Guru, Wali Kelas'];
+        $row1 = ['Ahmad Fauzi', '3515012345670003', '198508202010122001', '1985-08-20', 'L', 'Islam', '085712345678', 'Surabaya, Jawa Timur', 'Guru, Wali Kelas'];
         foreach ($row1 as $val) {
             $output .= '    <Cell><Data ss:Type="String">' . htmlspecialchars((string)$val) . '</Data></Cell>' . "\n";
         }
@@ -714,7 +998,7 @@ class ManajemenPenggunaController extends Controller
         
         // Header
         $output .= '   <Row>' . "\n";
-        $kolomSiswa = ['nama_lengkap', 'nik', 'nip_nis', 'tgl_lahir', 'jk', 'no_telp', 'alamat', 'jenjang', 'kelas', 'jurusan'];
+        $kolomSiswa = ['nama_lengkap', 'nik', 'nip_nis', 'tgl_lahir', 'jk', 'agama', 'no_telp', 'alamat', 'jenjang', 'kelas', 'jurusan'];
         foreach ($kolomSiswa as $col) {
             $output .= '    <Cell><Data ss:Type="String">' . htmlspecialchars($col) . '</Data></Cell>' . "\n";
         }
@@ -722,7 +1006,7 @@ class ManajemenPenggunaController extends Controller
         
         // Baris 1 (Contoh)
         $output .= '   <Row>' . "\n";
-        $barisSiswa1 = ['Budi Santoso', '3515012345670002', '0078901234', '2008-04-15', 'L', '081234567891', 'Sidoarjo, Jawa Timur', 'XII', 'XII IPA 1', 'IPA'];
+        $barisSiswa1 = ['Budi Santoso', '3515012345670002', '0078901234', '2008-04-15', 'L', 'Islam', '081234567891', 'Sidoarjo, Jawa Timur', 'XII', 'XII IPA 1', 'IPA'];
         foreach ($barisSiswa1 as $val) {
             $output .= '    <Cell><Data ss:Type="String">' . htmlspecialchars((string)$val) . '</Data></Cell>' . "\n";
         }
@@ -730,7 +1014,7 @@ class ManajemenPenggunaController extends Controller
         
         // Baris 2 (Contoh)
         $output .= '   <Row>' . "\n";
-        $barisSiswa2 = ['Rina Wulandari', '3515012345670005', '0078901237', '2008-11-22', 'P', '', '', 'XII', 'XII IPS 2', 'IPS'];
+        $barisSiswa2 = ['Rina Wulandari', '3515012345670005', '0078901237', '2008-11-22', 'P', 'Kristen', '', '', 'XII', 'XII IPS 2', 'IPS'];
         foreach ($barisSiswa2 as $val) {
             $output .= '    <Cell><Data ss:Type="String">' . htmlspecialchars((string)$val) . '</Data></Cell>' . "\n";
         }
@@ -766,7 +1050,7 @@ class ManajemenPenggunaController extends Controller
         
         // Header
         $output .= '   <Row>' . "\n";
-        $kolomGuru = ['nama_lengkap', 'nik', 'nip_nis', 'tgl_lahir', 'jk', 'no_telp', 'alamat', 'peran'];
+        $kolomGuru = ['nama_lengkap', 'nik', 'nip_nis', 'tgl_lahir', 'jk', 'agama', 'no_telp', 'alamat', 'peran'];
         foreach ($kolomGuru as $col) {
             $output .= '    <Cell><Data ss:Type="String">' . htmlspecialchars($col) . '</Data></Cell>' . "\n";
         }
@@ -774,7 +1058,7 @@ class ManajemenPenggunaController extends Controller
         
         // Baris 1 (Contoh)
         $output .= '   <Row>' . "\n";
-        $barisGuru1 = ['Ahmad Fauzi', '3515012345670003', '198508202010122001', '1985-08-20', 'L', '085712345678', 'Surabaya, Jawa Timur', 'Guru, Wali Kelas'];
+        $barisGuru1 = ['Ahmad Fauzi', '3515012345670003', '198508202010122001', '1985-08-20', 'L', 'Islam', '085712345678', 'Surabaya, Jawa Timur', 'Guru, Wali Kelas'];
         foreach ($barisGuru1 as $val) {
             $output .= '    <Cell><Data ss:Type="String">' . htmlspecialchars((string)$val) . '</Data></Cell>' . "\n";
         }
@@ -812,6 +1096,7 @@ class ManajemenPenggunaController extends Controller
             'batch.*.nip_nis' => ['required', 'string', 'max:30'],
             'batch.*.tgl_lahir' => ['required', 'string'],
             'batch.*.jk' => ['nullable', 'string'],
+            'batch.*.agama' => ['nullable', 'string', 'max:50'],
             'batch.*.no_telp' => ['nullable', 'string', 'max:20'],
             'batch.*.alamat' => ['nullable', 'string'],
             'batch.*.jenjang' => ['nullable', 'string', 'max:50'],
@@ -858,6 +1143,7 @@ class ManajemenPenggunaController extends Controller
                 $dataPengguna = [
                     'nama_lengkap' => $namaLengkap,
                     'jk' => in_array(strtoupper(trim($baris['jk'] ?? '')), ['L', 'P']) ? strtoupper(trim($baris['jk'])) : null,
+                    'agama' => !empty($baris['agama']) ? trim((string)$baris['agama']) : ($pengguna?->agama ?? null),
                     'tgl_lahir' => $tglLahir,
                     'nik' => $nik,
                     'nip_nis' => $nipNis,
@@ -947,6 +1233,7 @@ class ManajemenPenggunaController extends Controller
             'batch.*.nip_nis' => ['required', 'string', 'max:30'],
             'batch.*.tgl_lahir' => ['required', 'string'],
             'batch.*.jk' => ['nullable', 'string'],
+            'batch.*.agama' => ['nullable', 'string', 'max:50'],
             'batch.*.no_telp' => ['nullable', 'string', 'max:20'],
             'batch.*.alamat' => ['nullable', 'string'],
             'batch.*.peran' => ['nullable', 'string'],
@@ -975,6 +1262,7 @@ class ManajemenPenggunaController extends Controller
                 $dataPengguna = [
                     'nama_lengkap' => $namaLengkap,
                     'jk' => in_array(strtoupper(trim($baris['jk'] ?? '')), ['L', 'P']) ? strtoupper(trim($baris['jk'])) : null,
+                    'agama' => !empty($baris['agama']) ? trim((string)$baris['agama']) : ($pengguna?->agama ?? null),
                     'tgl_lahir' => $tglLahir,
                     'nik' => $nik,
                     'nip_nis' => $nipNis,

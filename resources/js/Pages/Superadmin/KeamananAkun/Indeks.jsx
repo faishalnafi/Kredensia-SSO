@@ -30,6 +30,7 @@ export default function KeamananAkun({ daftarSesi = [], pengguna = {}, pendingCo
         nama_lengkap: dataAwal.nama_lengkap || '',
         email: dataAwal.email || '',
         jk: dataAwal.jk || '',
+        agama: dataAwal.agama || '',
         tgl_lahir: tanggalLahirAwal,
         nik: dataAwal.nik || '',
         nip_nis: dataAwal.nip_nis || '',
@@ -878,6 +879,24 @@ export default function KeamananAkun({ daftarSesi = [], pengguna = {}, pendingCo
                                     <option value="P">Perempuan</option>
                                 </select>
                                 <InputError message={formProfil.errors.jk} className="mt-1" />
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-bold text-slate-455 dark:text-slate-500 uppercase tracking-wider mb-2">Agama</label>
+                                <select 
+                                    value={formProfil.data.agama}
+                                    onChange={e => formProfil.setData('agama', e.target.value)}
+                                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#0F91FC] dark:text-white"
+                                >
+                                    <option value="">Pilih Agama</option>
+                                    <option value="Islam">Islam</option>
+                                    <option value="Kristen">Kristen</option>
+                                    <option value="Katolik">Katolik</option>
+                                    <option value="Hindu">Hindu</option>
+                                    <option value="Buddha">Buddha</option>
+                                    <option value="Konghucu">Konghucu</option>
+                                </select>
+                                <InputError message={formProfil.errors.agama} className="mt-1" />
                             </div>
 
                             <div className="md:col-span-2">

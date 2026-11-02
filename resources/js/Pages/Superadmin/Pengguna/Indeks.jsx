@@ -13,8 +13,14 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
     const [editMode, setEditMode] = useState(false);
     const [selectedUserId, setSelectedUserId] = useState(null);
     const [cari, setCari] = useState(filters?.cari || '');
+    const [peranFilter, setPeranFilter] = useState(filters?.peran || '');
     const [modalImportBuka, setModalImportBuka] = useState(false);
     const [tampilkanSandi, setTampilkanSandi] = useState(false);
+
+    useEffect(() => {
+        setCari(filters?.cari || '');
+        setPeranFilter(filters?.peran || '');
+    }, [filters]);
 
     const [tabImportAktif, setTabImportAktif] = useState('siswa');
     const [fileImportSiswa, setFileImportSiswa] = useState(null);
@@ -119,6 +125,7 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
         email: '',
         password: '',
         jk: '',
+        agama: '',
         tgl_lahir: '',
         nik: '',
         nip_nis: '',
@@ -166,6 +173,7 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
         router.get(route(route().current()), {
             ...(filters || {}),
             cari,
+            peran: peranFilter,
             urut: kolom,
             arah: arahBaru,
         }, {
@@ -198,8 +206,24 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
         e.preventDefault();
         router.get(route(route().current()), { 
             ...(filters || {}),
-            cari 
-        }, {
+            cari,
+            peran: peranFilter,
+            page: 1
+        }, { 
+            preserveState: true,
+            replace: true
+        });
+    };
+
+    const tanganiFilterPeran = (e) => {
+        const nilaiBaru = e.target.value;
+        setPeranFilter(nilaiBaru);
+        router.get(route(route().current()), { 
+            ...(filters || {}),
+            cari,
+            peran: nilaiBaru,
+            page: 1
+        }, { 
             preserveState: true,
             replace: true
         });
@@ -243,6 +267,7 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
             email: user.email || '',
             password: '', // Kosongkan saat edit kata sandi
             jk: user.jk || '',
+            agama: user.agama || '',
             tgl_lahir: user.tgl_lahir ? String(user.tgl_lahir).substring(0, 10) : '',
             nik: user.nik || '',
             nip_nis: user.nip_nis || '',
@@ -425,6 +450,20 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                 preserveScroll: true
             });
         }
+    };
+
+    const tanganiUnduhRekap = () => {
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3500,
+            timerProgressBar: true
+        });
+        Toast.fire({
+            icon: 'info',
+            title: 'Menyiapkan berkas Excel rekap pengguna...'
+        });
     };
 
 
@@ -631,7 +670,7 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full md:w-auto">
                         {/* Form Pencarian */}
                         <form onSubmit={tanganiCari} className="flex gap-2 flex-1 sm:flex-initial">
-                            <div className="relative flex-1 sm:w-60">
+                            <div className="relative flex-1 sm:w-56">
                                 <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                                     <span className="material-symbols-rounded text-lg">search</span>
                                 </span>
@@ -650,8 +689,41 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                                 Cari
                             </button>
                         </form>
+
+                        {/* Dropdown Filter Peran Dinamis Berdasarkan Menu Peran */}
+                        <div className="relative min-w-[150px]">
+                            <select 
+                                value={peranFilter}
+                                onChange={tanganiFilterPeran}
+                                title="Filter berdasarkan peran pengguna"
+                                className="w-full pl-3.5 pr-8 py-2.5 text-xs sm:text-sm font-semibold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-[#0F91FC] dark:text-white transition-all shadow-sm cursor-pointer appearance-none"
+                            >
+                                <option value="">Semua Peran ({daftarPeran.length})</option>
+                                {daftarPeran.map((role) => (
+                                    <option key={role.id} value={role.id}>
+                                        {role.nama_role}
+                                    </option>
+                                ))}
+                            </select>
+                            <span className="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none text-slate-400">
+                                <span className="material-symbols-rounded text-lg">arrow_drop_down</span>
+                            </span>
+                        </div>
                         
-                        <div className="grid grid-cols-2 sm:flex sm:items-center gap-2">
+                        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2">
+                            <a 
+                                href={route(`${pathPrefix}.pengguna.unduh-rekap`, {
+                                    cari: cari || undefined,
+                                    peran: peranFilter || undefined,
+                                })}
+                                onClick={tanganiUnduhRekap}
+                                className="bg-teal-600 hover:bg-teal-700 active:scale-[0.98] text-white px-3 sm:px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm shadow-md shadow-teal-600/20 transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer no-underline"
+                                title="Unduh rekap data pengguna berupa berkas Excel (.xlsx) dengan auto-filter"
+                            >
+                                <span className="material-symbols-rounded text-lg">download</span>
+                                <span className="truncate">Unduh Rekap</span>
+                            </a>
+
                             <button 
                                 type="button"
                                 onClick={() => setModalImportBuka(true)}
@@ -682,6 +754,7 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                                     {renderHeaderKolom('Nama Lengkap', 'nama_lengkap', 'min-w-[220px]')}
                                     {renderHeaderKolom('Email', 'email', 'min-w-[180px]')}
                                     {renderHeaderKolom('Peran', 'peran', 'min-w-[140px]')}
+                                    {renderHeaderKolom('Agama', 'agama', 'min-w-[110px]')}
                                     {renderHeaderKolom('Verifikasi', 'verifikasi', 'min-w-[120px]')}
                                     {renderHeaderKolom('Foto Wajah', 'foto_wajah', 'min-w-[120px]')}
                                     {renderHeaderKolom('Status', 'status', 'min-w-[100px]')}
@@ -723,6 +796,11 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                                                                     {user.kelas.nama_kelas}
                                                                 </span>
                                                             )}
+                                                            {user.agama && (
+                                                                <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/50 dark:border-amber-800/50 px-1.5 py-0.2 rounded">
+                                                                    {user.agama}
+                                                                </span>
+                                                            )}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -742,6 +820,16 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                                                         <span className="text-slate-400 text-xs italic">-</span>
                                                     )}
                                                 </div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                {user.agama ? (
+                                                    <span className="inline-flex items-center gap-1 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200/60 dark:border-amber-800/60 px-2.5 py-0.5 rounded-full text-[11px] font-bold">
+                                                        <span className="material-symbols-rounded text-xs">auto_awesome</span>
+                                                        {user.agama}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-slate-400 text-xs italic">-</span>
+                                                )}
                                             </td>
                                             <td className="px-6 py-4">
                                                 {/* Badge Status Verifikasi Mandiri (Claimed) */}
@@ -852,7 +940,7 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="7" className="text-center py-12 text-slate-400">
+                                        <td colSpan="8" className="text-center py-12 text-slate-400">
                                             <div className="flex flex-col items-center gap-2">
                                                 <span className="material-symbols-rounded text-3xl">people</span>
                                                 <span>Tidak ada data pengguna yang ditemukan.</span>
@@ -991,6 +1079,24 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                                 </div>
 
                                 <div>
+                                    <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Agama</label>
+                                    <select 
+                                        value={data.agama}
+                                        onChange={e => setData('agama', e.target.value)}
+                                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#0F91FC] dark:text-white"
+                                    >
+                                        <option value="">Pilih Agama</option>
+                                        <option value="Islam">Islam</option>
+                                        <option value="Kristen">Kristen</option>
+                                        <option value="Katolik">Katolik</option>
+                                        <option value="Hindu">Hindu</option>
+                                        <option value="Buddha">Buddha</option>
+                                        <option value="Konghucu">Konghucu</option>
+                                    </select>
+                                    <InputError message={errors.agama} className="mt-1" />
+                                </div>
+
+                                <div>
                                     <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Tanggal Lahir</label>
                                     <InputTanggal 
                                         id="tgl_lahir"
@@ -1090,27 +1196,38 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                                 <InputError message={errors.alamat} className="mt-1" />
                             </div>
 
-                            {/* Pilihan Multi Peran */}
+                            {/* Pilihan Multi Peran Dinamis Berdasarkan Menu Peran */}
                             <div>
-                                <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">Tautkan Peran Pengguna</label>
+                                <div className="flex items-center justify-between mb-3">
+                                    <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                                        Tautkan Peran Pengguna
+                                    </label>
+                                    <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 rounded-full border border-slate-200/50 dark:border-slate-700/50">
+                                        {daftarPeran.length} Peran Tersedia
+                                    </span>
+                                </div>
                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                    {daftarPeran.map((role) => (
-                                        <button 
-                                            key={role.id}
-                                            type="button"
-                                            onClick={() => toggleRoleSelection(role.id)}
-                                            className={`px-3 py-2 text-xs font-bold rounded-xl border text-left transition-all flex items-center justify-between ${
-                                                data.selected_roles.includes(role.id)
-                                                    ? 'bg-[#0F91FC]/10 border-[#0F91FC] text-[#0F91FC] dark:bg-[#0F91FC]/25'
-                                                    : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-850'
-                                            }`}
-                                        >
-                                            <span>{role.nama_role}</span>
-                                            {data.selected_roles.includes(role.id) && (
-                                                <span className="material-symbols-rounded text-sm text-[#0F91FC]">check_circle</span>
-                                            )}
-                                        </button>
-                                    ))}
+                                    {daftarPeran && daftarPeran.length > 0 ? (
+                                        daftarPeran.map((role) => (
+                                            <button 
+                                                key={role.id}
+                                                type="button"
+                                                onClick={() => toggleRoleSelection(role.id)}
+                                                className={`px-3 py-2 text-xs font-bold rounded-xl border text-left transition-all flex items-center justify-between ${
+                                                    data.selected_roles.includes(role.id)
+                                                        ? 'bg-[#0F91FC]/10 border-[#0F91FC] text-[#0F91FC] dark:bg-[#0F91FC]/25'
+                                                        : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-850'
+                                                }`}
+                                            >
+                                                <span className="truncate">{role.nama_role}</span>
+                                                {data.selected_roles.includes(role.id) && (
+                                                    <span className="material-symbols-rounded text-sm text-[#0F91FC] shrink-0 ml-1">check_circle</span>
+                                                )}
+                                            </button>
+                                        ))
+                                    ) : (
+                                        <p className="col-span-full text-xs text-slate-400 italic">Belum ada peran terdaftar di menu peran.</p>
+                                    )}
                                 </div>
                                 <InputError message={errors.selected_roles} className="mt-2" />
                             </div>
@@ -1214,7 +1331,7 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between bg-emerald-50 dark:bg-emerald-950/30 p-3 rounded-2xl border border-emerald-200/50 dark:border-emerald-800/50">
                                     <div className="text-xs text-emerald-800 dark:text-emerald-300 font-bold">
-                                        Format Siswa: nama_lengkap, nik, nip_nis, tgl_lahir, jk, no_telp, alamat, jenjang, kelas, jurusan
+                                        Format Siswa: nama_lengkap, nik, nip_nis, tgl_lahir, jk, agama, no_telp, alamat, jenjang, kelas, jurusan
                                     </div>
                                     <a
                                         href={route(`${window.location.pathname.startsWith('/superadmin') ? 'superadmin' : 'admin'}.pengguna.template-siswa`)}
@@ -1278,7 +1395,7 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between bg-amber-50 dark:bg-amber-950/30 p-3 rounded-2xl border border-amber-200/50 dark:border-amber-800/50">
                                     <div className="text-xs text-amber-800 dark:text-amber-300 font-bold">
-                                        Format Guru: nama_lengkap, nik, nip_nis, tgl_lahir, jk, no_telp, alamat, peran
+                                        Format Guru: nama_lengkap, nik, nip_nis, tgl_lahir, jk, agama, no_telp, alamat, peran
                                     </div>
                                     <a
                                         href={route(`${window.location.pathname.startsWith('/superadmin') ? 'superadmin' : 'admin'}.pengguna.template-guru`)}
@@ -1467,6 +1584,12 @@ export default function IndeksPengguna({ daftarPengguna = { data: [] }, daftarPe
                                                     Nonaktif
                                                 </span>
                                             )}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <span className="block text-slate-400 dark:text-slate-500 font-medium">Agama</span>
+                                        <span className="font-bold text-slate-700 dark:text-slate-200 mt-0.5 block">
+                                            {userPilihanFoto.agama || '-'}
                                         </span>
                                     </div>
                                 </div>

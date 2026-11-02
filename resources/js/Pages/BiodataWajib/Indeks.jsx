@@ -10,6 +10,7 @@ export default function IndeksBiodataWajib({ user, peran = [] }) {
     const { data, setData, post, processing, errors } = useForm({
         nama_lengkap: user?.nama_lengkap || '',
         jk: user?.jk || '',
+        agama: user?.agama || '',
         tgl_lahir: user?.tgl_lahir || '',
         nik: user?.nik || '',
         nip_nis: user?.nip_nis || '',
@@ -162,6 +163,26 @@ export default function IndeksBiodataWajib({ user, peran = [] }) {
                                 <option value="P">Perempuan</option>
                             </select>
                             <InputError message={errors.jk} className="mt-1" />
+                        </div>
+
+                        {/* Agama */}
+                        <div>
+                            <InputLabel htmlFor="agama" value="Agama" />
+                            <select
+                                id="agama"
+                                className="mt-1 block w-full border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 focus:border-[#0F91FC] dark:focus:border-[#0F91FC] focus:ring-[#0F91FC] dark:focus:ring-[#0F91FC] rounded-md shadow-sm text-sm"
+                                value={data.agama}
+                                onChange={(e) => setData('agama', e.target.value)}
+                            >
+                                <option value="">-- Pilih Agama --</option>
+                                <option value="Islam">Islam</option>
+                                <option value="Kristen">Kristen</option>
+                                <option value="Katolik">Katolik</option>
+                                <option value="Hindu">Hindu</option>
+                                <option value="Buddha">Buddha</option>
+                                <option value="Konghucu">Konghucu</option>
+                            </select>
+                            <InputError message={errors.agama} className="mt-1" />
                         </div>
 
                         {/* Tanggal Lahir */}

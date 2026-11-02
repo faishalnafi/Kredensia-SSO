@@ -84,6 +84,12 @@ export default function ProfilSaya({ pengguna }) {
                                 {pengguna?.jk === 'L' ? 'Laki-laki' : pengguna?.jk === 'P' ? 'Perempuan' : '-'}
                             </div>
                         </div>
+                        <div>
+                            <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Agama</label>
+                            <div className="bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-600 dark:text-slate-300 font-semibold">
+                                {pengguna?.agama || '-'}
+                            </div>
+                        </div>
                     </div>
 
                     {/* Pintasan Keamanan & 2FA */}

@@ -208,8 +208,11 @@ class GoogleAuthController extends Controller
                 $peranUser = $user->roles->pluck('nama_role')->toArray();
                 $token = LayananJWT::buatToken([
                     'user_id' => $user->id,
+                    'username' => $user->username,
                     'nomor_induk' => $user->nip_nis ?: $user->nik,
                     'nama' => $user->nama_lengkap,
+                    'email' => $user->email,
+                    'avatar_url' => $user->avatar_url,
                     'roles' => $peranUser,
                     'exp' => time() + 300, // Token kadaluarsa dalam 5 menit
                 ]);

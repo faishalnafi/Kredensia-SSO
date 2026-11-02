@@ -265,6 +265,8 @@ class AuthenticatedSessionController extends Controller
                     'username' => $user->username,
                     'nomor_induk' => $user->nip_nis ?: $user->nik,
                     'nama' => $user->nama_lengkap,
+                    'email' => $user->email,
+                    'avatar_url' => $user->avatar_url,
                     'roles' => $peranUser,
                     'exp' => time() + 300, // Token kadaluarsa dalam 5 menit
                 ]);

@@ -89,3 +89,5 @@ frankenphp
 frankenphp-worker.php
 /sso.zip
 *.zip
+
+/public/.well-known

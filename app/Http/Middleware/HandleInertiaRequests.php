@@ -111,6 +111,7 @@ class HandleInertiaRequests extends Middleware
                     'nip_nis'      => $user->nip_nis,
                     'no_telp'      => $user->no_telp,
                     'jk'           => $user->jk,
+                    'agama'        => $user->agama,
                     'alamat'       => $user->alamat,
                     'peran'        => $user->roles->pluck('nama_role')->toArray(),
                     'avatar_url'   => $user->avatar_url,

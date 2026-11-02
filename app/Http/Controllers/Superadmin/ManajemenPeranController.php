@@ -52,6 +52,7 @@ class ManajemenPeranController extends Controller
         });
 
         \App\Services\LayananLogAktivitas::catat('Menambahkan peran baru: ' . $request->nama_role);
+        \App\Services\LayananSinkronisasiRealtime::siarkan('peran', 'ditambahkan');
 
         return redirect()->back()->with('success', 'Peran berhasil ditambahkan.');
     }
@@ -94,6 +95,7 @@ class ManajemenPeranController extends Controller
         });
 
         \App\Services\LayananLogAktivitas::catat('Memperbarui peran: ' . $role->nama_role);
+        \App\Services\LayananSinkronisasiRealtime::siarkan('peran', 'diperbarui');
 
         return redirect()->back()->with('success', 'Data peran berhasil diperbarui.');
     }
@@ -140,6 +142,7 @@ class ManajemenPeranController extends Controller
             : 'Peran berhasil dihapus.';
 
         \App\Services\LayananLogAktivitas::catat('Menghapus peran: ' . $role->nama_role . ($hapusPengguna ? ' (beserta pengguna)' : ''));
+        \App\Services\LayananSinkronisasiRealtime::siarkan('peran', 'dihapus');
 
         return redirect()->back()->with('success', $pesan);
     }

@@ -18,10 +18,39 @@ export default function IndeksTahunPelajaran({ daftarTahunPelajaran }) {
         is_aktif: false,
     });
 
+    const [modalEditBuka, setModalEditBuka] = useState(false);
+    const [editId, setEditId] = useState(null);
+    const {
+        data: dataEdit,
+        setData: setDataEdit,
+        put: putEdit,
+        processing: processingEdit,
+        errors: errorsEdit,
+        reset: resetEdit,
+        clearErrors: clearErrorsEdit,
+    } = useForm({
+        tahun_mulai: 2026,
+        tahun_selesai: 2027,
+        semester: 'Ganjil',
+        is_aktif: false,
+    });
+
     const bukaModalTambah = () => {
         clearErrors();
         reset();
         setModalBuka(true);
+    };
+
+    const bukaModalEdit = (item) => {
+        clearErrorsEdit();
+        setEditId(item.id);
+        setDataEdit({
+            tahun_mulai: item.tahun_mulai,
+            tahun_selesai: item.tahun_selesai,
+            semester: item.semester || 'Ganjil',
+            is_aktif: Boolean(item.is_aktif),
+        });
+        setModalEditBuka(true);
     };
 
     const simpanTahunPelajaran = (e) => {
@@ -35,6 +64,25 @@ export default function IndeksTahunPelajaran({ daftarTahunPelajaran }) {
                 Swal.fire({
                     title: 'Berhasil!',
                     text: 'Tahun pelajaran baru berhasil ditambahkan.',
+                    icon: 'success',
+                    confirmButtonColor: '#000066',
+                });
+            }
+        });
+    };
+
+    const perbaruiTahunPelajaran = (e) => {
+        e.preventDefault();
+        if (!editId) return;
+        const userRolePath = window.location.pathname.startsWith('/superadmin') ? 'superadmin' : 'admin';
+
+        putEdit(route(`${userRolePath}.tahun-pelajaran.update`, editId), {
+            onSuccess: () => {
+                setModalEditBuka(false);
+                resetEdit();
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: 'Tahun pelajaran berhasil diperbarui.',
                     icon: 'success',
                     confirmButtonColor: '#000066',
                 });
@@ -235,7 +283,14 @@ export default function IndeksTahunPelajaran({ daftarTahunPelajaran }) {
                                             {item.dibuat_pada}
                                         </td>
                                         <td className="px-6 py-4 text-center">
-                                            <div className="flex justify-center items-center gap-3 h-8">
+                                            <div className="flex justify-center items-center gap-2 h-8">
+                                                <button
+                                                    onClick={() => bukaModalEdit(item)}
+                                                    className="p-1.5 text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded-lg transition-all"
+                                                    title="Edit Tahun Pelajaran"
+                                                >
+                                                    <span className="material-symbols-rounded text-lg">edit</span>
+                                                </button>
                                                 {!item.is_aktif ? (
                                                     <>
                                                         <button
@@ -254,7 +309,7 @@ export default function IndeksTahunPelajaran({ daftarTahunPelajaran }) {
                                                         </button>
                                                     </>
                                                 ) : (
-                                                    <span className="text-xs text-slate-400 font-bold italic select-none">Sedang Aktif</span>
+                                                    <span className="text-xs text-emerald-600 dark:text-emerald-400 font-bold select-none">Sedang Aktif</span>
                                                 )}
                                             </div>
                                         </td>
@@ -387,6 +442,20 @@ export default function IndeksTahunPelajaran({ daftarTahunPelajaran }) {
                                 </div>
                             </div>
 
+                            <div>
+                                <label className="block text-xs font-bold text-slate-750 dark:text-slate-350 mb-1 uppercase tracking-wider">Semester</label>
+                                <select
+                                    value={data.semester}
+                                    onChange={e => setData('semester', e.target.value)}
+                                    className="w-full bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200/50 dark:border-slate-700/50 rounded-xl py-3 px-4 focus:outline-none focus:ring-2 focus:ring-[#000066] text-sm"
+                                    required
+                                >
+                                    <option value="Ganjil">Ganjil</option>
+                                    <option value="Genap">Genap</option>
+                                </select>
+                                <InputError message={errors.semester} className="mt-1" />
+                            </div>
+
                             <div className="flex items-center gap-3 py-2">
                                 <input
                                     type="checkbox"
@@ -416,6 +485,109 @@ export default function IndeksTahunPelajaran({ daftarTahunPelajaran }) {
                                 >
                                     <span className="material-symbols-rounded text-sm">save</span>
                                     {processing ? 'Menyimpan...' : 'Simpan'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal Edit Tahun Pelajaran */}
+            {modalEditBuka && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+                    <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-850 rounded-3xl w-full max-w-md p-6 shadow-2xl space-y-5">
+                        <div className="flex justify-between items-center pb-2 border-b border-slate-100 dark:border-slate-800">
+                            <h3 className="font-extrabold text-lg text-slate-800 dark:text-white">
+                                Edit Tahun Pelajaran
+                            </h3>
+                            <button
+                                onClick={() => setModalEditBuka(false)}
+                                className="p-1 hover:bg-slate-150 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 rounded-xl transition-all"
+                            >
+                                <span className="material-symbols-rounded text-lg">close</span>
+                            </button>
+                        </div>
+
+                        <form onSubmit={perbaruiTahunPelajaran} className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-750 dark:text-slate-350 mb-1 uppercase tracking-wider">Tahun Mulai</label>
+                                    <input
+                                        type="number"
+                                        min="2000"
+                                        max="2100"
+                                        value={dataEdit.tahun_mulai}
+                                        onChange={e => {
+                                            const val = parseInt(e.target.value) || 0;
+                                            setDataEdit(prev => ({
+                                                ...prev,
+                                                tahun_mulai: val,
+                                                tahun_selesai: val + 1
+                                            }));
+                                        }}
+                                        className="w-full bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200/50 dark:border-slate-700/50 rounded-xl py-3 px-4 focus:outline-none focus:ring-2 focus:ring-[#000066] text-sm"
+                                        required
+                                    />
+                                    <InputError message={errorsEdit.tahun_mulai} className="mt-1" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-750 dark:text-slate-350 mb-1 uppercase tracking-wider">Tahun Selesai</label>
+                                    <input
+                                        type="number"
+                                        min="2000"
+                                        max="2100"
+                                        value={dataEdit.tahun_selesai}
+                                        onChange={e => setDataEdit('tahun_selesai', parseInt(e.target.value) || 0)}
+                                        className="w-full bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200/50 dark:border-slate-700/50 rounded-xl py-3 px-4 focus:outline-none focus:ring-2 focus:ring-[#000066] text-sm"
+                                        required
+                                    />
+                                    <InputError message={errorsEdit.tahun_selesai} className="mt-1" />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-bold text-slate-750 dark:text-slate-350 mb-1 uppercase tracking-wider">Semester</label>
+                                <select
+                                    value={dataEdit.semester}
+                                    onChange={e => setDataEdit('semester', e.target.value)}
+                                    className="w-full bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200/50 dark:border-slate-700/50 rounded-xl py-3 px-4 focus:outline-none focus:ring-2 focus:ring-[#000066] text-sm"
+                                    required
+                                >
+                                    <option value="Ganjil">Ganjil</option>
+                                    <option value="Genap">Genap</option>
+                                </select>
+                                <InputError message={errorsEdit.semester} className="mt-1" />
+                            </div>
+
+                            <div className="flex items-center gap-3 py-2">
+                                <input
+                                    type="checkbox"
+                                    id="edit_is_aktif"
+                                    checked={dataEdit.is_aktif}
+                                    onChange={e => setDataEdit('is_aktif', e.target.checked)}
+                                    className="rounded border-gray-300 dark:border-slate-700 text-[#000066] focus:ring-[#000066]"
+                                />
+                                <label htmlFor="edit_is_aktif" className="text-xs font-bold text-slate-650 dark:text-slate-300 uppercase tracking-wider select-none cursor-pointer">
+                                    Jadikan Tahun Pelajaran Aktif
+                                </label>
+                                <InputError message={errorsEdit.is_aktif} className="mt-1" />
+                            </div>
+
+                            <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+                                <button
+                                    type="button"
+                                    onClick={() => setModalEditBuka(false)}
+                                    className="px-4 py-2.5 text-xs font-bold text-slate-550 dark:text-slate-350 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all"
+                                >
+                                    Batal
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={processingEdit}
+                                    className="flex items-center gap-2 px-5 py-2.5 bg-[#000066] hover:bg-blue-950 text-white rounded-xl text-xs font-bold shadow-md transition-all"
+                                >
+                                    <span className="material-symbols-rounded text-sm">save</span>
+                                    {processingEdit ? 'Menyimpan...' : 'Perbarui'}
                                 </button>
                             </div>
                         </form>

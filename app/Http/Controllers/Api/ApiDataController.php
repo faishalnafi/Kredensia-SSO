@@ -76,7 +76,7 @@ class ApiDataController extends Controller
     {
         $query = User::with(['roles:id,nama_role', 'kelas', 'kelas.tahunPelajaran']);
 
-        # Filter pencarian pencocokan umum (nama, username, NIK, NISN/NIP, email)
+        # Filter pencarian pencocokan umum (nama, username, NIK, NISN/NIP, email, agama)
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
@@ -84,8 +84,14 @@ class ApiDataController extends Controller
                   ->orWhere('username', 'like', "%{$search}%")
                   ->orWhere('nik', 'like', "%{$search}%")
                   ->orWhere('nip_nis', 'like', "%{$search}%")
+                  ->orWhere('agama', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%");
             });
+        }
+
+        # Filter spesifik agama
+        if ($request->filled('agama')) {
+            $query->where('agama', $request->input('agama'));
         }
 
         # Filter spesifik email atau username
@@ -121,7 +127,7 @@ class ApiDataController extends Controller
 
         $perPage = min((int) $request->input('per_page', 50), 100);
 
-        $data = $query->select(['id', 'nama_lengkap', 'username', 'email', 'nik', 'nip_nis', 'jk', 'no_telp', 'tgl_lahir', 'is_active', 'claimed_at', 'created_at', 'updated_at', 'kelas_id'])
+        $data = $query->select(['id', 'nama_lengkap', 'username', 'email', 'nik', 'nip_nis', 'jk', 'agama', 'no_telp', 'tgl_lahir', 'is_active', 'claimed_at', 'created_at', 'updated_at', 'kelas_id'])
             ->orderBy('nama_lengkap')
             ->paginate($perPage);
 
@@ -146,7 +152,7 @@ class ApiDataController extends Controller
         $kunci = strtolower(trim(ltrim($id, '@')));
 
         $pengguna = User::with(['roles:id,nama_role', 'kelas', 'kelas.tahunPelajaran'])
-            ->select(['id', 'nama_lengkap', 'username', 'email', 'nik', 'nip_nis', 'jk', 'no_telp', 'tgl_lahir', 'is_active', 'claimed_at', 'created_at', 'updated_at', 'kelas_id'])
+            ->select(['id', 'nama_lengkap', 'username', 'email', 'nik', 'nip_nis', 'jk', 'agama', 'no_telp', 'tgl_lahir', 'is_active', 'claimed_at', 'created_at', 'updated_at', 'kelas_id'])
             ->where('id', $id)
             ->orWhere('username', $kunci)
             ->orWhere('email', $kunci)

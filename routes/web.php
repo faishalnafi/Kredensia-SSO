@@ -137,6 +137,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Manajemen Pengguna untuk Admin
     Route::get('/manajemen-pengguna', [ManajemenPenggunaController::class, 'indeks'])->name('pengguna.indeks');
+    Route::get('/manajemen-pengguna/unduh-rekap', [ManajemenPenggunaController::class, 'unduhRekap'])->name('pengguna.unduh-rekap');
     Route::post('/manajemen-pengguna', [ManajemenPenggunaController::class, 'simpan'])->name('pengguna.simpan');
     Route::put('/manajemen-pengguna/{id}', [ManajemenPenggunaController::class, 'perbarui'])->name('pengguna.perbarui');
     Route::delete('/manajemen-pengguna/{id}', [ManajemenPenggunaController::class, 'hapus'])->name('pengguna.hapus');
@@ -192,6 +193,7 @@ Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmi
     Route::delete('/manajemen-peran/{id}', [ManajemenPeranController::class, 'hapus'])->name('peran.hapus');
 
     Route::get('/manajemen-pengguna', [ManajemenPenggunaController::class, 'indeks'])->name('pengguna.indeks');
+    Route::get('/manajemen-pengguna/unduh-rekap', [ManajemenPenggunaController::class, 'unduhRekap'])->name('pengguna.unduh-rekap');
     Route::post('/manajemen-pengguna', [ManajemenPenggunaController::class, 'simpan'])->name('pengguna.simpan');
     Route::put('/manajemen-pengguna/{id}', [ManajemenPenggunaController::class, 'perbarui'])->name('pengguna.perbarui');
     Route::delete('/manajemen-pengguna/{id}', [ManajemenPenggunaController::class, 'hapus'])->name('pengguna.hapus');

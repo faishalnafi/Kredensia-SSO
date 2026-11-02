@@ -33,6 +33,7 @@ class BiodataWajibController extends Controller
                 'nik'         => $user->nik,
                 'nip_nis'     => $user->nip_nis,
                 'jk'          => $user->jk,
+                'agama'       => $user->agama,
                 'tgl_lahir'   => $user->tgl_lahir?->format('Y-m-d'),
                 'no_telp'     => $user->no_telp,
                 'alamat'      => $user->alamat,
@@ -62,6 +63,7 @@ class BiodataWajibController extends Controller
         $validated = $request->validate([
             'nama_lengkap' => ['required', 'string', 'min:3', 'max:255'],
             'jk'           => ['required', 'string', 'in:L,P'],
+            'agama'        => ['nullable', 'string', 'max:50'],
             'tgl_lahir'    => ['required', 'date', 'before:today'],
             'nik'          => ['required', 'string', 'size:16', 'regex:/^[0-9]+$/'],
             'nip_nis'      => ['required', 'string', 'regex:/^[0-9]+$/', 'max:18'],

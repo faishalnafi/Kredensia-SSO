@@ -22,6 +22,7 @@ class UserCorrection extends Model
         'email',
         'password',
         'jk',
+        'agama',
         'tgl_lahir',
         'nik',
         'nip_nis',
